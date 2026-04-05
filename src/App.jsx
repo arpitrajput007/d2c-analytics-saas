@@ -103,7 +103,7 @@ function Dashboard({ store, session }) {
   );
 }
 
-export default App = () => {
+export default function App() {
   const [session, setSession] = useState(null);
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -143,7 +143,7 @@ export default App = () => {
     setLoading(false);
   };
 
-  if (loading) return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
+  if (loading) return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>Loading SaaS Analytics...</div>;
 
   return (
     <Routes>
@@ -159,4 +159,4 @@ export default App = () => {
       } />
     </Routes>
   );
-};
+}
