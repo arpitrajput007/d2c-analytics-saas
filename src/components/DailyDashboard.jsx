@@ -27,7 +27,7 @@ export default function DailyDashboard() {
             AI MARGIN LEAK DETECTED
           </div>
           <p style={{ margin: '0 0 12px 0', fontSize: '15px', color: 'var(--text-main)', lineHeight: 1.5 }}>
-            <strong>SKU 'A-12'</strong> logistics cost increased by 4% this week while RTOs jumped to 21%. You are losing ₹42 per order on this item.
+            <strong>SKU &apos;A-12&apos;</strong> logistics cost increased by 4% this week while RTOs jumped to 21%. You are losing ₹42 per order on this item.
           </p>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button className="primary" style={{ padding: '6px 14px', fontSize: '13px', background: 'var(--loss-color)', color: '#fff', boxShadow: 'none' }}>Optimize Pricing →</button>
@@ -100,13 +100,13 @@ export default function DailyDashboard() {
       <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
         <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
           <h3 style={{ margin: 0 }}>Live Transaction Feed</h3>
-          <span className="badge live">Listening for Shopfiy Webhooks...</span>
+          <span className="badge live">Listening for Shopify Webhooks...</span>
         </div>
         <div className="daily-feed-container" style={{ padding: '24px' }}>
           <div className="empty-state">
             <div className="empty-state-icon" style={{ fontSize: '48px', color: 'var(--text-dim)' }}>🛡️</div>
             <div className="empty-state-text">Your system is ready.</div>
-            <div className="empty-state-sub">Click "Sync" to pull your orders and reveal your exact profitability.</div>
+            <div className="empty-state-sub">Click &quot;Sync&quot; to pull your orders and reveal your exact profitability.</div>
           </div>
         </div>
       </div>
