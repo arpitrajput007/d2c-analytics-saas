@@ -37,152 +37,169 @@ export default function Onboarding({ session }) {
     }
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
   const prevStep = () => setStep(s => Math.max(s - 1, 0));
 
   return (
-    <div className="onboard-page">
-      <div className="onboard-card">
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'var(--primary-gradient)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: '0 0 20px var(--primary-glow)' }}>📊</div>
-          <div style={{ fontFamily: 'Outfit', fontSize: '16px', fontWeight: 800, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            D2C Analytics Setup
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* Top Header for Escape Hatch */}
+      <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'rgba(10, 10, 16, 0.8)', backdropFilter: 'blur(24px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '32px', height: '32px', background: 'var(--primary-gradient)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 0 16px var(--primary-glow)' }}>📊</div>
+          <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            D2C Analytics
           </div>
         </div>
+        <button className="ghost" style={{ fontSize: '13px', padding: '8px 16px' }} onClick={handleSignOut}>
+          Sign Out / Back to Login
+        </button>
+      </header>
 
-        {/* Step Indicators */}
-        <div className="onboard-steps">
-          {STEPS.map((label, i) => (
-            <React.Fragment key={i}>
-              <div className={`onboard-step ${i === step ? 'active' : i < step ? 'done' : ''}`}>
-                <div className="onboard-step-num">{i < step ? '✓' : i + 1}</div>
-                <div className="onboard-step-label">{label}</div>
-              </div>
-              {i < STEPS.length - 1 && <div className="onboard-step-line" />}
-            </React.Fragment>
-          ))}
-        </div>
+      <div className="onboard-page" style={{ flex: 1, padding: '40px 20px' }}>
+        <div className="onboard-card">
+          <h1 style={{ margin: '0 0 32px 0', fontFamily: 'Outfit', fontSize: '26px', fontWeight: 800 }}>
+            Let's build your dashboard
+          </h1>
 
-        <form onSubmit={handleOnboard}>
-          {/* Step 0 — Store Name */}
-          {step === 0 && (
-            <div style={{ animation: 'fadeInUp 0.3s ease' }}>
-              <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
-                Name your store
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
-                This will appear on your dashboard and analytics reports.
-              </p>
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Store Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={storeName}
-                  onChange={e => setStoreName(e.target.value)}
-                  placeholder="e.g. Acme Apparel Co."
-                  style={{ width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px', color: 'white', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.2s' }}
-                  onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                  onBlur={e => e.target.style.borderColor = 'var(--border)'}
-                />
-              </div>
-              <button type="button" className="primary" style={{ width: '100%', padding: '13px' }} onClick={nextStep} disabled={!storeName.trim()}>
-                Continue →
-              </button>
-            </div>
-          )}
+          {/* Step Indicators */}
+          <div className="onboard-steps">
+            {STEPS.map((label, i) => (
+              <React.Fragment key={i}>
+                <div className={`onboard-step ${i === step ? 'active' : i < step ? 'done' : ''}`}>
+                  <div className="onboard-step-num">{i < step ? '✓' : i + 1}</div>
+                  <div className="onboard-step-label">{label}</div>
+                </div>
+                {i < STEPS.length - 1 && <div className="onboard-step-line" />}
+              </React.Fragment>
+            ))}
+          </div>
 
-          {/* Step 1 — Shopify */}
-          {step === 1 && (
-            <div style={{ animation: 'fadeInUp 0.3s ease' }}>
-              <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
-                Connect Shopify
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
-                We need read-only access to your orders and products data.
-              </p>
-
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Shopify Domain</label>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+          <form onSubmit={handleOnboard}>
+            {/* Step 0 — Store Name */}
+            {step === 0 && (
+              <div style={{ animation: 'fadeInUp 0.3s ease' }}>
+                <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
+                  Name your store
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
+                  This will appear on your dashboard and analytics reports.
+                </p>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Store Name
+                  </label>
                   <input
                     type="text"
                     required
-                    value={shopifyDomain}
-                    onChange={e => setShopifyDomain(e.target.value)}
-                    placeholder="your-store-name"
-                    style={{ flex: 1, padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px 0 0 8px', color: 'white', borderRight: 'none', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'inherit', outline: 'none' }}
+                    value={storeName}
+                    onChange={e => setStoreName(e.target.value)}
+                    placeholder="e.g. Acme Apparel Co."
+                    style={{ width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px', color: 'white', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.2s' }}
+                    onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
                   />
-                  <div style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '0 8px 8px 0', color: 'var(--text-muted)', fontSize: '13px', whiteSpace: 'nowrap' }}>
-                    .myshopify.com
-                  </div>
                 </div>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Custom App Access Token
-                </label>
-                <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '8px', lineHeight: 1.5 }}>
-                  Create a custom app in Shopify Admin with <code style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: '4px' }}>read_orders</code> & <code style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: '4px' }}>read_products</code> scopes.
-                </p>
-                <input
-                  type="password"
-                  required
-                  value={accessToken}
-                  onChange={e => setAccessToken(e.target.value)}
-                  placeholder="shpat_..."
-                  style={{ width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px', color: 'white', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: '14px', outline: 'none' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>← Back</button>
-                <button type="button" className="primary" style={{ flex: 2, padding: '13px' }} onClick={nextStep} disabled={!shopifyDomain.trim() || !accessToken.trim()}>
+                <button type="button" className="primary" style={{ width: '100%', padding: '13px' }} onClick={nextStep} disabled={!storeName.trim()}>
                   Continue →
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Step 2 — Brand Color */}
-          {step === 2 && (
-            <div style={{ animation: 'fadeInUp 0.3s ease' }}>
-              <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
-                Set your brand color
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
-                This color will be used throughout your dashboard to match your brand identity.
-              </p>
+            {/* Step 1 — Shopify */}
+            {step === 1 && (
+              <div style={{ animation: 'fadeInUp 0.3s ease' }}>
+                <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
+                  Connect Shopify
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
+                  We need read-only access to your orders and products data.
+                </p>
 
-              <div style={{ marginBottom: '28px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <input
-                    type="color"
-                    value={themeColor}
-                    onChange={e => setThemeColor(e.target.value)}
-                    style={{ width: '56px', height: '56px', padding: '0', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px' }}
-                  />
-                  <div>
-                    <div style={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: '16px', color: themeColor }}>{themeColor.toUpperCase()}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Click the swatch to change</div>
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Shopify Domain</label>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      required
+                      value={shopifyDomain}
+                      onChange={e => setShopifyDomain(e.target.value)}
+                      placeholder="your-store-name"
+                      style={{ flex: 1, padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px 0 0 8px', color: 'white', borderRight: 'none', boxSizing: 'border-box', fontSize: '14px', fontFamily: 'inherit', outline: 'none' }}
+                    />
+                    <div style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '0 8px 8px 0', color: 'var(--text-muted)', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                      .myshopify.com
+                    </div>
                   </div>
-                  <div style={{ marginLeft: 'auto', width: '80px', height: '40px', borderRadius: '8px', background: `linear-gradient(135deg, ${themeColor}, #111)`, boxShadow: `0 0 20px ${themeColor}40` }} />
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Custom App Access Token
+                  </label>
+                  <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '8px', lineHeight: 1.5 }}>
+                    Create a custom app in Shopify Admin with <code style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: '4px' }}>read_orders</code> & <code style={{ background: 'rgba(255,255,255,0.05)', padding: '1px 6px', borderRadius: '4px' }}>read_products</code> scopes.
+                  </p>
+                  <input
+                    type="password"
+                    required
+                    value={accessToken}
+                    onChange={e => setAccessToken(e.target.value)}
+                    placeholder="shpat_..."
+                    style={{ width: '100%', padding: '12px 14px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', borderRadius: '8px', color: 'white', boxSizing: 'border-box', fontFamily: 'monospace', fontSize: '14px', outline: 'none' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>← Back</button>
+                  <button type="button" className="primary" style={{ flex: 2, padding: '13px' }} onClick={nextStep} disabled={!shopifyDomain.trim() || !accessToken.trim()}>
+                    Continue →
+                  </button>
                 </div>
               </div>
+            )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>← Back</button>
-                <button type="submit" className="primary" style={{ flex: 2, padding: '13px', fontSize: '15px' }} disabled={loading}>
-                  {loading ? '⟳ Setting up your dashboard...' : '🚀 Launch Analytics'}
-                </button>
+            {/* Step 2 — Brand Color */}
+            {step === 2 && (
+              <div style={{ animation: 'fadeInUp 0.3s ease' }}>
+                <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800 }}>
+                  Set your brand color
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
+                  This color will be used throughout your dashboard to match your brand identity.
+                </p>
+
+                <div style={{ marginBottom: '28px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                    <input
+                      type="color"
+                      value={themeColor}
+                      onChange={e => setThemeColor(e.target.value)}
+                      style={{ width: '56px', height: '56px', padding: '0', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px' }}
+                    />
+                    <div>
+                      <div style={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: '16px', color: themeColor }}>{themeColor.toUpperCase()}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Click the swatch to change</div>
+                    </div>
+                    <div style={{ marginLeft: 'auto', width: '80px', height: '40px', borderRadius: '8px', background: `linear-gradient(135deg, ${themeColor}, #111)`, boxShadow: `0 0 20px ${themeColor}40` }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>← Back</button>
+                  <button type="submit" className="primary" style={{ flex: 2, padding: '13px', fontSize: '15px' }} disabled={loading}>
+                    {loading ? '⟳ Setting up your dashboard...' : '🚀 Launch Analytics'}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </form>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );
