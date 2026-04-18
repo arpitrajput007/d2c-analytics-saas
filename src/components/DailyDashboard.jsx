@@ -1,42 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+const QUICK_FILTERS = ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days'];
 
 export default function DailyDashboard() {
+  const [activeFilter, setActiveFilter] = useState('Last 30 Days');
+
   return (
-    <div className="view-content active" style={{ animation: 'fadeInUp 0.4s ease forwards' }}>
-      <div className="controls-bar glass" style={{ marginBottom: '24px' }}>
+    <div style={{ animation: 'fadeInUp 0.35s ease forwards' }}>
+      {/* Scoreboard Controls */}
+      <div className="controls-bar" style={{ marginBottom: '16px' }}>
         <div style={{ flex: 1 }}>
-          <h2 style={{ margin: 0, fontSize: '18px' }}>Profit/Loss Scoreboard</h2>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '1px' }}>
+            P&L Scoreboard
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Calculate profit & loss across any date range</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Start Date</label>
-            <input type="date" className="date-input" style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', colorScheme: 'dark', cursor: 'pointer' }} />
+            <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-dim)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Start</label>
+            <input type="date" style={{ padding: '7px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'white', colorScheme: 'dark', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }} />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>End Date</label>
-            <input type="date" className="date-input" style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', color: 'white', colorScheme: 'dark', cursor: 'pointer' }} />
+            <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-dim)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>End</label>
+            <input type="date" style={{ padding: '7px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.3)', color: 'white', colorScheme: 'dark', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }} />
           </div>
-          <button className="primary" style={{ alignSelf: 'flex-end', padding: '7px 16px' }}>Calculate</button>
+          <button className="primary" style={{ alignSelf: 'flex-end', padding: '7px 18px', fontSize: '13px' }}>
+            Calculate
+          </button>
         </div>
       </div>
 
+      {/* Daily Feed Controls */}
       <div className="controls-bar">
-        <h2 style={{ margin: 0, fontSize: '18px', flex: 1 }}>Daily Feed</h2>
-        <div className="date-picker">
-          <label style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>Start Date:</label>
-          <input type="date" />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '1px' }}>
+            Daily Order Feed
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>View day-by-day order breakdown</div>
         </div>
-        <div className="date-picker">
-          <label style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>End Date:</label>
-          <input type="date" />
+        <div className="filter-chips">
+          {QUICK_FILTERS.map(f => (
+            <div
+              key={f}
+              className={`filter-chip ${activeFilter === f ? 'active' : ''}`}
+              onClick={() => setActiveFilter(f)}
+            >
+              {f}
+            </div>
+          ))}
         </div>
-        <button className="primary">Fetch Feed</button>
+        <button className="primary" style={{ fontSize: '13px', padding: '8px 16px' }}>
+          Fetch Feed
+        </button>
       </div>
 
+      {/* Feed Content */}
       <div className="daily-feed-container">
-        {/* Day blocks will render here */}
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-          No daily feed data currently loaded. Sync database to view.
+        <div className="empty-state">
+          <div className="empty-state-icon">📭</div>
+          <div className="empty-state-text">No daily feed data loaded</div>
+          <div className="empty-state-sub">Select a date range and click "Fetch Feed" to load your orders</div>
         </div>
       </div>
     </div>

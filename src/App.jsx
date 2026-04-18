@@ -16,84 +16,169 @@ import AllTimeView from './components/AllTimeView';
 import Paywall from './components/Paywall';
 import AICopilot from './components/AICopilot';
 
+const NAV_ITEMS = [
+  { id: 'daily',     label: 'Daily Feed',          icon: '📊', section: 'Analytics' },
+  { id: 'sheet',     label: 'Sheet View',           icon: '📋', section: 'Analytics' },
+  { id: 'products',  label: 'Products',             icon: '📦', section: 'Analytics' },
+  { id: 'weekly',    label: 'Weekly',               icon: '📅', section: 'Reports' },
+  { id: 'monthly',   label: 'Monthly',              icon: '🗓️', section: 'Reports' },
+  { id: 'all-time',  label: 'All Time',             icon: '📈', section: 'Reports' },
+  { id: 'pricing',   label: 'Pricing',              icon: '💰', section: 'PRO', pro: true },
+  { id: 'analytics', label: 'Business Analytics',   icon: '🧠', section: 'PRO', pro: true },
+];
+
 function Dashboard({ store, session }) {
   const [activeTab, setActiveTab] = useState('daily');
   const [intelDrawerOpen, setIntelDrawerOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // A real implementation would check store.plan_type === 'pro'
-  // For demo logic, we'll hardcode it to check if they specifically upgraded
   const isPro = store?.plan_type === 'pro';
 
-  const tabs = [
-    { id: 'daily', label: 'Daily' },
-    { id: 'sheet', label: 'Sheet View' },
-    { id: 'products', label: 'Products' },
-    { id: 'pricing', label: 'Pricing 🔒' },
-    { id: 'weekly', label: 'Weekly' },
-    { id: 'monthly', label: 'Monthly' },
-    { id: 'all-time', label: 'All Time' },
-    { id: 'analytics', label: 'Business Analytics 🔒' }
-  ];
+  const activeNav = NAV_ITEMS.find(n => n.id === activeTab);
+  const sections = [...new Set(NAV_ITEMS.map(n => n.section))];
+
+  const handleNavClick = (id) => {
+    setActiveTab(id);
+    setMobileSidebarOpen(false);
+  };
 
   return (
-    <div className="container">
-      <header>
-        <h1>{store.store_name} Analytics <span style={{fontSize: '12px', background: 'var(--primary)', color: '#000', padding: '2px 6px', borderRadius: '4px', verticalAlign: 'middle', marginLeft: '8px'}}>PRO</span></h1>
-        <div className="header-controls">
-          <button 
-            id="btn-intel-toggle" 
-            onClick={() => setIntelDrawerOpen(!intelDrawerOpen)}
-          >
-            <span>✨</span> Co-Pilot
-          </button>
-          <button id="btn-sync-now" className="primary" onClick={() => alert('Trigger Backend Shopify Sync here!')}>
-            Sync Data
-          </button>
-          <button onClick={() => supabase.auth.signOut()} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>Logout</button>
-        </div>
-      </header>
+    <div className="app-shell">
+      {/* Sidebar Overlay (mobile) */}
+      <div
+        className={`sidebar-overlay ${mobileSidebarOpen ? 'visible' : ''}`}
+        onClick={() => setMobileSidebarOpen(false)}
+      />
 
-      <div className="tabs">
-        {tabs.map(tab => (
-          <div 
-            key={tab.id}
-            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
+      {/* ===== SIDEBAR ===== */}
+      <aside className={`sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">📊</div>
+          <div>
+            <div className="sidebar-logo-text">D2C Analytics</div>
+            <div className="sidebar-logo-sub">POWERED BY GEMINI AI</div>
           </div>
-        ))}
+        </div>
+
+        <nav className="sidebar-nav">
+          {sections.map(section => (
+            <div key={section}>
+              <div className="nav-section-label">{section}</div>
+              {NAV_ITEMS.filter(n => n.section === section).map(item => (
+                <div
+                  key={item.id}
+                  className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(item.id)}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                  {item.pro && !isPro && <span className="nav-lock">🔒</span>}
+                  {item.pro && isPro && <span className="nav-badge">PRO</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-store-info" onClick={() => supabase.auth.signOut()}>
+            <div className="store-avatar">
+              {store.store_name?.charAt(0)?.toUpperCase() || 'S'}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="store-name-small">{store.store_name}</div>
+              <div className="store-plan">{isPro ? '✦ PRO Plan' : 'Free Plan'}</div>
+            </div>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>↩</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="main-content">
+        {/* Top Bar */}
+        <header className="topbar">
+          <div className="topbar-left">
+            <button
+              className="mobile-nav-toggle"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              aria-label="Toggle navigation"
+            >
+              ☰
+            </button>
+            <div>
+              <div className="page-title">{activeNav?.label || 'Dashboard'}</div>
+            </div>
+          </div>
+
+          <div className="topbar-right">
+            <div className="pro-badge">
+              ✦ PRO
+            </div>
+            <button
+              id="btn-intel-toggle"
+              onClick={() => setIntelDrawerOpen(!intelDrawerOpen)}
+            >
+              ✨ Co-Pilot
+            </button>
+            <button
+              id="btn-sync-now"
+              className="primary"
+              style={{ padding: '8px 16px', fontSize: '13px' }}
+              onClick={() => alert('Trigger Backend Shopify Sync here!')}
+            >
+              ⟳ Sync
+            </button>
+          </div>
+        </header>
+
+        {/* Page Views */}
+        <div className="page-content">
+          <div style={{ animation: 'fadeInUp 0.35s ease forwards' }}>
+            {activeTab === 'daily'    && <DailyDashboard />}
+            {activeTab === 'sheet'    && <SheetView />}
+            {activeTab === 'products' && <ProductsView />}
+            {activeTab === 'weekly'   && <WeeklyView />}
+            {activeTab === 'monthly'  && <MonthlyView />}
+            {activeTab === 'all-time' && <AllTimeView />}
+
+            {activeTab === 'pricing' && (
+              <Paywall isPro={isPro}>
+                <PricingView />
+              </Paywall>
+            )}
+
+            {activeTab === 'analytics' && (
+              <Paywall isPro={isPro}>
+                <BusinessAnalytics />
+              </Paywall>
+            )}
+          </div>
+        </div>
       </div>
 
-      {activeTab === 'daily' && <DailyDashboard />}
-      {activeTab === 'sheet' && <SheetView />}
-      {activeTab === 'products' && <ProductsView />}
-      {activeTab === 'weekly' && <WeeklyView />}
-      {activeTab === 'monthly' && <MonthlyView />}
-      {activeTab === 'all-time' && <AllTimeView />}
-      
-      {/* Monetized Features wrapped in Paywall */}
-      {activeTab === 'pricing' && (
-        <Paywall isPro={isPro}>
-          <PricingView />
-        </Paywall>
-      )}
-      
-      {activeTab === 'analytics' && (
-        <Paywall isPro={isPro}>
-          <BusinessAnalytics />
-        </Paywall>
-      )}
-
-      {/* Intelligence Drawer powered by AI Co-Pilot */}
+      {/* AI Co-Pilot Drawer */}
       <div id="intel-drawer" className={`intel-drawer ${intelDrawerOpen ? 'active' : ''}`}>
         <div className="intel-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h3 style={{ margin: 0, fontSize: '18px' }}>✨ AI Co-Pilot</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '8px',
+              background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '16px', boxShadow: '0 0 16px rgba(139,92,246,0.3)'
+            }}>✨</div>
+            <div>
+              <div style={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: '16px' }}>AI Co-Pilot</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Powered by Gemini</div>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button id="btn-intel-close" style={{ background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer' }} onClick={() => setIntelDrawerOpen(false)}>&times;</button>
-          </div>
+          <button
+            id="btn-intel-close"
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '22px', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}
+            onClick={() => setIntelDrawerOpen(false)}
+          >
+            ✕
+          </button>
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <AICopilot store={store} />
@@ -131,7 +216,7 @@ export default function App() {
       .select('*')
       .eq('owner_id', userId)
       .single();
-    
+
     if (data) {
       setStore(data);
       if (data.primary_color) {
@@ -143,13 +228,18 @@ export default function App() {
     setLoading(false);
   };
 
-  if (loading) return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>Loading SaaS Analytics...</div>;
+  if (loading) return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
+      <div className="spinner" />
+      <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500 }}>Loading your analytics...</div>
+    </div>
+  );
 
   return (
     <Routes>
       <Route path="/" element={
-        !session ? <Auth /> : 
-        !store ? <Navigate to="/onboard" /> : 
+        !session ? <Auth /> :
+        !store ? <Navigate to="/onboard" /> :
         <Dashboard store={store} session={session} />
       } />
       <Route path="/onboard" element={

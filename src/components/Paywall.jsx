@@ -5,35 +5,49 @@ export default function Paywall({ children, isPro }) {
     return <>{children}</>;
   }
 
+  const features = [
+    'Advanced pricing management & margin calculator',
+    'Full business analytics with cohort insights',
+    'Unlimited historical data & export',
+  ];
+
   return (
-    <div className="view-content active" style={{ animation: 'fadeInUp 0.4s ease forwards', position: 'relative' }}>
-      <div style={{ filter: 'blur(8px)', opacity: 0.4, pointerEvents: 'none' }}>
+    <div style={{ position: 'relative', minHeight: '400px' }}>
+      {/* Blurred background content */}
+      <div style={{ filter: 'blur(8px)', opacity: 0.3, pointerEvents: 'none', userSelect: 'none' }}>
         {children}
       </div>
-      
-      <div style={{ 
-        position: 'absolute', 
-        top: '50%', 
-        left: '50%', 
-        transform: 'translate(-50%, -50%)', 
-        background: 'rgba(24, 24, 27, 0.95)', 
-        border: '1px solid var(--primary)', 
-        padding: '40px', 
-        borderRadius: '16px', 
-        textAlign: 'center',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
-        zIndex: 10,
-        maxWidth: '400px',
-        width: '100%'
-      }}>
-        <div style={{ fontSize: '32px', marginBottom: '16px' }}>🔒</div>
-        <h2 style={{ margin: '0 0 12px 0', color: 'white' }}>Unlock PRO Analytics</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px', lineHeight: '1.5' }}>
-          This module requires an active PRO subscription. Upgrade now to get deeper insights, pricing management, and full historical analytics.
+
+      {/* Paywall Card */}
+      <div className="paywall-card">
+        <div className="paywall-icon">🚀</div>
+
+        <h2 style={{ margin: '0 0 8px 0', fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800, color: 'var(--text-main)' }}>
+          Unlock PRO Analytics
+        </h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>
+          Get access to advanced features built for scaling D2C brands.
         </p>
-        <button className="primary" style={{ width: '100%', padding: '14px 20px', fontSize: '15px' }} onClick={() => alert('Initiating Stripe Checkout Flow...')}>
-          Upgrade to PRO - ₹1,499/mo
+
+        <div className="paywall-features">
+          {features.map((f, i) => (
+            <div key={i} className="paywall-feature">
+              <div className="paywall-feature-check">✓</div>
+              <span>{f}</span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          className="shimmer-btn"
+          onClick={() => alert('Initiating Stripe Checkout Flow...')}
+        >
+          ✦ Upgrade to PRO — ₹1,499/mo
         </button>
+
+        <div style={{ marginTop: '12px', fontSize: '11px', color: 'var(--text-dim)' }}>
+          Cancel anytime · Instant access · Secure via Stripe
+        </div>
       </div>
     </div>
   );
