@@ -17,7 +17,7 @@ import Paywall from './components/Paywall';
 import AICopilot from './components/AICopilot';
 
 const NAV_ITEMS = [
-  { id: 'daily',     label: 'Daily Feed',          icon: '📊', section: 'Analytics' },
+  { id: 'daily',     label: 'Command Center',      icon: '🛡️', section: 'Analytics' },
   { id: 'sheet',     label: 'Sheet View',           icon: '📋', section: 'Analytics' },
   { id: 'products',  label: 'Products',             icon: '📦', section: 'Analytics' },
   { id: 'weekly',    label: 'Weekly',               icon: '📅', section: 'Reports' },
@@ -53,9 +53,9 @@ function Dashboard({ store, session }) {
       {/* ===== SIDEBAR ===== */}
       <aside className={`sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">📊</div>
+          <div className="sidebar-logo-icon">🛡️</div>
           <div>
-            <div className="sidebar-logo-text">D2C Analytics</div>
+            <div className="sidebar-logo-text">Profit Control</div>
             <div className="sidebar-logo-sub">POWERED BY GEMINI AI</div>
           </div>
         </div>
