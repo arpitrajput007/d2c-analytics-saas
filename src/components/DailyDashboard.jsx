@@ -86,7 +86,7 @@ export default function DailyDashboard() {
         <div className="metric-card glow-yellow">
           <div className="metric-label">Net Margin %</div>
           <div className="metric-value" style={{ color: 'var(--primary)' }}>0.0%</div>
-          <div className="metric-sub">Healthy threshold: > 20%</div>
+          <div className="metric-sub">Healthy threshold: &gt; 20%</div>
         </div>
         
         <div className="metric-card glow-white">
