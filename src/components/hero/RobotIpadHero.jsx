@@ -59,22 +59,22 @@ export default function RobotIpadHero() {
 
   const headlines = [
     {
-      kicker: "DASHBOARD · P&L",
-      title: "Know your real profit.",
-      sub: "Not just revenue.",
-      body: "Orders, ad spend, COGS, shipping & RTO — stitched into one live number you can trust.",
+      kicker: "TODAY · LIVE",
+      title: "Your real profit,",
+      sub: "updating by the second.",
+      body: "Orders, fulfilment, RTO, ad spend and net profit — stitched into one live dashboard that auto-refreshes with every Shopify and Shiprocket webhook.",
     },
     {
-      kicker: "OPERATIONS · LOSSES",
-      title: "Find every rupee that leaks.",
-      sub: "Before it hurts.",
-      body: "RTO trends, unreachable orders, failing PIN codes and SKU-level margin — surfaced automatically.",
+      kicker: "THIS WEEK · TRENDS",
+      title: "Spot leaks before",
+      sub: "they dent your cash flow.",
+      body: "Canceled orders, possibility-of-RTO, unreachable customers and failed deliveries — 7-day rollups so you see patterns, not just numbers.",
     },
     {
-      kicker: "AI CO-PILOT",
-      title: "Ask your business anything.",
-      sub: "Get answers, not dashboards.",
-      body: "Plain-language Q&A over your own data, with specific suggestions you can apply with one tap.",
+      kicker: "THIS MONTH · MARGIN",
+      title: "Know what to double down on.",
+      sub: "And what to cut.",
+      body: "SKU-level profit, prepaid vs cash split, ROAS and MER for the full month — with a co-pilot that tells you exactly where to shift ad spend.",
     },
   ];
 
@@ -211,13 +211,13 @@ export default function RobotIpadHero() {
             </div>
           </div>
 
-          {/* Right stage: robot + iPad (landscape) */}
+          {/* Right stage: robot + iPad (enlarged landscape) */}
           <div className="lg:col-span-7 order-1 lg:order-2 relative">
             <div
               className="relative mx-auto"
               style={{
                 width: "100%",
-                maxWidth: 720,
+                maxWidth: 860,
                 aspectRatio: "1 / 1",
               }}
               data-testid="robot-stage"
@@ -259,15 +259,15 @@ export default function RobotIpadHero() {
                 )}
               </div>
 
-              {/* iPad overlay — positioned ON the tablet the robot is holding.
-                  Percentages match the generated robot image's tablet coords. */}
+              {/* iPad overlay — enlarged and floating slightly in front of the robot tablet.
+                  Percentages keep it centered on the tablet area. */}
               <div
                 className="absolute z-10"
                 style={{
-                  left: "21%",
-                  top: "44%",
-                  width: "58%",
-                  height: "40%",
+                  left: "15%",
+                  top: "40%",
+                  width: "70%",
+                  height: "50%",
                 }}
                 data-testid="ipad-stage"
               >
@@ -298,64 +298,19 @@ export default function RobotIpadHero() {
 function FloatingCallouts({ sceneIndex }) {
   const sets = [
     [
-      {
-        pos: "top-8 -left-6",
-        title: "Net Profit",
-        value: "+24.6%",
-        color: "#10b981",
-      },
-      {
-        pos: "top-40 -right-8",
-        title: "ROAS",
-        value: "4.82×",
-        color: "#a855f7",
-      },
-      {
-        pos: "bottom-24 -left-10",
-        title: "MER",
-        value: "3.41",
-        color: "#22d3ee",
-      },
+      { pos: "top-8 -left-6", title: "Net Today", value: "₹15,077", color: "#10b981" },
+      { pos: "top-40 -right-8", title: "Revenue", value: "₹61,062", color: "#ffffff" },
+      { pos: "bottom-24 -left-10", title: "RTO Risk", value: "5", color: "#ef4444" },
     ],
     [
-      {
-        pos: "top-8 -left-6",
-        title: "RTO Recovered",
-        value: "+22%",
-        color: "#10b981",
-      },
-      {
-        pos: "top-40 -right-8",
-        title: "Failed Delivery",
-        value: "194",
-        color: "#fb7185",
-      },
-      {
-        pos: "bottom-24 -left-10",
-        title: "Delivered",
-        value: "8,709",
-        color: "#22d3ee",
-      },
+      { pos: "top-8 -left-6", title: "Weekly Net", value: "₹1.08L", color: "#10b981" },
+      { pos: "top-40 -right-8", title: "Delivered", value: "241", color: "#22d3ee" },
+      { pos: "bottom-24 -left-10", title: "Ad Spend", value: "₹1.54L", color: "#f59e0b" },
     ],
     [
-      {
-        pos: "top-8 -left-6",
-        title: "Insight",
-        value: "+$6,210",
-        color: "#10b981",
-      },
-      {
-        pos: "top-40 -right-8",
-        title: "Risk",
-        value: "-₹48,200",
-        color: "#fb7185",
-      },
-      {
-        pos: "bottom-24 -left-10",
-        title: "Signal",
-        value: "CTR -31%",
-        color: "#22d3ee",
-      },
+      { pos: "top-8 -left-6", title: "March Net", value: "₹4.38L", color: "#10b981" },
+      { pos: "top-40 -right-8", title: "ROAS", value: "3.01×", color: "#a855f7" },
+      { pos: "bottom-24 -left-10", title: "Orders", value: "1,324", color: "#22d3ee" },
     ],
   ];
   const items = sets[sceneIndex];
