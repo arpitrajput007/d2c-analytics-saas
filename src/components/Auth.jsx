@@ -5,7 +5,7 @@ import { Shield } from "lucide-react";
 // Import all the newly copied Tailwind components
 import { AuroraBackground } from './aurora-background';
 import { SiteNav } from './site-nav';
-import { Hero } from './hero';
+import RobotIpadHero from './hero/RobotIpadHero';
 import { LogoMarquee } from './logo-marquee';
 import { Features } from './features';
 import { CopilotShowcase } from './copilot-showcase';
@@ -68,7 +68,7 @@ export default function Auth() {
       <SiteNav onSignInClick={() => openAuth(false)} />
       
       <main>
-        <Hero />
+        <RobotIpadHero />
         <LogoMarquee />
         <Features />
         <CopilotShowcase />
