@@ -1,42 +1,41 @@
-import {
-  Boxes,
-  Brain,
-  CalendarRange,
-  LineChart,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
+import { AlertTriangle, BarChart3, Brain, Clock, ShieldAlert, TrendingDown } from "lucide-react";
 
 const features = [
   {
-    icon: LineChart,
-    title: "Command Center",
-    desc: "Live profit, ROAS, MER and CAC across every channel — recomputed every 60 seconds.",
+    icon: BarChart3,
+    label: "Complete Business Visibility",
+    desc: "Orders, revenue, profit — all in one dashboard. Daily, weekly, monthly views with no more switching between tools.",
+    points: ["Orders & revenue in one place", "Daily, weekly, monthly views", "No more switching between tools"],
+  },
+  {
+    icon: TrendingDown,
+    label: "Profit Tracking That Actually Matters",
+    desc: "See your real profit after ads, shipping, and COD losses. Know which products make or lose money.",
+    points: ["Real profit after all costs", "SKU-level profitability", "Know what makes vs. loses money"],
+  },
+  {
+    icon: ShieldAlert,
+    label: "Loss & Risk Identification",
+    desc: "Spot high-risk orders — COD, unreachable, failed deliveries. Track RTO trends and identify where losses are coming from.",
+    points: ["High-risk order detection", "RTO trend tracking", "Loss source identification"],
   },
   {
     icon: Brain,
-    title: "Gemini Co-Pilot",
-    desc: "Ask anything in plain English. Get charts, cohorts, and budget reallocations in return.",
+    label: "Smart Insights (AI-Assisted)",
+    desc: "Get simple, actionable suggestions. Highlights unusual trends or issues so you know what needs attention today.",
+    points: ["Actionable suggestions", "Unusual trend detection", "Daily attention list"],
   },
   {
-    icon: Boxes,
-    title: "SKU-level economics",
-    desc: "True per-product margin after fees, shipping, returns and ad spend attribution.",
+    icon: AlertTriangle,
+    label: "Clarity Leads to Better Decisions",
+    desc: "Spend more on what works. Cut losses early. Improve cash flow. Scale only when the numbers make sense.",
+    points: ["Double down on what's working", "Cut losses early", "Scale with confidence"],
   },
   {
-    icon: CalendarRange,
-    title: "Daily · Weekly · Monthly",
-    desc: "Beautifully scoped reports with cohort retention and rolling growth deltas.",
-  },
-  {
-    icon: Zap,
-    title: "Shopify, Meta, Google",
-    desc: "One-click syncs. We normalize, dedupe and reconcile so your numbers actually match.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Owner-grade security",
-    desc: "SOC 2 Type II, row-level isolation, and read-only API scopes by default.",
+    icon: Clock,
+    label: "Save Hours Every Day",
+    desc: "No more manual tracking. No spreadsheets. No jumping between tools. Your entire business in one place.",
+    points: ["Zero manual data entry", "No spreadsheets needed", "Everything in one place"],
   },
 ];
 
@@ -46,43 +45,42 @@ export function Features() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-4 inline-flex rounded-full border border-glass-border bg-glass px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-            Platform
+            Features
           </div>
           <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Every number you actually <span className="text-gradient">care about</span>
+            One dashboard to run{" "}
+            <span className="text-gradient">your entire business.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Stop stitching spreadsheets at 1am. Profit Control is the calm, unified layer your
-            finance and growth teams have been waiting for.
+            Bring all your data into one place and understand exactly what's happening — in real time.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => {
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => {
             const Icon = f.icon;
             return (
-              <div
-                key={f.title}
-                className="gradient-border group relative overflow-hidden rounded-2xl"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                <div className="glass relative h-full rounded-2xl p-6 transition-transform duration-300 group-hover:-translate-y-1">
-                  {/* hover glow */}
+              <div key={f.label} className="gradient-border rounded-2xl">
+                <div className="glass h-full rounded-2xl p-6">
                   <div
-                    className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    style={{
-                      background:
-                        "radial-gradient(400px circle at 50% 0%, oklch(0.78 0.18 305 / 18%), transparent 60%)",
-                    }}
-                  />
-                  <span
-                    className="relative grid h-11 w-11 place-items-center rounded-xl"
+                    className="mb-4 grid h-10 w-10 place-items-center rounded-xl"
                     style={{ background: "var(--gradient-button)" }}
                   >
                     <Icon className="h-5 w-5 text-primary-foreground" />
-                  </span>
-                  <h3 className="relative mt-5 text-lg font-medium">{f.title}</h3>
-                  <p className="relative mt-2 text-sm text-muted-foreground">{f.desc}</p>
+                  </div>
+                  <div className="text-[15px] font-medium">{f.label}</div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {f.points.map((p) => (
+                      <li key={p} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span
+                          className="h-1 w-1 shrink-0 rounded-full"
+                          style={{ background: "var(--gradient-button)" }}
+                        />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             );

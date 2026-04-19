@@ -66,7 +66,7 @@ export function Pricing() {
             Simple, <span className="text-gradient">profit-focused</span> pricing
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Track your business clearly. Reduce losses. Save hours every day.
+            Start free. Upgrade when you're ready to take control.
           </p>
         </div>
 

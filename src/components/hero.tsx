@@ -9,30 +9,29 @@ export function Hero() {
         {/* Headline */}
         <h1
           className="animate-fade-up mx-auto max-w-4xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-7xl"
-          style={{ animationDelay: "80ms" }}
         >
-          The control room for{" "}
-          <span className="text-gradient">profitable D2C brands</span>
+          Know Your Real Profit.{" "}
+          <span className="text-gradient">Not Just Revenue.</span>
         </h1>
 
         <p
           className="animate-fade-up mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg"
-          style={{ animationDelay: "160ms" }}
+          style={{ animationDelay: "80ms" }}
         >
-          Real-time profit, ad spend, and unit economics from Shopify, Meta and Google —
-          unified into one luminous dashboard, narrated by an AI co-pilot.
+          Track your business clearly. Reduce losses. Save hours every day — and know
+          exactly when it's time to scale.
         </p>
 
         {/* CTAs */}
         <div
           className="animate-fade-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
-          style={{ animationDelay: "240ms" }}
+          style={{ animationDelay: "160ms" }}
         >
           <a
             href="#cta"
             className="btn-aurora group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
           >
-            Start free for 14 days
+            Start 14-Day Free Trial
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </a>
           <a
@@ -40,23 +39,23 @@ export function Hero() {
             className="glass inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-glass-strong"
           >
             <Sparkles className="h-4 w-4 text-accent" />
-            See it in motion
+            View Demo
           </a>
         </div>
 
         {/* Trust row */}
         <div
-          className="animate-fade-up mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground"
-          style={{ animationDelay: "320ms" }}
+          className="animate-fade-up mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground"
+          style={{ animationDelay: "240ms" }}
         >
           <span className="inline-flex items-center gap-1.5">
             <TrendingUp className="h-3.5 w-3.5 text-accent" />
-            Trusted by 1,200+ Shopify stores
+            No credit card required
           </span>
           <span className="opacity-40">·</span>
-          <span>SOC 2 Type II</span>
+          <span>Setup in under 10 minutes</span>
           <span className="opacity-40">·</span>
-          <span>99.99% uptime</span>
+          <span>Works with Shopify, WooCommerce &amp; COD businesses</span>
         </div>
       </div>
 
@@ -64,7 +63,7 @@ export function Hero() {
       <div
         id="dashboard"
         className="animate-fade-up relative mx-auto mt-16 max-w-6xl px-4"
-        style={{ animationDelay: "420ms" }}
+        style={{ animationDelay: "320ms" }}
       >
         <div
           className="absolute inset-x-12 -top-10 h-40 rounded-full opacity-70 blur-3xl"

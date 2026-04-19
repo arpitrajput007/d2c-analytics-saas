@@ -1,6 +1,6 @@
 const logos = [
-  "GLOWHAUS", "NORTHWIND", "AURORA CO.", "PEAK & POUR", "VOLT APPAREL",
-  "MOSSWOOD", "CINDERLY", "HALOFORM", "OFFGRID", "PRIMA NOTA",
+  "SHOPIFY", "WOOCOMMERCE", "SHIPROCKET", "ECOMEXPRESS", "DELHIVERY",
+  "META ADS", "GOOGLE ADS", "CASHFREE", "RAZORPAY", "AMAZON",
 ];
 
 export function LogoMarquee() {
@@ -8,7 +8,7 @@ export function LogoMarquee() {
     <section className="relative py-10">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mb-6 text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          Operating capital for modern commerce
+          Works with the tools you already use
         </div>
         <div
           className="relative overflow-hidden"
