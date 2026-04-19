@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient';
+import { Activity, ArrowUpRight, CircleDollarSign, ShoppingBag, Sparkles, TrendingUp } from "lucide-react";
 
 /* ─── SVG Icons ─────────────────────────────────────────────── */
 const ShieldIcon = () => (
@@ -8,74 +9,193 @@ const ShieldIcon = () => (
   </svg>
 );
 
-/* ─── Mouse-tilt 3D effect hook ─────────────────────────────── */
-function useTilt(ref, intensity = 12) {
-  useEffect(() => {
-    const el = ref?.current;
-    if (!el) return;
-    const handleMove = (e) => {
-      const rect = el.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width  - 0.5;
-      const y = (e.clientY - rect.top)  / rect.height - 0.5;
-      el.style.transform = `perspective(900px) rotateY(${x * intensity}deg) rotateX(${-y * intensity}deg) translateZ(8px)`;
-    };
-    const handleLeave = () => {
-      el.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) translateZ(0)';
-      el.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)';
-    };
-    const handleEnter = () => {
-      el.style.transition = 'transform 0.1s ease';
-    };
-    el.addEventListener('mousemove', handleMove);
-    el.addEventListener('mouseleave', handleLeave);
-    el.addEventListener('mouseenter', handleEnter);
-    return () => {
-      el.removeEventListener('mousemove', handleMove);
-      el.removeEventListener('mouseleave', handleLeave);
-      el.removeEventListener('mouseenter', handleEnter);
-    };
-  }, [ref, intensity]);
-}
-
-/* ─── Feature Card ───────────────────────────────────────────── */
-function FeatureCard({ icon, title, desc, roi, roiColor, gradient, delay }) {
-  const ref = useRef(null);
-  useTilt(ref, 10);
+/* ─── Aurora Background Component ───────────────────────────── */
+function AuroraBackground() {
   return (
-    <div
-      ref={ref}
-      className="feature-card"
-      style={{ animationDelay: delay, animation: 'fadeInUp 0.6s ease forwards', opacity: 0 }}
-    >
+    <div style={{ position: 'fixed', inset: 0, zIndex: -10, overflow: 'hidden', pointerEvents: 'none' }}>
+      {/* Base aurora gradient */}
+      <div className="bg-aurora animate-aurora-shift" style={{ position: 'absolute', inset: 0 }} />
+
+      {/* Floating blurred orbs */}
       <div
-        className="feature-icon-wrap"
-        style={{ background: gradient, boxShadow: `0 0 24px ${roiColor}30` }}
-      >
-        <span style={{ fontSize: '24px' }}>{icon}</span>
-      </div>
-      <h3>{title}</h3>
-      <p>{desc}</p>
-      <div className="feature-roi">
-        <span style={{ color: roiColor, fontWeight: 700 }}>Actionable ROI: </span>
-        {roi}
-      </div>
+        className="animate-float"
+        style={{ position: 'absolute', top: '-160px', left: '-160px', height: '520px', width: '520px', borderRadius: '50%', opacity: 0.6, filter: 'blur(64px)', background: 'radial-gradient(circle, var(--aurora-violet), transparent 70%)' }}
+      />
+      <div
+        className="animate-float-slow"
+        style={{ position: 'absolute', top: '33%', right: '-160px', height: '600px', width: '600px', borderRadius: '50%', opacity: 0.5, filter: 'blur(64px)', background: 'radial-gradient(circle, var(--aurora-cyan), transparent 70%)' }}
+      />
+      <div
+        className="animate-float"
+        style={{ position: 'absolute', bottom: '-160px', left: '25%', height: '520px', width: '520px', borderRadius: '50%', opacity: 0.4, filter: 'blur(64px)', background: 'radial-gradient(circle, var(--aurora-pink), transparent 70%)' }}
+      />
+
+      {/* Subtle grid overlay */}
+      <div className="grid-bg-aurora" style={{ position: 'absolute', inset: 0, opacity: 0.6 }} />
+
+      {/* Vignette */}
+      <div
+        style={{
+          position: 'absolute', inset: 0,
+          background: "radial-gradient(ellipse at center, transparent 40%, var(--bg-color) 100%)",
+        }}
+      />
     </div>
   );
 }
 
-/* ─── Stat counter ───────────────────────────────────────────── */
-function StatNum({ value, label }) {
+/* ─── Dashboard Preview Component ───────────────────────────── */
+const kpis = [
+  { label: "Net Profit", value: "$184,920", delta: "+24.6%", icon: CircleDollarSign },
+  { label: "Orders", value: "12,408", delta: "+8.1%", icon: ShoppingBag },
+  { label: "ROAS", value: "4.82×", delta: "+0.34", icon: TrendingUp },
+  { label: "MER", value: "3.41", delta: "+0.12", icon: Activity },
+];
+
+const PATH = "M0,140 C60,120 100,90 160,80 C220,70 260,110 320,95 C380,80 420,40 480,55 C540,70 580,30 640,20 C700,12 740,40 800,30";
+
+function DashboardPreview() {
   return (
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ fontFamily: 'Outfit', fontSize: '32px', fontWeight: 900, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-1px' }}>
-        {value}
+    <div className="gradient-border-aurora shadow-glass-aurora" style={{ position: 'relative', overflow: 'hidden', borderRadius: '24px', margin: '40px auto', maxWidth: '800px', textAlign: 'left' }}>
+      <div className="glass-aurora-strong" style={{ borderRadius: '24px', padding: '20px' }}>
+        {/* Window chrome */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px 12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ height: '10px', width: '10px', borderRadius: '50%', background: 'rgba(251, 113, 133, 0.8)' }} />
+            <span style={{ height: '10px', width: '10px', borderRadius: '50%', background: 'var(--aurora-cyan)' }} />
+            <span style={{ height: '10px', width: '10px', borderRadius: '50%', background: 'var(--aurora-violet)' }} />
+          </div>
+          <div style={{ fontSize: '11px', letterSpacing: '1px', color: 'var(--text-muted)' }}>
+            profitcontrol.app / command-center
+          </div>
+          <div className="gradient-border-aurora" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', borderRadius: '999px', padding: '4px 10px', fontSize: '10px', color: 'var(--aurora-cyan)' }}>
+            <span style={{ position: 'relative', display: 'flex', height: '6px', width: '6px' }}>
+              <span className="animate-pulse-glow" style={{ position: 'absolute', display: 'inline-flex', height: '100%', width: '100%', borderRadius: '50%', background: 'var(--aurora-cyan)', opacity: 0.75 }} />
+              <span style={{ position: 'relative', display: 'inline-flex', height: '6px', width: '6px', borderRadius: '50%', background: 'var(--aurora-cyan)' }} />
+            </span>
+            LIVE
+          </div>
+        </div>
+
+        {/* KPI grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', padding: '4px' }}>
+          {kpis.map((k) => {
+            const Icon = k.icon;
+            return (
+              <div
+                key={k.label}
+                className="glass-aurora"
+                style={{ borderRadius: '16px', padding: '16px', transition: 'transform 300ms', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>
+                    {k.label}
+                  </span>
+                  <Icon style={{ height: '16px', width: '16px', color: 'var(--aurora-cyan)' }} />
+                </div>
+                <div style={{ marginTop: '8px', fontSize: '24px', fontWeight: 600, letterSpacing: '-0.5px' }}>{k.value}</div>
+                <div style={{ marginTop: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--aurora-cyan)' }}>
+                  <ArrowUpRight style={{ height: '12px', width: '12px' }} />
+                  {k.delta}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Chart */}
+        <div className="glass-aurora" style={{ marginTop: '12px', borderRadius: '16px', padding: '16px' }}>
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 500 }}>Profit, last 30 days</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>After ad spend, COGS, fees</div>
+            </div>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {["7D", "30D", "90D", "All"].map((t, i) => (
+                <span
+                  key={t}
+                  style={{
+                    borderRadius: '999px', padding: '4px 10px', fontSize: '10px',
+                    background: i === 1 ? 'var(--glass-strong)' : 'transparent',
+                    color: i === 1 ? 'var(--text-main)' : 'var(--text-muted)'
+                  }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <svg viewBox="0 0 800 180" style={{ height: '160px', width: '100%', display: 'block' }}>
+            <defs>
+              <linearGradient id="profitFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--aurora-violet)" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="var(--aurora-violet)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="profitStroke" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="var(--aurora-cyan)" />
+                <stop offset="100%" stopColor="var(--aurora-pink)" />
+              </linearGradient>
+            </defs>
+
+            {/* grid */}
+            {[40, 80, 120, 160].map((y) => (
+              <line
+                key={y}
+                x1="0"
+                x2="800"
+                y1={y}
+                y2={y}
+                stroke="rgba(255,255,255,0.06)"
+                strokeDasharray="3 6"
+              />
+            ))}
+
+            {/* area */}
+            <path d={`${PATH} L800,180 L0,180 Z`} fill="url(#profitFill)" />
+
+            {/* line */}
+            <path
+              d={PATH}
+              fill="none"
+              stroke="url(#profitStroke)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+
+            {/* glowing dot */}
+            <circle cx="800" cy="30" r="5" fill="var(--aurora-cyan)" />
+            <circle cx="800" cy="30" r="10" fill="rgba(56, 189, 248, 0.3)">
+              <animate attributeName="r" values="6;14;6" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+
+        {/* AI insight strip */}
+        <div className="glass-aurora" style={{ marginTop: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px', borderRadius: '16px', padding: '16px' }}>
+          <span
+            style={{ marginTop: '2px', display: 'grid', placeItems: 'center', height: '32px', width: '32px', flexShrink: 0, borderRadius: '50%', background: 'var(--gradient-button)' }}
+          >
+            <Sparkles style={{ height: '16px', width: '16px', color: 'var(--bg-color)' }} />
+          </span>
+          <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
+            <span style={{ color: 'var(--text-muted)' }}>Co-Pilot · </span>
+            Your <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>"Hydra Serum"</span> SKU is your
+            top-margin product this week. Reallocate{" "}
+            <span style={{ color: 'var(--aurora-cyan)' }}>$1,840</span> of Meta spend from{" "}
+            <span style={{ color: 'var(--text-main)' }}>"Daily Cleanser"</span> for an estimated{" "}
+            <span style={{ color: 'var(--aurora-cyan)' }}>+$6,210 net profit</span>.
+          </div>
+        </div>
       </div>
-      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.3px', marginTop: '2px' }}>{label}</div>
     </div>
   );
 }
 
-/* ─── Main Auth Component ────────────────────────────────────── */
+/* ─── Main Auth Component (The Landing Page) ─────────────────── */
 export default function Auth() {
   const [loading, setLoading]             = useState(false);
   const [email, setEmail]                 = useState('');
@@ -83,12 +203,6 @@ export default function Auth() {
   const [isSignUp, setIsSignUp]           = useState(false);
   const [error, setError]                 = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  /* Pricing card tilt refs */
-  const proCardRef = useRef(null);
-  const freeCardRef = useRef(null);
-  useTilt(proCardRef, 8);
-  useTilt(freeCardRef, 8);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -113,58 +227,46 @@ export default function Auth() {
     setIsAuthModalOpen(true);
   };
 
+  const features = [
+    { title: "Expose Margin Leakage", desc: "You think you're profitable, but RTO, packaging, and logistics fees are eating your margins silently every single day.", icon: "💸" },
+    { title: "AI Risk Detection", desc: "You need immediate alerts when a SKU becomes unprofitable before it destroys your margins.", icon: "🤖" },
+    { title: "Total Profit Control", desc: "Stop relying on your CA at month-end. See your full financial health in real-time.", icon: "🛡️" }
+  ];
+
+  const logos = [
+    "GLOWHAUS", "NORTHWIND", "AURORA CO.", "PEAK & POUR", "VOLT APPAREL",
+    "MOSSWOOD", "CINDERLY", "HALOFORM", "OFFGRID", "PRIMA NOTA",
+  ];
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-color)', color: 'var(--text-main)', position: 'relative', overflowX: 'hidden' }}>
+    <div className="auth-page-root">
+      <AuroraBackground />
 
-      {/* ── Animated ambient orbs ── */}
-      <div className="auth-orb auth-orb-1" />
-      <div className="auth-orb auth-orb-2" />
-      <div className="auth-orb auth-orb-3" />
-
-      {/* ── Particle dots ── */}
-      {[...Array(12)].map((_, i) => (
-        <div key={i} style={{
-          position: 'fixed',
-          width: '3px', height: '3px',
-          borderRadius: '50%',
-          background: i % 3 === 0 ? 'var(--primary)' : i % 3 === 1 ? 'var(--purple)' : 'var(--profit-color)',
-          top: `${10 + i * 7.5}%`,
-          left: `${5 + i * 8}%`,
-          opacity: 0.35,
-          animation: `particle-float ${6 + i * 0.7}s ease-in-out infinite`,
-          animationDelay: `${i * 0.4}s`,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }} />
-      ))}
-
-      {/* ── NAVBAR ── */}
+      {/* ── SiteNav ── */}
       <nav style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '20px 48px',
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(4,4,10,0.8)',
-        backdropFilter: 'blur(24px)',
+        background: 'rgba(4,4,10,0.6)',
+        backdropFilter: 'blur(24px) saturate(180%)',
         borderBottom: '1px solid var(--border)',
       }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '11px', cursor: 'pointer' }}>
           <div style={{
             width: '36px', height: '36px',
-            background: 'var(--primary-gradient)',
+            background: 'var(--gradient-button)',
             borderRadius: '10px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 0 1px rgba(245,200,66,0.3), 0 0 24px rgba(245,200,66,0.35)',
+            boxShadow: '0 0 0 1px rgba(167, 139, 250, 0.3), var(--shadow-glow-aurora)',
           }}>
             <ShieldIcon />
           </div>
-          <div style={{ fontFamily: 'Outfit', fontSize: '19px', fontWeight: 800, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.3px' }}>
-            Profit Control
+          <div style={{ fontFamily: 'Outfit', fontSize: '20px', fontWeight: 800, background: 'var(--text-main)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.3px' }}>
+            Profit<span className="text-gradient">Control</span>
           </div>
         </div>
 
-        {/* Nav links */}
-        <div style={{ display: 'flex', gap: '28px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
           {['Features', 'Pricing', 'Blog'].map(l => (
             <span key={l} style={{ fontSize: '14px', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 500, transition: 'color 0.2s' }}
               onMouseEnter={e => e.target.style.color = 'var(--text-main)'}
@@ -173,338 +275,204 @@ export default function Auth() {
           ))}
         </div>
 
-        {/* Auth buttons */}
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="ghost" style={{ padding: '9px 20px', fontSize: '13.5px' }} onClick={() => openAuth(false)}>Log In</button>
-          <button className="primary" style={{ padding: '9px 22px', fontSize: '13.5px' }} onClick={() => openAuth(true)}>Get Started →</button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="ghost" style={{ padding: '9px 20px', fontSize: '13.5px' }} onClick={() => openAuth(false)}>Sign in</button>
+          <button className="btn-aurora" style={{ padding: '9px 22px', fontSize: '13.5px', color: '#000' }} onClick={() => openAuth(true)}>Launch app</button>
         </div>
       </nav>
 
-      {/* ══════════════════════════════════════════════════════════
-          HERO
-      ══════════════════════════════════════════════════════════ */}
-      <section className="hero-section">
-
-        {/* Eyebrow */}
-        <div className="hero-eyebrow">
-          Built for Shopify brands doing ₹1L – ₹50L / month
-        </div>
-
-        {/* Headline */}
-        <h1 className="hero-headline">
-          You're losing money<br />without knowing it.<br />
-          <span>This fixes that.</span>
-        </h1>
-
-        {/* Sub */}
-        <p className="hero-sub">
-          Not just another analytics dashboard. A <strong>Profit Control System</strong> that actively
-          hunts down margin leakage, RTO losses, and hidden costs — before they drain your bank account.
-        </p>
-
-        {/* CTAs */}
-        <div className="hero-cta-group">
-          <button
-            className="primary"
-            style={{ fontSize: '16px', padding: '15px 36px', borderRadius: '12px', boxShadow: '0 12px 36px rgba(245,200,66,0.35)' }}
-            onClick={() => openAuth(true)}
-          >
-            Stop the Margin Leak →
-          </button>
-          <button
-            className="ghost"
-            style={{ fontSize: '14px', padding: '15px 28px', borderRadius: '12px' }}
-            onClick={() => openAuth(false)}
-          >
-            See a Demo
-          </button>
-        </div>
-        <div className="hero-trust">
-          <span>✦ No credit card required</span>
-          <span>✦ 14-day free trial</span>
-          <span>✦ Setup in 2 minutes</span>
-        </div>
-
-        {/* Stats bar */}
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: '60px',
-          marginTop: '56px', marginBottom: '0',
-          padding: '24px 40px',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid var(--border)',
-          borderRadius: '16px',
-          maxWidth: '600px',
-          margin: '56px auto 0',
-        }}>
-          <StatNum value="₹2.4Cr+" label="Profit Tracked" />
-          <div style={{ width: '1px', background: 'var(--border)' }} />
-          <StatNum value="340+" label="Brands Trust Us" />
-          <div style={{ width: '1px', background: 'var(--border)' }} />
-          <StatNum value="4.9★" label="Satisfaction" />
-        </div>
-
-        {/* 3D Dashboard Mockup */}
-        <div className="hero-mockup-wrapper">
-          <div className="hero-mockup">
-            {/* Title bar */}
-            <div className="hero-mockup-titlebar">
-              <div className="mockup-dot mockup-dot-red" />
-              <div className="mockup-dot mockup-dot-yellow" />
-              <div className="mockup-dot mockup-dot-green" />
-              <div className="hero-mockup-url">
-                <span style={{ opacity: 0.3, fontSize: '11px' }}>🔒</span>
-                <span className="mockup-url-text">profitcontrol.app/dashboard</span>
-              </div>
-            </div>
-
-            {/* Body: sidebar + content */}
-            <div className="hero-mockup-body">
-              {/* Sidebar */}
-              <div className="mockup-sidebar">
-                {['🛡️','📋','📦','📅','🗓️','📈'].map((icon, i) => (
-                  <div key={i} className={`mockup-nav-dot ${i === 0 ? 'active-dot' : ''}`}>
-                    <div className={`mockup-nav-bar ${i === 0 ? 'active' : ''}`} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Main content */}
-              <div className="mockup-content">
-                {/* Metric cards */}
-                <div className="mockup-metrics">
-                  <div className="mockup-metric-card m-green">
-                    <div className="mockup-metric-label" />
-                    <div className="mockup-metric-value" />
-                  </div>
-                  <div className="mockup-metric-card m-red">
-                    <div className="mockup-metric-label" />
-                    <div className="mockup-metric-value" />
-                  </div>
-                  <div className="mockup-metric-card m-yellow">
-                    <div className="mockup-metric-label" />
-                    <div className="mockup-metric-value" />
-                  </div>
-                  <div className="mockup-metric-card m-purple">
-                    <div className="mockup-metric-label" />
-                    <div className="mockup-metric-value" />
-                  </div>
-                </div>
-
-                {/* AI Risk panel */}
-                <div className="mockup-ai-panel">
-                  <div className="mockup-ai-icon" />
-                  <div className="mockup-ai-lines">
-                    <div className="mockup-line l-80" />
-                    <div className="mockup-line l-60" />
-                  </div>
-                </div>
-
-                {/* Chart */}
-                <div className="mockup-chart">
-                  <div className="mockup-chart-bars">
-                    {[35,55,42,68,50,72,45,80,60,90,70,85].map((h, i) => (
-                      <div key={i} className={`mockup-bar ${h > 75 ? 'bar-high' : i === 9 ? 'bar-red' : ''}`} style={{ height: `${h}%` }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          FEATURES
-      ══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '100px 20px', position: 'relative', zIndex: 10 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px', fontFamily: 'Inter' }}>
-              Why Profit Control
-            </div>
-            <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 900, letterSpacing: '-1px', margin: '0 0 18px 0' }}>
-              Make Decisions. Not Spreadsheets.
-            </h2>
-            <p style={{ fontSize: '17px', color: 'var(--text-muted)', maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
-              Built for brand owners who want to know their real profit — not their accountant's version of it.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-            <FeatureCard
-              icon="💸"
-              title="Expose Margin Leakage"
-              desc="You think you're profitable, but Return to Origin (RTO), packaging, and hidden logistics fees are eating your margins silently every single day."
-              roi="We calculate true net profit automatically so you know your real break-even ROAS."
-              roiColor="var(--loss-color)"
-              gradient="linear-gradient(135deg, rgba(251,113,133,0.15), rgba(251,113,133,0.05))"
-              delay="0s"
-            />
-            <FeatureCard
-              icon="🤖"
-              title="AI Risk Detection"
-              desc="Looking at 50 columns of data doesn't tell you what to do next. You need immediate alerts when a SKU becomes unprofitable before it destroys your margins."
-              roi='Get told exactly what to fix. E.g., "SKU A-12 shipping cost rose 4%. Raise SP by ₹50."'
-              roiColor="var(--purple)"
-              gradient="linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.05))"
-              delay="0.1s"
-            />
-            <FeatureCard
-              icon="🛡️"
-              title="Total Profit Control"
-              desc="Stop relying on your CA at month-end to know if your business survived. See your full financial health in real-time, synced directly from Shopify."
-              roi="Instantly sync Shopify. Cut losing products. Double down on winners — today."
-              roiColor="var(--profit-color)"
-              gradient="linear-gradient(135deg, rgba(45,212,160,0.15), rgba(45,212,160,0.05))"
-              delay="0.2s"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          PRICING
-      ══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '100px 20px', position: 'relative', zIndex: 10, background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px', fontFamily: 'Inter' }}>
-            Pricing
-          </div>
-          <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 900, letterSpacing: '-1px', margin: '0 0 14px 0' }}>
-            Simple, Transparent Pricing
-          </h2>
-          <p style={{ fontSize: '17px', color: 'var(--text-muted)', marginBottom: '72px', lineHeight: 1.7 }}>
-            An investment that pays for itself by catching a single margin leak.
+      {/* ── Hero ── */}
+      <section style={{ paddingTop: '100px', paddingBottom: '40px', textAlign: 'center', paddingLeft: '20px', paddingRight: '20px' }}>
+        <div className="animate-fade-up" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h1 style={{ fontFamily: 'Outfit', fontSize: 'clamp(48px, 6vw, 76px)', fontWeight: 800, letterSpacing: '-2px', lineHeight: 1.1, marginBottom: '24px' }}>
+            <span style={{ color: 'var(--text-main)' }}>The control room for</span>
+            <br />
+            <span className="text-gradient">profitable D2C brands</span>
+          </h1>
+          <p style={{ fontSize: '18px', color: 'var(--text-muted)', maxWidth: '640px', margin: '0 auto 40px', lineHeight: 1.6 }}>
+            Real-time profit, ad spend, and unit economics from Shopify, Meta and Google — unified into one luminous dashboard, narrated by an AI co-pilot.
           </p>
-
-          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.08fr', gap: '24px', alignItems: 'center' }}>
-
-            {/* Free Tier */}
-            <div
-              ref={freeCardRef}
-              style={{
-                background: 'rgba(12,12,22,0.8)',
-                border: '1px solid var(--border-light)',
-                borderRadius: 'var(--radius-xl)',
-                padding: '36px',
-                textAlign: 'left',
-                backdropFilter: 'blur(20px)',
-                transition: 'box-shadow 0.3s ease',
-                transformStyle: 'preserve-3d',
-                willChange: 'transform',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)' }} />
-              <div style={{ fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800, marginBottom: '6px', color: 'var(--text-main)' }}>Starter</div>
-              <div style={{ fontFamily: 'Outfit', fontSize: '42px', fontWeight: 900, marginBottom: '8px', letterSpacing: '-2px' }}>
-                Free<span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 400, letterSpacing: 0 }}>/forever</span>
-              </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-dim)', marginBottom: '28px' }}>Perfect to get started, no commitment.</div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', fontSize: '14.5px', lineHeight: 2.2 }}>
-                {['Connect 1 Shopify Store', 'Daily Feed & Order Sync', 'Basic P&L Tracking'].map(f => (
-                  <li key={f} style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ color: 'var(--profit-color)', fontSize: '12px' }}>✓</span> {f}
-                  </li>
-                ))}
-                {['No AI Risk Insights', '7-Day Data History Only'].map(f => (
-                  <li key={f} style={{ color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ opacity: 0.4 }}>✕</span> {f}
-                  </li>
-                ))}
-              </ul>
-              <button className="ghost" style={{ width: '100%', padding: '13px', borderRadius: '10px', fontWeight: 600 }} onClick={() => openAuth(true)}>
-                Start Free
-              </button>
-            </div>
-
-            {/* PRO Tier — animated gradient border */}
-            <div className="pricing-card-pro" ref={proCardRef} style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
-              <div className="pricing-card-pro-inner">
-                {/* Most Popular badge */}
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center', gap: '6px',
-                  background: 'var(--primary-gradient)',
-                  color: '#000',
-                  fontSize: '10px', fontWeight: 800,
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  marginBottom: '20px',
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase',
-                  fontFamily: 'Outfit',
-                  boxShadow: '0 4px 16px rgba(245,200,66,0.3)',
-                }}>
-                  ✦ Most Popular
-                </div>
-
-                <div style={{ fontFamily: 'Outfit', fontSize: '22px', fontWeight: 800, color: 'var(--primary)', marginBottom: '6px' }}>Growth PRO</div>
-                <div style={{ fontFamily: 'Outfit', fontSize: '42px', fontWeight: 900, marginBottom: '8px', letterSpacing: '-2px' }}>
-                  ₹1,499<span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 400, letterSpacing: 0 }}>/mo</span>
-                </div>
-                <div style={{ fontSize: '13px', color: 'var(--text-dim)', marginBottom: '28px' }}>
-                  Save 30% vs. individual tools. ROI in week 1.
-                </div>
-
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0', fontSize: '14.5px', lineHeight: 2.2 }}>
-                  {[
-                    'Unlimited Shopify Sync',
-                    'Full Profit Control System',
-                    'Real-time AI Risk Alerts',
-                    'Unlimited Historical Data',
-                    'Priority Support (24h response)',
-                  ].map(f => (
-                    <li key={f} style={{ color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ color: 'var(--profit-color)', fontSize: '12px', textShadow: '0 0 8px var(--profit-color)' }}>✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className="primary"
-                  style={{ width: '100%', padding: '15px', borderRadius: '10px', fontSize: '15px', letterSpacing: '0.2px' }}
-                  onClick={() => openAuth(true)}
-                >
-                  Start 14-Day Free Trial →
-                </button>
-
-                <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '12px', color: 'var(--text-dim)' }}>
-                  No credit card required. Cancel anytime.
-                </div>
-              </div>
-            </div>
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+            <button className="btn-aurora" onClick={() => openAuth(true)}>Start free for 14 days</button>
+            <button className="ghost" style={{ padding: '12px 24px', borderRadius: '8px', fontWeight: 600 }} onClick={() => openAuth(false)}>See it in motion</button>
           </div>
+        </div>
+        
+        <div className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <DashboardPreview />
+        </div>
+      </section>
 
-          {/* Trust row */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', marginTop: '52px', flexWrap: 'wrap' }}>
-            {['🔒 Secure & Encrypted', '📊 Shopify Official Partner', '🚀 Setup in 2 mins', '💬 Chat Support'].map(t => (
-              <span key={t} style={{ fontSize: '13px', color: 'var(--text-dim)', fontWeight: 600 }}>{t}</span>
+      {/* ── Logo Marquee ── */}
+      <section style={{ padding: '40px 0', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ textAlign: 'center', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--text-muted)', marginBottom: '24px' }}>
+          Operating capital for modern commerce
+        </div>
+        <div style={{ display: 'flex', overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
+          <div className="animate-marquee" style={{ display: 'flex', gap: '48px', whiteSpace: 'nowrap', width: 'max-content' }}>
+            {[...logos, ...logos].map((name, i) => (
+              <span key={i} style={{ fontSize: '18px', fontWeight: 600, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>
+                {name}
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          FOOTER
-      ══════════════════════════════════════════════════════════ */}
-      <footer style={{ padding: '40px 48px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', background: 'var(--primary-gradient)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 16px rgba(245,200,66,0.3)' }}>
-            <ShieldIcon />
-          </div>
-          <span style={{ fontFamily: 'Outfit', fontSize: '15px', fontWeight: 700, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Profit Control
-          </span>
+      {/* ── Features ── */}
+      <section style={{ padding: '100px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, marginBottom: '16px' }}>Every number you actually care about</h2>
+          <p style={{ fontSize: '18px', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>Stop stitching spreadsheets at 1am. Profit Control is the calm, unified layer your finance and growth teams have been waiting for.</p>
         </div>
-        <div style={{ fontSize: '13px', color: 'var(--text-dim)' }}>
-          © 2026 Profit Control · Built for D2C brands that want to win.
-        </div>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {['Privacy', 'Terms', 'Contact'].map(l => (
-            <span key={l} style={{ fontSize: '13px', color: 'var(--text-dim)', cursor: 'pointer', fontWeight: 500 }}>{l}</span>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+          {features.map((f, i) => (
+            <div key={i} className="glass-aurora feature-card-aurora">
+              <div className="feature-icon-aurora" style={{ background: 'var(--gradient-button)', color: '#000', fontSize: '24px' }}>
+                {f.icon}
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>{f.title}</h3>
+              <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>{f.desc}</p>
+            </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── Copilot Showcase ── */}
+      <section style={{ padding: '100px 20px', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '64px' }}>
+          <div style={{ flex: '1 1 500px' }}>
+            <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>
+              Talk to your business <span className="text-gradient">like it's 2050.</span>
+            </h2>
+            <p style={{ fontSize: '18px', color: 'var(--text-muted)', marginBottom: '32px', lineHeight: 1.6 }}>
+              Ask anything — from "what's my blended ROAS?" to "draft my investor update." The Co-Pilot reads every signal in your store and answers with charts, numbers, and actions you can ship in one click.
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[
+                "Why did my profit drop yesterday?",
+                "Which SKU is causing the highest RTO loss?",
+                "Is it safe to scale Meta campaigns today?",
+              ].map((q, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', borderRadius: '12px', background: 'var(--glass)', border: '1px solid var(--glass-border)' }}>
+                  <Sparkles style={{ color: 'var(--aurora-cyan)', width: '20px', height: '20px' }} />
+                  <span style={{ fontSize: '15px' }}>{q}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div style={{ flex: '1 1 500px', position: 'relative' }}>
+             <div className="gradient-border-aurora shadow-glow-aurora" style={{ borderRadius: '24px', padding: '2px' }}>
+               <div className="glass-aurora-strong" style={{ borderRadius: '22px', padding: '32px', minHeight: '400px' }}>
+                 <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--gradient-button)', display: 'grid', placeItems: 'center' }}>
+                     <Sparkles style={{ color: '#000', width: '20px', height: '20px' }} />
+                   </div>
+                   <div style={{ flex: 1 }}>
+                     <div style={{ background: 'var(--glass-strong)', border: '1px solid var(--glass-border)', padding: '16px', borderRadius: '0 16px 16px 16px' }}>
+                       I noticed your blended ROAS dipped to 2.4 yesterday due to high Meta spend on "Volume Mascara".
+                       <br/><br/>
+                       However, your Net Profit actually <strong>increased by 12%</strong> because organic sales of high-margin skincare bundles offset the ad inefficiency.
+                     </div>
+                   </div>
+                 </div>
+                 <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
+                   <div style={{ background: 'var(--aurora-cyan)', color: '#000', padding: '12px 20px', borderRadius: '16px 16px 0 16px', fontWeight: 500 }}>
+                     Should I pause the Mascara ads?
+                   </div>
+                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--surface-hover)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     U
+                   </div>
+                 </div>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section style={{ padding: '100px 20px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, marginBottom: '16px' }}>
+            Simple, profit-aligned pricing
+          </h2>
+          <p style={{ fontSize: '18px', color: 'var(--text-muted)', marginBottom: '64px' }}>
+            Start free. Upgrade when your dashboard makes you money.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', alignItems: 'center' }}>
+            {/* Free Tier */}
+            <div className="glass-aurora" style={{ borderRadius: '24px', padding: '40px', textAlign: 'left' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>Starter</div>
+              <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '-2px', marginBottom: '12px' }}>
+                $0<span style={{ fontSize: '16px', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0' }}>/mo</span>
+              </div>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>Perfect for new brands tracking basic profit.</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {["1 Store Connection", "Daily Sync", "Basic Metrics", "7-Day History"].map((f, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-muted)' }}>
+                    <span style={{ color: 'var(--aurora-cyan)' }}>✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <button className="ghost" style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 600 }} onClick={() => openAuth(true)}>Get Started</button>
+            </div>
+
+            {/* Pro Tier */}
+            <div className="gradient-border-aurora shadow-glow-aurora" style={{ borderRadius: '24px', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: 'var(--gradient-button)', color: '#000', padding: '4px 16px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', zIndex: 1 }}>
+                Most Popular
+              </div>
+              <div className="glass-aurora-strong" style={{ borderRadius: '24px', padding: '48px 40px', textAlign: 'left' }}>
+                <div style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: 'var(--aurora-cyan)' }}>Growth PRO</div>
+                <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '-2px', marginBottom: '12px' }}>
+                  $99<span style={{ fontSize: '16px', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0' }}>/mo</span>
+                </div>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>Everything you need to scale profitably.</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {["Unlimited Store Connections", "Real-time Sync", "AI Co-Pilot Included", "Unlimited History"].map((f, i) => (
+                    <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-main)' }}>
+                      <span style={{ color: 'var(--aurora-violet)', textShadow: '0 0 8px var(--aurora-violet)' }}>✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <button className="btn-aurora" style={{ width: '100%', padding: '16px', borderRadius: '12px', fontSize: '16px' }} onClick={() => openAuth(true)}>Start 14-day trial</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer style={{ borderTop: '1px solid var(--glass-border)', background: 'var(--bg-color)', position: 'relative', zIndex: 10 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 20px', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'Outfit', fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 800, letterSpacing: '-1px', marginBottom: '24px' }}>
+            Run your store from the future.
+          </h2>
+          <p style={{ fontSize: '18px', color: 'var(--text-muted)', marginBottom: '40px' }}>
+            Connect Shopify in 60 seconds. See your real profit before your next ad spend decision.
+          </p>
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+            <button className="btn-aurora" onClick={() => openAuth(true)}>Start free for 14 days</button>
+            <button className="ghost" style={{ padding: '12px 24px', borderRadius: '8px', fontWeight: 600 }}>Book a demo</button>
+          </div>
+        </div>
+        
+        <div style={{ borderTop: '1px solid var(--border)', padding: '32px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '24px', height: '24px', background: 'var(--gradient-button)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ShieldIcon />
+            </div>
+            <span style={{ fontFamily: 'Outfit', fontWeight: 700, fontSize: '18px', color: 'var(--text-main)' }}>ProfitControl</span>
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+            © 2026 Profit Control. All rights reserved.
+          </div>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            {['Privacy', 'Terms', 'Status'].map(l => (
+              <span key={l} style={{ fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 500 }}>{l}</span>
+            ))}
+          </div>
         </div>
       </footer>
 
@@ -514,10 +482,10 @@ export default function Auth() {
       {isAuthModalOpen && (
         <div
           className="modal-overlay active"
-          style={{ zIndex: 9999 }}
+          style={{ zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)' }}
           onClick={(e) => { if (e.target === e.currentTarget) setIsAuthModalOpen(false); }}
         >
-          <div className="auth-card" style={{ position: 'relative' }}>
+          <div className="auth-card gradient-border-aurora" style={{ position: 'relative', background: 'var(--bg-secondary)', borderRadius: '24px', padding: '40px', maxWidth: '440px', width: '100%', boxShadow: 'var(--shadow-glow-aurora)' }}>
             {/* Close */}
             <button
               onClick={() => setIsAuthModalOpen(false)}
@@ -527,18 +495,18 @@ export default function Auth() {
             >✕</button>
 
             {/* Logo */}
-            <div className="auth-logo">
-              <div className="auth-logo-icon">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+              <div style={{ width: '40px', height: '40px', background: 'var(--gradient-button)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <ShieldIcon />
               </div>
-              <div className="auth-logo-name">Profit Control</div>
+              <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: 'var(--text-main)' }}>Profit Control</div>
             </div>
 
             {/* Heading */}
-            <h1 className="auth-title">
+            <h1 style={{ fontFamily: 'Outfit', fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>
               {isSignUp ? 'Launch your Command Center' : 'Welcome back'}
             </h1>
-            <p className="auth-subtitle">
+            <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '15px' }}>
               {isSignUp
                 ? 'Create an account to securely sync your Shopify data.'
                 : 'Sign in to access your real-time risk dashboard.'}
@@ -546,12 +514,12 @@ export default function Auth() {
 
             <form onSubmit={handleAuth}>
               {/* Email */}
-              <div className="auth-input-group">
-                <span className="auth-input-icon">✉️</span>
+              <div style={{ marginBottom: '16px', position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>✉️</span>
                 <input
                   id="auth-email"
                   type="email"
-                  className="auth-input"
+                  style={{ width: '100%', padding: '14px 14px 14px 44px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', color: 'white', outline: 'none' }}
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -560,12 +528,12 @@ export default function Auth() {
               </div>
 
               {/* Password */}
-              <div className="auth-input-group">
-                <span className="auth-input-icon">🔒</span>
+              <div style={{ marginBottom: '24px', position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>🔒</span>
                 <input
                   id="auth-password"
                   type="password"
-                  className="auth-input"
+                  style={{ width: '100%', padding: '14px 14px 14px 44px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', color: 'white', outline: 'none' }}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -574,7 +542,7 @@ export default function Auth() {
               </div>
 
               {error && (
-                <div style={{ color: 'var(--loss-color)', fontSize: '13px', marginBottom: '14px', padding: '10px 14px', background: 'rgba(251,113,133,0.08)', borderRadius: '8px', border: '1px solid rgba(251,113,133,0.2)' }}>
+                <div style={{ color: 'var(--loss-color)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(251,113,133,0.08)', borderRadius: '8px', border: '1px solid rgba(251,113,133,0.2)' }}>
                   ⚠️ {error}
                 </div>
               )}
@@ -582,7 +550,8 @@ export default function Auth() {
               <button
                 id="auth-submit"
                 type="submit"
-                className="primary auth-submit"
+                className="btn-aurora"
+                style={{ width: '100%', padding: '16px', fontSize: '15px' }}
                 disabled={loading}
               >
                 {loading
@@ -591,23 +560,11 @@ export default function Auth() {
               </button>
             </form>
 
-            {/* Social proof */}
-            <div className="auth-social-proof">
-              <div className="auth-avatars">
-                {['R', 'A', 'S', 'K', 'M'].map((l, i) => (
-                  <div key={i} className="auth-avatar" style={{ background: ['#f5c842','#a78bfa','#2dd4a0','#fb7185','#60a5fa'][i], color: i===0?'#000':'#fff' }}>
-                    {l}
-                  </div>
-                ))}
-              </div>
-              <div className="auth-social-proof-text">Trusted by 340+ Shopify brands across India</div>
-            </div>
-
             {/* Toggle */}
-            <div className="auth-toggle">
+            <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: 'var(--text-muted)' }}>
               {isSignUp ? 'Already have an account? ' : 'New brand owner? '}
               <span
-                className="auth-toggle-link"
+                style={{ color: 'var(--aurora-cyan)', cursor: 'pointer', fontWeight: 600 }}
                 onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
               >
                 {isSignUp ? 'Sign in' : 'Sign up free'}

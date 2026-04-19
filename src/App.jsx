@@ -83,13 +83,13 @@ function Dashboard({ store, session }) {
       <aside className={`sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon" style={{ fontSize: '0' }}>
+          <div className="sidebar-logo-icon" style={{ fontSize: '0', background: 'var(--gradient-button)', boxShadow: '0 0 0 1px rgba(167, 139, 250, 0.3), var(--shadow-glow-aurora)' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
           <div>
-            <div className="sidebar-logo-text">Profit Control</div>
+            <div className="sidebar-logo-text" style={{ background: 'var(--text-main)' }}>ProfitControl</div>
             <div className="sidebar-logo-sub">Powered by Gemini AI</div>
           </div>
         </div>
@@ -165,9 +165,11 @@ function Dashboard({ store, session }) {
 
             <button
               id="btn-intel-toggle"
+              className="btn-aurora"
               onClick={() => setIntelDrawerOpen(!intelDrawerOpen)}
+              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 16px', fontSize: '13px' }}
             >
-              <span style={{ display: 'flex', width: '16px', height: '16px', color: 'var(--purple)' }}>
+              <span style={{ display: 'flex', width: '16px', height: '16px', color: '#000' }}>
                 {icons.sparkle}
               </span>
               Co-Pilot
@@ -308,11 +310,11 @@ export default function App() {
       {/* Animated logo */}
       <div style={{
         width: '52px', height: '52px',
-        background: 'var(--primary-gradient)',
+        background: 'var(--gradient-button)',
         borderRadius: '14px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 0 40px rgba(245,200,66,0.4)',
-        animation: 'float-slow 2s ease-in-out infinite',
+        boxShadow: 'var(--shadow-glow-aurora)',
+        animation: 'float-aurora 2s ease-in-out infinite',
       }}>
         <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '26px' }}>
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>

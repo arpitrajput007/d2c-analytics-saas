@@ -58,6 +58,30 @@
   --purple-glow:  rgba(167, 139, 250, 0.18);
   --accent:       #f5c842;
 
+  /* Aurora palette */
+  --aurora-violet: rgba(167, 139, 250, 1);
+  --aurora-cyan: rgba(56, 189, 248, 1);
+  --aurora-pink: rgba(244, 114, 182, 1);
+  --aurora-teal: rgba(45, 212, 160, 1);
+
+  /* Glass surfaces */
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-strong: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+
+  /* Gradients */
+  --gradient-aurora: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(167, 139, 250, 0.35), transparent 60%),
+                     radial-gradient(ellipse 70% 50% at 80% 20%, rgba(56, 189, 248, 0.30), transparent 60%),
+                     radial-gradient(ellipse 60% 50% at 50% 90%, rgba(244, 114, 182, 0.25), transparent 60%);
+  --gradient-text: linear-gradient(135deg, var(--text-bright), rgba(56, 189, 248, 1) 40%, rgba(167, 139, 250, 1) 75%, rgba(244, 114, 182, 1));
+  --gradient-button: linear-gradient(135deg, rgba(167, 139, 250, 1), rgba(56, 189, 248, 1));
+  --gradient-border: linear-gradient(135deg, rgba(167, 139, 250, 0.6), rgba(56, 189, 248, 0.6), rgba(244, 114, 182, 0.6));
+
+  /* Aurora Shadows */
+  --shadow-glow-aurora: 0 0 60px -10px rgba(167, 139, 250, 0.5);
+  --shadow-glow-cyan: 0 0 80px -20px rgba(56, 189, 248, 0.6);
+  --shadow-glass-aurora: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
   /* 3D & Depth */
   --perspective:  1000px;
   --shadow-xs:    0 1px 3px rgba(0,0,0,0.5);
@@ -2202,4 +2226,167 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
   .onboard-card { padding: 28px 18px; }
   .mockup-metrics { grid-template-columns: repeat(2,1fr); }
   .hero-mockup-body { height: 220px; }
+}
+
+/* ============================================================
+   NEW AURORA UTILITY CLASSES (from future-analytics-hub)
+   ============================================================ */
+
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-aurora {
+  background-image: var(--gradient-aurora);
+}
+
+.glass-aurora {
+  background-color: var(--glass);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-aurora-strong {
+  background-color: var(--glass-strong);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  border: 1px solid var(--glass-border);
+}
+
+.shadow-glow-aurora {
+  box-shadow: var(--shadow-glow-aurora);
+}
+
+.shadow-glass-aurora {
+  box-shadow: var(--shadow-glass-aurora);
+}
+
+.gradient-border-aurora {
+  position: relative;
+}
+.gradient-border-aurora::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-border);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.grid-bg-aurora {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 30%, transparent 80%);
+}
+
+.btn-aurora {
+  background: var(--gradient-button);
+  color: var(--bg-color);
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.1px;
+  border: none;
+  box-shadow: var(--shadow-glow-aurora);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-aurora:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 0 80px -10px rgba(167, 139, 250, 0.7);
+}
+.btn-aurora:active { transform: translateY(0); }
+
+.animate-float {
+  animation: float-aurora 8s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-aurora 14s ease-in-out infinite;
+}
+.animate-aurora-shift {
+  animation: aurora-shift 20s ease-in-out infinite alternate;
+}
+.animate-shimmer-aurora {
+  background-size: 200% 100%;
+  animation: shimmer-aurora 3s linear infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow-aurora 3s ease-in-out infinite;
+}
+.animate-fade-up {
+  animation: fade-up-aurora 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-marquee {
+  animation: marquee-aurora 30s linear infinite;
+}
+
+@keyframes float-aurora {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -30px) scale(1.05); }
+}
+@keyframes aurora-shift {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-60px, 40px) rotate(8deg); }
+}
+@keyframes shimmer-aurora {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes pulse-glow-aurora {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes fade-up-aurora {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes marquee-aurora {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Auth Page overrides to ensure background visibility */
+.auth-page-root {
+  min-height: 100vh;
+  position: relative;
+  background: transparent !important;
+}
+
+.auth-page-root::before, .auth-page-root::after {
+  display: none !important; /* hide default app shell bg for auth page */
+}
+
+/* Feature grid item specific styling */
+.feature-card-aurora {
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: transform 300ms ease;
+}
+.feature-card-aurora:hover {
+  transform: translateY(-4px);
+}
+.feature-icon-aurora {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
 }
