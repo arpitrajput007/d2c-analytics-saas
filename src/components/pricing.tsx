@@ -1,35 +1,56 @@
-import { Check, Sparkles } from "lucide-react";
+import { Check, ShieldCheck, Zap } from "lucide-react";
 
 const tiers = [
   {
-    name: "Starter",
-    price: "$0",
-    cadence: "forever",
-    desc: "For founders just getting their numbers in one place.",
-    features: ["Daily dashboard", "Up to 1k orders / mo", "1 store connection", "Community support"],
+    name: "Foundation Plan",
+    price: "₹3,500",
+    cadence: "/ month",
+    desc: "For founders who want clarity without manual work",
+    features: [
+      "1 store connection",
+      "Daily business dashboard",
+      "Order tracking (COD + prepaid)",
+      "RTO & unreachable order visibility",
+      "Basic profit tracking",
+      "Limited data history (30 days)",
+      "Email support"
+    ],
     highlight: false,
+    cta: "Start 14-day free trial"
   },
   {
-    name: "Pro",
-    price: "$79",
+    name: "Profit Engine",
+    price: "₹6,999",
     cadence: "/ month",
-    desc: "Everything growing D2C teams need — including the Co-Pilot.",
+    desc: "For brands serious about controlling profit and reducing losses",
     features: [
-      "Unlimited orders",
-      "Gemini Co-Pilot",
-      "Cohorts, SKU economics",
-      "Weekly investor reports",
-      "Priority support",
+      "Everything in Foundation +",
+      "Complete business analytics (no limits)",
+      "SKU-level profit tracking",
+      "Ad spend vs profit visibility",
+      "Loss identification (RTO, unreachable, failed delivery)",
+      "AI-powered insights (suggestions, not predictions)",
+      "Weekly performance summaries",
+      "Priority support"
     ],
     highlight: true,
+    badge: "Most popular among growing D2C brands",
+    cta: "Start 14-day free trial"
   },
   {
-    name: "Scale",
+    name: "Scale / Custom Plan",
     price: "Custom",
-    cadence: "annual",
-    desc: "Multi-brand groups and 8-figure operators.",
-    features: ["Multi-store consolidation", "SSO + audit logs", "Dedicated CSM", "Custom integrations"],
+    cadence: "",
+    desc: "For multi-store and high-scale operations",
+    features: [
+      "Multi-store dashboards",
+      "Custom reporting",
+      "API integrations",
+      "Dedicated support",
+      "Workflow automation support"
+    ],
     highlight: false,
+    cta: "Request Demo"
   },
 ];
 
@@ -42,10 +63,10 @@ export function Pricing() {
             Pricing
           </div>
           <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Simple, <span className="text-gradient">profit-aligned</span> pricing
+            Simple, <span className="text-gradient">profit-focused</span> pricing
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Start free. Upgrade when your dashboard makes you money.
+          <p className="mt-4 text-muted-foreground text-lg">
+            Track your business clearly. Reduce losses. Save hours every day.
           </p>
         </div>
 
@@ -58,46 +79,71 @@ export function Pricing() {
               }`}
             >
               <div
-                className={`relative h-full rounded-3xl p-7 ${
+                className={`relative flex h-full flex-col justify-between rounded-3xl p-7 ${
                   t.highlight ? "glass-strong" : "glass"
                 }`}
               >
-                {t.highlight && (
-                  <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary-foreground"
-                    style={{ background: "var(--gradient-button)" }}
+                <div>
+                  {t.highlight && (
+                    <span className="absolute -top-3 left-1/2 inline-flex w-max -translate-x-1/2 items-center gap-1 rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground"
+                      style={{ background: "var(--gradient-button)" }}
+                    >
+                      <Zap className="h-3 w-3" fill="currentColor" /> {t.badge}
+                    </span>
+                  )}
+                  <div className="text-lg font-medium text-foreground">{t.name}</div>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-4xl font-semibold tracking-tight">{t.price}</span>
+                    {t.cadence && <span className="text-sm text-muted-foreground">{t.cadence}</span>}
+                  </div>
+                  <p className="mt-3 text-sm text-muted-foreground">{t.desc}</p>
+
+                  <a
+                    href="#cta"
+                    className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-4 py-3 text-sm font-medium ${
+                      t.highlight
+                        ? "btn-aurora"
+                        : "border border-glass-border bg-glass text-foreground hover:bg-glass-strong"
+                    }`}
                   >
-                    <Sparkles className="h-3 w-3" /> Most loved
-                  </span>
-                )}
-                <div className="text-sm text-muted-foreground">{t.name}</div>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-5xl font-semibold tracking-tight">{t.price}</span>
-                  <span className="text-sm text-muted-foreground">{t.cadence}</span>
+                    {t.cta}
+                  </a>
+
+                  <ul className="mt-8 space-y-3 text-sm">
+                    {t.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-muted-foreground text-[13px] leading-tight">
+                        <Check className="h-4 w-4 shrink-0 text-accent" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">{t.desc}</p>
-
-                <a
-                  href="#cta"
-                  className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium ${
-                    t.highlight
-                      ? "btn-aurora"
-                      : "border border-glass-border bg-glass text-foreground hover:bg-glass-strong"
-                  }`}
-                >
-                  {t.highlight ? "Start 14-day trial" : "Choose plan"}
-                </a>
-
-                <ul className="mt-6 space-y-2.5 text-sm">
-                  {t.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="h-4 w-4 text-accent" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mx-auto mt-16 max-w-4xl text-center">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-accent" />
+              Works with Shopify, WooCommerce, COD businesses
+            </span>
+            <span className="hidden sm:inline-block opacity-30">·</span>
+            <span className="flex items-center gap-2">
+               Setup in under 10 minutes
+            </span>
+            <span className="hidden sm:inline-block opacity-30">·</span>
+            <span className="flex items-center gap-2">
+               Cancel anytime
+            </span>
+          </div>
+
+          <div className="mt-12">
+            <h3 className="text-2xl font-semibold tracking-tight text-foreground">
+              Stop guessing your numbers. Start running your business with clarity.
+            </h3>
+          </div>
         </div>
       </div>
     </section>
