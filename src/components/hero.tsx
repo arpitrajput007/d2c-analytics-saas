@@ -5,15 +5,6 @@ export function Hero() {
   return (
     <section id="top" className="relative pt-36 pb-20 sm:pt-44 sm:pb-28">
       <div className="mx-auto max-w-6xl px-4 text-center">
-        {/* Eyebrow */}
-        <div className="animate-fade-up mb-6 inline-flex items-center gap-2 rounded-full border border-glass-border bg-glass px-4 py-1.5 text-xs text-muted-foreground backdrop-blur-md">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
-          New · Gemini-powered Co-Pilot is live
-          <ArrowRight className="h-3 w-3" />
-        </div>
 
         {/* Headline */}
         <h1
