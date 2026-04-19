@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "^4.0.0",
     "vite": "^8.0.1"
   },
   "dependencies": {
@@ -21,6 +23,9 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0",
-    "supabase": "^2.84.10"
+    "supabase": "^2.84.10",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.5.0",
+    "tw-animate-css": "^1.3.4"
   }
 }
