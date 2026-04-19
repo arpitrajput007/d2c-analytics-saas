@@ -53,9 +53,10 @@ export default function Auth() {
       if (!target) return;
       
       const href = target.getAttribute('href');
-      if (href === '#cta' || href === '#dashboard' || href === '#pricing' || href?.includes('Start free')) {
+      // Only intercept explicit CTA auth links — let all nav anchors scroll normally
+      if (href === '#cta') {
         e.preventDefault();
-        openAuth(true); // Open the Supabase login modal
+        openAuth(true); // Open the Supabase sign-up modal
       }
     };
     document.addEventListener('click', handleHrefClicks);

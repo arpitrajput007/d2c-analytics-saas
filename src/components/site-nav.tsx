@@ -7,7 +7,7 @@ const links = [
   { label: "Pricing", href: "#pricing" },
 ];
 
-export function SiteNav() {
+export function SiteNav({ onSignInClick }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4">
       <nav className="glass shadow-glass flex w-full max-w-6xl items-center justify-between rounded-full px-3 py-2.5 sm:px-5">
@@ -36,18 +36,18 @@ export function SiteNav() {
         </div>
 
         <div className="flex items-center gap-2">
-          <a
-            href="#pricing"
+          <button
+            onClick={onSignInClick}
             className="hidden rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
           >
             Sign in
-          </a>
-          <a
-            href="#cta"
+          </button>
+          <button
+            onClick={() => onSignInClick && onSignInClick()}
             className="btn-aurora inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium"
           >
             Launch app
-          </a>
+          </button>
         </div>
       </nav>
     </header>
