@@ -14,8 +14,20 @@ CREATE TABLE public.stores (
     primary_color TEXT DEFAULT '#fbbf24',
     logo_url TEXT,
     dashboard_style TEXT DEFAULT 'dark-modern',
-    shopify_access_token TEXT
+    shopify_access_token TEXT,
+    dashboard_features JSONB DEFAULT '{
+      "daily_view": true,
+      "weekly_view": true,
+      "monthly_view": true,
+      "all_time_view": true,
+      "scoreboard": true,
+      "business_analytics": true
+    }'::jsonb
 );
+
+-- Migration: add dashboard_features to existing stores table if not present
+-- Run this manually in Supabase SQL editor if the table already exists:
+-- ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS dashboard_features JSONB DEFAULT '{"daily_view":true,"weekly_view":true,"monthly_view":true,"all_time_view":true,"scoreboard":true,"business_analytics":true}'::jsonb;
 
 -- 2. Orders 
 CREATE TABLE public.orders (

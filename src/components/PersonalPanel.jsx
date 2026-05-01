@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
-  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles
+  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal
 } from 'lucide-react';
 import Onboarding from './Onboarding';
+import AdvancedSettings from './AdvancedSettings';
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -154,6 +155,7 @@ export default function PersonalPanel({ session, store }) {
   const tabTitles = {
     dashboard: 'Business Dashboard',
     connect: 'Connect your Store',
+    advanced: 'Advanced Settings of Store',
     settings: 'Settings',
     support: 'Talk to Support',
   };
@@ -267,6 +269,7 @@ export default function PersonalPanel({ session, store }) {
             <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '1px', textTransform: 'uppercase', padding: '4px 6px 6px' }}>
               Account
             </div>
+            <NavItem icon={SlidersHorizontal} label="Advanced Settings" active={activeTab === 'advanced'} onClick={() => { setActiveTab('advanced'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Settings} label="Settings" active={activeTab === 'settings'} onClick={() => { setActiveTab('settings'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Headphones} label="Talk to Support" active={activeTab === 'support'} onClick={() => { setActiveTab('support'); setMobileSidebarOpen(false); }} />
           </nav>
@@ -356,6 +359,10 @@ export default function PersonalPanel({ session, store }) {
               <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                 <Onboarding session={session} isEmbedded />
               </div>
+            )}
+
+            {activeTab === 'advanced' && (
+              <AdvancedSettings store={store} />
             )}
 
             {activeTab === 'settings' && (
