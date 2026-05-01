@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const STEPS = ['Store Info', 'Connect Shopify', 'Brand'];
 
-export default function Onboarding({ session }) {
+export default function Onboarding({ session, isEmbedded = false }) {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [storeName, setStoreName] = useState('');
@@ -46,23 +46,25 @@ export default function Onboarding({ session }) {
   const prevStep = () => setStep(s => Math.max(s - 1, 0));
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={isEmbedded ? {} : { minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Top Header for Escape Hatch */}
-      <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'rgba(10, 10, 16, 0.8)', backdropFilter: 'blur(24px)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', background: 'var(--primary-gradient)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 0 16px var(--primary-glow)' }}>📊</div>
-          <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            D2C Analytics
+      {/* Top Header for Escape Hatch — only shown in standalone mode */}
+      {!isEmbedded && (
+        <header style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', background: 'rgba(10, 10, 16, 0.8)', backdropFilter: 'blur(24px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', background: 'var(--primary-gradient)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 0 16px var(--primary-glow)' }}>📊</div>
+            <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800, background: 'var(--primary-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              D2C Analytics
+            </div>
           </div>
-        </div>
-        <button className="ghost" style={{ fontSize: '13px', padding: '8px 16px' }} onClick={handleSignOut}>
-          Sign Out / Back to Login
-        </button>
-      </header>
+          <button className="ghost" style={{ fontSize: '13px', padding: '8px 16px' }} onClick={handleSignOut}>
+            Sign Out / Back to Login
+          </button>
+        </header>
+      )}
 
-      <div className="onboard-page" style={{ flex: 1, padding: '40px 20px' }}>
-        <div className="onboard-card">
+      <div className="onboard-page" style={isEmbedded ? { padding: '0' } : { flex: 1, padding: '40px 20px' }}>
+        <div className="onboard-card" style={isEmbedded ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0' } : {}}>
           <h1 style={{ margin: '0 0 32px 0', fontFamily: 'Outfit', fontSize: '26px', fontWeight: 800 }}>
             Let's build your dashboard
           </h1>
