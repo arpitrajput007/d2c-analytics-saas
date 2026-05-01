@@ -17,7 +17,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase
+    const { data: insertData, error } = await supabase
       .from('stores')
       .insert([{
         owner_id: session.user.id,
@@ -26,15 +26,28 @@ export default function Onboarding({ session, isEmbedded = false }) {
         shopify_access_token: accessToken,
         primary_color: themeColor,
         dashboard_style: 'dark-modern'
-      }]);
-
-    setLoading(false);
+      }])
+      .select()
+      .single();
 
     if (error) {
+      setLoading(false);
       alert('Error creating store: ' + error.message);
-    } else {
-      navigate('/');
+      return;
     }
+
+    // Auto-sync orders immediately after store is connected
+    if (insertData?.id) {
+      try {
+        await fetch(`/api/sync/${insertData.id}`, { method: 'POST' });
+      } catch (syncErr) {
+        // Sync failure is non-blocking — orders will sync on next manual refresh
+        console.warn('Initial auto-sync failed (non-critical):', syncErr.message);
+      }
+    }
+
+    setLoading(false);
+    navigate('/');
   };
 
   const handleSignOut = async () => {

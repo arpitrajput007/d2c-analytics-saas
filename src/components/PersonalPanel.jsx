@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
-  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal
+  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package
 } from 'lucide-react';
 import Onboarding from './Onboarding';
 import AdvancedSettings from './AdvancedSettings';
+import ProductsView from './ProductsView';
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -155,6 +156,7 @@ export default function PersonalPanel({ session, store }) {
   const tabTitles = {
     dashboard: 'Business Dashboard',
     connect: 'Connect your Store',
+    products: 'Products',
     advanced: 'Advanced Settings of Store',
     settings: 'Settings',
     support: 'Talk to Support',
@@ -263,6 +265,7 @@ export default function PersonalPanel({ session, store }) {
               Main
             </div>
             <NavItem icon={LayoutDashboard} label="Business Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={Package} label="Products" active={activeTab === 'products'} onClick={() => { setActiveTab('products'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Link2} label="Connect your Store" active={activeTab === 'connect'} onClick={() => { setActiveTab('connect'); setMobileSidebarOpen(false); }} badge={isConnected ? null : 'Setup'} />
 
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '10px 0' }} />
@@ -359,6 +362,10 @@ export default function PersonalPanel({ session, store }) {
               <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                 <Onboarding session={session} isEmbedded />
               </div>
+            )}
+
+            {activeTab === 'products' && (
+              <ProductsView store={store} />
             )}
 
             {activeTab === 'advanced' && (

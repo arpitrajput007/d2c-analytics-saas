@@ -1,37 +1,370 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
+import {
+  Search, Eye, EyeOff, TrendingUp, TrendingDown,
+  Package, RefreshCw, Download, AlertCircle, ChevronDown, ChevronUp
+} from 'lucide-react';
 
-export default function ProductsView() {
+const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+
+function toDateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function StatCard({ label, value, sub, color = '#fff', glow }) {
   return (
-    <div className="view-content active" style={{ animation: 'fadeInUp 0.4s ease forwards' }}>
-      <div className="controls-bar">
-        <div className="date-picker">
-          <input type="date" style={{ padding: '8px 12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'white' }} />
-          <span style={{ color: 'var(--text-muted)' }}>to</span>
-          <input type="date" style={{ padding: '8px 12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', borderRadius: '6px', color: 'white' }} />
+    <div style={{
+      padding: '18px 20px', borderRadius: '14px',
+      background: `linear-gradient(135deg, ${glow ? glow.replace('1)', '0.08)') : 'rgba(255,255,255,0.03)'}, transparent)`,
+      border: `1px solid ${glow ? glow.replace('1)', '0.2)') : 'rgba(255,255,255,0.07)'}`,
+      flex: '1', minWidth: '120px',
+    }}>
+      <div style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>{label}</div>
+      <div style={{ fontSize: '22px', fontWeight: 800, color, fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.5px' }}>{value}</div>
+      {sub && <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>{sub}</div>}
+    </div>
+  );
+}
+
+export default function ProductsView({ store }) {
+  const now = new Date();
+  const d30 = new Date(now); d30.setDate(d30.getDate() - 30);
+
+  const [startDate, setStartDate] = useState(toDateStr(d30));
+  const [endDate, setEndDate] = useState(toDateStr(now));
+  const [orders, setOrders] = useState([]);
+  const [pricing, setPricing] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [hiddenProducts, setHiddenProducts] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('hidden_products') || '{}'); } catch { return {}; }
+  });
+  const [showHidden, setShowHidden] = useState(false);
+  const [sortCol, setSortCol] = useState('revenue');
+  const [sortDir, setSortDir] = useState('desc');
+  const [fetched, setFetched] = useState(false);
+
+  useEffect(() => {
+    if (store?.id) {
+      loadPricing();
+      fetchOrders();
+    }
+  }, [store?.id]);
+
+  async function loadPricing() {
+    if (!store?.id) return;
+    const { data } = await supabase.from('products').select('*').eq('store_id', store.id);
+    if (data) {
+      const map = {};
+      data.forEach(p => { map[p.title] = p; map[p.sku] = p; });
+      setPricing(map);
+    }
+  }
+
+  async function fetchOrders() {
+    if (!store?.id) return;
+    setLoading(true); setError(null);
+    const { data, error: err } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('store_id', store.id)
+      .gte('created_at', startDate + 'T00:00:00')
+      .lte('created_at', endDate + 'T23:59:59');
+    setLoading(false);
+    if (err) { setError(err.message); return; }
+    setOrders(data || []);
+    setFetched(true);
+  }
+
+  const products = useMemo(() => {
+    const stats = {};
+    orders.forEach(order => {
+      const items = order.line_items || [];
+      const tags = (order.tags || []);
+      const tagStr = Array.isArray(tags) ? tags.join(',') : tags;
+      const isDelivered = tagStr.toLowerCase().includes('delivered');
+      items.forEach(item => {
+        const title = item.title || 'Unknown';
+        if (!stats[title]) stats[title] = { title, sku: item.sku || '', sold: 0, revenue: 0, delivered: 0 };
+        stats[title].sold += (item.quantity || 0);
+        if (isDelivered) {
+          stats[title].revenue += (item.quantity || 0) * parseFloat(item.price || 0);
+          stats[title].delivered += (item.quantity || 0);
+        }
+      });
+    });
+
+    return Object.values(stats).map(s => {
+      const p = pricing[s.title] || pricing[s.sku] || {};
+      const cp = parseFloat(p.cost_price || 555);
+      const ship = parseFloat(p.shipping_cost || 135);
+      const cost = s.delivered * (cp + ship);
+      const profit = s.revenue - cost;
+      const margin = s.revenue > 0 ? (profit / s.revenue * 100) : 0;
+      return { ...s, cp, ship, cost, profit, margin };
+    });
+  }, [orders, pricing]);
+
+  const sorted = useMemo(() => {
+    const list = [...products].filter(p =>
+      (showHidden ? hiddenProducts[p.title] : !hiddenProducts[p.title]) &&
+      p.title.toLowerCase().includes(search.toLowerCase())
+    );
+    list.sort((a, b) => {
+      const av = a[sortCol] ?? 0, bv = b[sortCol] ?? 0;
+      return sortDir === 'desc' ? bv - av : av - bv;
+    });
+    return list;
+  }, [products, hiddenProducts, showHidden, search, sortCol, sortDir]);
+
+  const hiddenCount = Object.keys(hiddenProducts).length;
+
+  const totals = useMemo(() => sorted.reduce((acc, p) => ({
+    sold: acc.sold + p.sold,
+    revenue: acc.revenue + p.revenue,
+    cost: acc.cost + p.cost,
+    profit: acc.profit + p.profit,
+  }), { sold: 0, revenue: 0, cost: 0, profit: 0 }), [sorted]);
+
+  function toggleHide(title) {
+    const next = { ...hiddenProducts };
+    if (next[title]) delete next[title]; else next[title] = true;
+    setHiddenProducts(next);
+    localStorage.setItem('hidden_products', JSON.stringify(next));
+  }
+
+  function handleSort(col) {
+    if (sortCol === col) setSortDir(d => d === 'desc' ? 'asc' : 'desc');
+    else { setSortCol(col); setSortDir('desc'); }
+  }
+
+  function exportCSV() {
+    const rows = [['Product', 'SKU', 'Units Sold', 'Revenue', 'Cost', 'Net Profit', 'Margin %']];
+    sorted.forEach(p => rows.push([p.title, p.sku, p.sold, p.revenue.toFixed(0), p.cost.toFixed(0), p.profit.toFixed(0), p.margin.toFixed(1) + '%']));
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    a.download = `products_${startDate}_${endDate}.csv`; a.click();
+  }
+
+  const SortIcon = ({ col }) => {
+    if (sortCol !== col) return <ChevronDown size={12} style={{ opacity: 0.3 }} />;
+    return sortDir === 'desc' ? <ChevronDown size={12} style={{ color: 'rgba(167,139,250,1)' }} /> : <ChevronUp size={12} style={{ color: 'rgba(167,139,250,1)' }} />;
+  };
+
+  const colStyle = (col) => ({
+    padding: '11px 14px', textAlign: 'left', fontSize: '11px', fontWeight: 700,
+    color: sortCol === col ? 'rgba(167,139,250,0.9)' : 'rgba(255,255,255,0.3)',
+    textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer',
+    userSelect: 'none', background: 'rgba(0,0,0,0.3)',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    whiteSpace: 'nowrap',
+  });
+
+  if (!store?.shopify_domain) {
+    return (
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'60vh', gap:'16px', textAlign:'center', padding:'40px' }}>
+        <Package size={48} color="rgba(167,139,250,0.5)" strokeWidth={1.2} />
+        <div style={{ fontFamily:'Outfit', fontSize:'22px', fontWeight:800, color:'#fff' }}>No Store Connected</div>
+        <div style={{ color:'rgba(255,255,255,0.4)', fontSize:'14px', maxWidth:'360px', lineHeight:1.7 }}>
+          Connect your Shopify store first to start analysing product performance.
         </div>
-        <button className="primary" style={{ padding: '8px 16px' }}>Analyze Products</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ animation: 'fadeInUp 0.35s ease' }}>
+
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'24px', flexWrap:'wrap', gap:'12px' }}>
+        <div>
+          <h2 style={{ fontFamily:'Outfit', fontSize:'22px', fontWeight:800, color:'#fff', margin:'0 0 4px 0' }}>Product Analytics</h2>
+          <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>Revenue, cost & net profit by product</p>
+        </div>
+        <div style={{ display:'flex', gap:'10px', flexWrap:'wrap', alignItems:'center' }}>
+          <button onClick={() => setShowHidden(s => !s)} style={{
+            display:'flex', alignItems:'center', gap:'7px', padding:'9px 16px', borderRadius:'10px',
+            background: showHidden ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
+            border: showHidden ? '1px solid rgba(251,191,36,0.3)' : '1px solid rgba(255,255,255,0.08)',
+            color: showHidden ? 'rgba(251,191,36,0.9)' : 'rgba(255,255,255,0.5)',
+            cursor:'pointer', fontSize:'13px', fontWeight:600, transition:'all 0.2s',
+          }}>
+            {showHidden ? <Eye size={15}/> : <EyeOff size={15}/>}
+            {showHidden ? 'Showing Hidden' : `Hidden (${hiddenCount})`}
+          </button>
+          <button onClick={exportCSV} style={{
+            display:'flex', alignItems:'center', gap:'7px', padding:'9px 16px', borderRadius:'10px',
+            background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)',
+            color:'rgba(52,211,153,0.85)', cursor:'pointer', fontSize:'13px', fontWeight:600, transition:'all 0.2s',
+          }}>
+            <Download size={15}/> Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className="sheet-container">
-        <div style={{ overflowX: 'auto' }}>
-          <table className="sheet-table">
+      {/* Controls */}
+      <div style={{
+        display:'flex', gap:'12px', alignItems:'center', padding:'16px 18px', borderRadius:'14px',
+        background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', marginBottom:'20px', flexWrap:'wrap',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap' }}>
+          <label style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', fontWeight:600 }}>From</label>
+          <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} style={{ padding:'8px 10px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'white', colorScheme:'dark', fontSize:'13px', outline:'none' }} />
+          <label style={{ fontSize:'12px', color:'rgba(255,255,255,0.4)', fontWeight:600 }}>To</label>
+          <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} style={{ padding:'8px 10px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.1)', background:'rgba(0,0,0,0.4)', color:'white', colorScheme:'dark', fontSize:'13px', outline:'none' }} />
+        </div>
+        <button onClick={fetchOrders} disabled={loading} style={{
+          display:'flex', alignItems:'center', gap:'8px', padding:'9px 20px', borderRadius:'10px', border:'none',
+          background:'linear-gradient(135deg, rgba(167,139,250,1), rgba(56,189,248,1))',
+          color:'#000', fontWeight:700, fontSize:'13px', cursor:loading?'not-allowed':'pointer', opacity:loading?0.7:1,
+        }}>
+          <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          {loading ? 'Analyzing...' : 'Analyze Products'}
+        </button>
+        <div style={{ flex:1, minWidth:'160px', position:'relative' }}>
+          <Search size={14} style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'rgba(255,255,255,0.3)' }} />
+          <input
+            value={search} onChange={e=>setSearch(e.target.value)}
+            placeholder="Search products..."
+            style={{ width:'100%', padding:'8px 10px 8px 32px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(0,0,0,0.3)', color:'white', fontSize:'13px', outline:'none', boxSizing:'border-box' }}
+          />
+        </div>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div style={{ display:'flex', gap:'10px', alignItems:'center', padding:'14px 18px', borderRadius:'12px', marginBottom:'16px', background:'rgba(251,113,133,0.08)', border:'1px solid rgba(251,113,133,0.2)', color:'#fb7185', fontSize:'13px' }}>
+          <AlertCircle size={16}/>{error}
+        </div>
+      )}
+
+      {/* Summary Cards */}
+      {fetched && sorted.length > 0 && (
+        <div style={{ display:'flex', gap:'12px', marginBottom:'20px', flexWrap:'wrap' }}>
+          <StatCard label="Products" value={sorted.length} sub="in range" color="#fff" />
+          <StatCard label="Units Sold" value={totals.sold.toLocaleString('en-IN')} color="rgba(56,189,248,1)" glow="rgba(56,189,248,1)" />
+          <StatCard label="Gross Revenue" value={fmt(totals.revenue)} sub="Delivered only" color="#fff" />
+          <StatCard label="Total Cost" value={fmt(totals.cost)} color="rgba(251,113,133,1)" glow="rgba(251,113,133,1)" />
+          <StatCard
+            label="Net Profit"
+            value={fmt(totals.profit)}
+            sub={`${totals.revenue > 0 ? ((totals.profit / totals.revenue) * 100).toFixed(1) : 0}% margin`}
+            color={totals.profit >= 0 ? 'rgba(52,211,153,1)' : 'rgba(251,113,133,1)'}
+            glow={totals.profit >= 0 ? 'rgba(52,211,153,1)' : 'rgba(251,113,133,1)'}
+          />
+        </div>
+      )}
+
+      {/* Table */}
+      <div style={{ borderRadius:'16px', border:'1px solid rgba(255,255,255,0.08)', overflow:'hidden', background:'rgba(0,0,0,0.25)' }}>
+        <div style={{ overflowX:'auto' }}>
+          <table style={{ width:'100%', borderCollapse:'collapse', minWidth:'640px' }}>
             <thead>
               <tr>
-                <th>Product Title</th>
-                <th style={{ width: '100px' }}>Sold</th>
-                <th style={{ width: '120px' }}>Revenue</th>
-                <th style={{ width: '120px' }}>Cost</th>
-                <th style={{ width: '120px' }}>Net Profit</th>
+                <th style={colStyle('title')} onClick={()=>handleSort('title')}>Product <SortIcon col="title"/></th>
+                <th style={{...colStyle('sold'), textAlign:'right'}} onClick={()=>handleSort('sold')}>Sold <SortIcon col="sold"/></th>
+                <th style={{...colStyle('revenue'), textAlign:'right'}} onClick={()=>handleSort('revenue')}>Revenue <SortIcon col="revenue"/></th>
+                <th style={{...colStyle('cost'), textAlign:'right'}} onClick={()=>handleSort('cost')}>Cost <SortIcon col="cost"/></th>
+                <th style={{...colStyle('profit'), textAlign:'right'}} onClick={()=>handleSort('profit')}>Net Profit <SortIcon col="profit"/></th>
+                <th style={{...colStyle('margin'), textAlign:'right'}} onClick={()=>handleSort('margin')}>Margin <SortIcon col="margin"/></th>
+                <th style={{ ...colStyle(''), cursor:'default', textAlign:'center' }}>Visibility</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>No product data to display for selected date range.</td>
-              </tr>
+              {!fetched ? (
+                <tr><td colSpan={7} style={{ padding:'60px', textAlign:'center', color:'rgba(255,255,255,0.25)', fontSize:'14px' }}>
+                  <Package size={32} style={{ opacity:0.3, marginBottom:'12px', display:'block', margin:'0 auto 12px' }} />
+                  Select a date range and click "Analyze Products"
+                </td></tr>
+              ) : sorted.length === 0 ? (
+                <tr><td colSpan={7} style={{ padding:'60px', textAlign:'center', color:'rgba(255,255,255,0.25)', fontSize:'14px' }}>
+                  {showHidden ? 'No hidden products' : 'No products found for this range'}
+                </td></tr>
+              ) : sorted.map((p, i) => {
+                const isProfit = p.profit >= 0;
+                return (
+                  <tr key={p.title} style={{
+                    borderBottom:'1px solid rgba(255,255,255,0.04)',
+                    background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
+                    transition:'background 0.15s',
+                  }}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(167,139,250,0.05)'}
+                    onMouseLeave={e=>e.currentTarget.style.background=i%2===0?'rgba(255,255,255,0.01)':'transparent'}
+                  >
+                    {/* Product */}
+                    <td style={{ padding:'14px 14px', maxWidth:'220px' }}>
+                      <div style={{ fontWeight:600, color:'#fff', fontSize:'13px', marginBottom:'2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.title}</div>
+                      {p.sku && <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)', fontFamily:'monospace' }}>{p.sku}</div>}
+                    </td>
+                    {/* Sold */}
+                    <td style={{ padding:'14px', textAlign:'right', fontSize:'14px', fontWeight:700, color:'rgba(56,189,248,0.9)' }}>{p.sold}</td>
+                    {/* Revenue */}
+                    <td style={{ padding:'14px', textAlign:'right', fontSize:'13px', fontWeight:600, color:'#fff' }}>{fmt(p.revenue)}</td>
+                    {/* Cost */}
+                    <td style={{ padding:'14px', textAlign:'right', fontSize:'13px', color:'rgba(251,113,133,0.8)' }}>{fmt(p.cost)}</td>
+                    {/* Net Profit */}
+                    <td style={{ padding:'14px', textAlign:'right' }}>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:'5px' }}>
+                        {isProfit ? <TrendingUp size={13} color="rgba(52,211,153,0.8)"/> : <TrendingDown size={13} color="rgba(251,113,133,0.8)"/>}
+                        <span style={{ fontSize:'14px', fontWeight:800, color: isProfit ? 'rgba(52,211,153,1)' : 'rgba(251,113,133,1)', fontFamily:'Outfit' }}>
+                          {fmt(p.profit)}
+                        </span>
+                      </div>
+                    </td>
+                    {/* Margin */}
+                    <td style={{ padding:'14px', textAlign:'right' }}>
+                      <div style={{
+                        display:'inline-flex', alignItems:'center', padding:'3px 8px', borderRadius:'6px',
+                        background: isProfit ? 'rgba(52,211,153,0.1)' : 'rgba(251,113,133,0.1)',
+                        border: `1px solid ${isProfit ? 'rgba(52,211,153,0.25)' : 'rgba(251,113,133,0.25)'}`,
+                        fontSize:'12px', fontWeight:700,
+                        color: isProfit ? 'rgba(52,211,153,0.9)' : 'rgba(251,113,133,0.9)',
+                      }}>
+                        {p.margin.toFixed(1)}%
+                      </div>
+                    </td>
+                    {/* Hide/Show */}
+                    <td style={{ padding:'14px', textAlign:'center' }}>
+                      <button
+                        onClick={()=>toggleHide(p.title)}
+                        title={hiddenProducts[p.title] ? 'Show product' : 'Hide product'}
+                        style={{
+                          display:'inline-flex', alignItems:'center', justifyContent:'center', gap:'5px',
+                          padding:'5px 10px', borderRadius:'8px', cursor:'pointer', fontSize:'11px', fontWeight:600,
+                          background: hiddenProducts[p.title] ? 'rgba(56,189,248,0.1)' : 'rgba(255,255,255,0.05)',
+                          border: hiddenProducts[p.title] ? '1px solid rgba(56,189,248,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                          color: hiddenProducts[p.title] ? 'rgba(56,189,248,0.85)' : 'rgba(255,255,255,0.4)',
+                          transition:'all 0.2s',
+                        }}
+                      >
+                        {hiddenProducts[p.title] ? <><Eye size={12}/> Unhide</> : <><EyeOff size={12}/> Hide</>}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
+            {/* Footer totals */}
+            {fetched && sorted.length > 0 && (
+              <tfoot>
+                <tr style={{ background:'rgba(167,139,250,0.06)', borderTop:'2px solid rgba(167,139,250,0.2)' }}>
+                  <td style={{ padding:'14px', fontWeight:800, color:'rgba(167,139,250,0.9)', fontSize:'13px', fontFamily:'Outfit' }}>TOTALS</td>
+                  <td style={{ padding:'14px', textAlign:'right', fontWeight:800, color:'rgba(56,189,248,0.9)' }}>{totals.sold}</td>
+                  <td style={{ padding:'14px', textAlign:'right', fontWeight:800, color:'#fff' }}>{fmt(totals.revenue)}</td>
+                  <td style={{ padding:'14px', textAlign:'right', fontWeight:800, color:'rgba(251,113,133,0.8)' }}>{fmt(totals.cost)}</td>
+                  <td style={{ padding:'14px', textAlign:'right', fontWeight:800, color: totals.profit>=0 ? 'rgba(52,211,153,1)':'rgba(251,113,133,1)', fontFamily:'Outfit', fontSize:'15px' }}>{fmt(totals.profit)}</td>
+                  <td style={{ padding:'14px', textAlign:'right', fontWeight:800, color:'rgba(255,255,255,0.4)', fontSize:'12px' }}>
+                    {totals.revenue>0 ? ((totals.profit/totals.revenue)*100).toFixed(1)+'%' : '—'}
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }
