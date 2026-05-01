@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
-  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package
+  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign
 } from 'lucide-react';
 import Onboarding from './Onboarding';
 import AdvancedSettings from './AdvancedSettings';
 import ProductsView from './ProductsView';
+import PricingView from './PricingView';
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -157,6 +158,7 @@ export default function PersonalPanel({ session, store }) {
     dashboard: 'Business Dashboard',
     connect: 'Connect your Store',
     products: 'Products',
+    pricing: 'Pricing Management',
     advanced: 'Advanced Settings of Store',
     settings: 'Settings',
     support: 'Talk to Support',
@@ -266,6 +268,7 @@ export default function PersonalPanel({ session, store }) {
             </div>
             <NavItem icon={LayoutDashboard} label="Business Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Package} label="Products" active={activeTab === 'products'} onClick={() => { setActiveTab('products'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={DollarSign} label="Pricing" active={activeTab === 'pricing'} onClick={() => { setActiveTab('pricing'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Link2} label="Connect your Store" active={activeTab === 'connect'} onClick={() => { setActiveTab('connect'); setMobileSidebarOpen(false); }} badge={isConnected ? null : 'Setup'} />
 
             <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '10px 0' }} />
@@ -366,6 +369,10 @@ export default function PersonalPanel({ session, store }) {
 
             {activeTab === 'products' && (
               <ProductsView store={store} />
+            )}
+
+            {activeTab === 'pricing' && (
+              <PricingView store={store} />
             )}
 
             {activeTab === 'advanced' && (
