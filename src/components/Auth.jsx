@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Shield } from "lucide-react";
+import { Shield, Eye, EyeOff } from "lucide-react";
 
 // Import all the newly copied Tailwind components
 import { AuroraBackground } from './aurora-background';
@@ -19,6 +19,7 @@ export default function Auth() {
   const [loading, setLoading]             = useState(false);
   const [email, setEmail]                 = useState('');
   const [password, setPassword]           = useState('');
+  const [showPassword, setShowPassword]   = useState(false);
   const [isSignUp, setIsSignUp]           = useState(false);
   const [error, setError]                 = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -128,13 +129,20 @@ export default function Auth() {
                 <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>🔒</span>
                 <input
                   id="auth-password"
-                  type="password"
-                  style={{ width: '100%', padding: '14px 14px 14px 44px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none' }}
+                  type={showPassword ? "text" : "password"}
+                  style={{ width: '100%', padding: '14px 44px 14px 44px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', outline: 'none' }}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
 
               {error && (
