@@ -272,12 +272,10 @@ export default function Onboarding({ session, isEmbedded = false }) {
 
       <div style={isEmbedded ? { padding: '0' } : {
         flex: 1,
-        padding: step === 1 ? '40px' : '40px 20px',
+        padding: step === 1 ? '48px 48px 80px' : '40px 20px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: step === 1 ? 'stretch' : 'center',
-        maxWidth: step === 1 ? '1100px' : '100%',
-        margin: '0 auto',
         width: '100%',
         boxSizing: 'border-box',
       }}>
@@ -289,7 +287,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
         }>
 
           {/* ── Title + step indicators ── */}
-          <div style={{ marginBottom: '32px' }}>
+          <div style={{ marginBottom: '40px', maxWidth: step === 1 ? 'none' : '100%' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',

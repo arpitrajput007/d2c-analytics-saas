@@ -72,7 +72,7 @@ const s = {
   faqItem: { borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:12, marginTop:12 },
   faqQ: { width:"100%", display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8, background:"none", border:"none", cursor:"pointer", padding:0, color:"#cbd5e1", fontSize:13, fontWeight:500, textAlign:"left", lineHeight:1.5, fontFamily:"inherit" },
   faqA: { fontSize:12, color:"#64748b", lineHeight:1.7, margin:"10px 0 0" },
-  grid: { display:"grid", gridTemplateColumns:"1fr 380px", gap:24, alignItems:"start" },
+  grid: { display:'grid', gridTemplateColumns:'1fr 440px', gap:28, alignItems:'start', width:'100%' },
   spinner: { width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"white", borderRadius:"50%", animation:"spin 0.7s linear infinite", display:"inline-block" },
 };
 
