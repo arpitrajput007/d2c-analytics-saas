@@ -822,24 +822,29 @@ button.ghost:hover {
    ============================================================ */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
 }
 
 .metric-card {
-  padding: 22px 20px;
+  padding: 26px 22px;
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1);
   cursor: default;
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
   will-change: transform;
   /* Smooth JS transform transition is applied via JS */
+}
+
+/* Premium card lift on hover — CSS fallback (JS tilt also active) */
+.metric-card.clickable:hover {
+  transform: translateY(-4px);
 }
 
 /* Top shine line */
@@ -879,15 +884,15 @@ button.ghost:hover {
 .metric-card.glow-white  { background: var(--surface); border: 1px solid rgba(255,255,255,0.1); }
 
 /* Hover glow variants (JS adds .is-hovered class or handled by CSS) */
-.metric-card.glow-green:hover  { border-color: rgba(45,212,160,0.45);  box-shadow: 0 16px 48px rgba(45,212,160,0.12),  0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-red:hover    { border-color: rgba(251,113,133,0.45); box-shadow: 0 16px 48px rgba(251,113,133,0.12), 0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-blue:hover   { border-color: rgba(96,165,250,0.45);  box-shadow: 0 16px 48px rgba(96,165,250,0.12),  0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-purple:hover { border-color: rgba(167,139,250,0.45); box-shadow: 0 16px 48px rgba(167,139,250,0.12), 0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-orange:hover { border-color: rgba(249,115,22,0.45);  box-shadow: 0 16px 48px rgba(249,115,22,0.12),  0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-yellow:hover { border-color: rgba(245,200,66,0.45);  box-shadow: 0 16px 48px rgba(245,200,66,0.12),  0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-indigo:hover { border-color: rgba(129,140,248,0.45); box-shadow: 0 16px 48px rgba(129,140,248,0.12), 0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-amber:hover  { border-color: rgba(251,146,60,0.45);  box-shadow: 0 16px 48px rgba(251,146,60,0.12),  0 4px 16px rgba(0,0,0,0.4); }
-.metric-card.glow-white:hover  { border-color: rgba(255,255,255,0.2);  box-shadow: 0 16px 48px rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4); }
+.metric-card.glow-green:hover  { border-color: rgba(45,212,160,0.55);  box-shadow: 0 20px 60px rgba(45,212,160,0.18),  0 0 0 1px rgba(45,212,160,0.1),  0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-red:hover    { border-color: rgba(251,113,133,0.55); box-shadow: 0 20px 60px rgba(251,113,133,0.18), 0 0 0 1px rgba(251,113,133,0.1), 0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-blue:hover   { border-color: rgba(96,165,250,0.55);  box-shadow: 0 20px 60px rgba(96,165,250,0.18),  0 0 0 1px rgba(96,165,250,0.1),  0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-purple:hover { border-color: rgba(167,139,250,0.55); box-shadow: 0 20px 60px rgba(167,139,250,0.18), 0 0 0 1px rgba(167,139,250,0.1), 0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-orange:hover { border-color: rgba(249,115,22,0.55);  box-shadow: 0 20px 60px rgba(249,115,22,0.18),  0 0 0 1px rgba(249,115,22,0.1),  0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-yellow:hover { border-color: rgba(245,200,66,0.55);  box-shadow: 0 20px 60px rgba(245,200,66,0.18),  0 0 0 1px rgba(245,200,66,0.1),  0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-indigo:hover { border-color: rgba(129,140,248,0.55); box-shadow: 0 20px 60px rgba(129,140,248,0.18), 0 0 0 1px rgba(129,140,248,0.1), 0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-amber:hover  { border-color: rgba(251,146,60,0.55);  box-shadow: 0 20px 60px rgba(251,146,60,0.18),  0 0 0 1px rgba(251,146,60,0.1),  0 4px 20px rgba(0,0,0,0.5); }
+.metric-card.glow-white:hover  { border-color: rgba(255,255,255,0.28); box-shadow: 0 20px 60px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.5); }
 
 /* Active filter state */
 .metric-card.active-filter { }
@@ -904,28 +909,29 @@ button.ghost:hover {
 .metric-icon { font-size: 20px; margin-bottom: 8px; display: block; }
 
 .metric-label {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 700;
-  letter-spacing: 0.9px;
+  letter-spacing: 1px;
   font-family: 'Inter', sans-serif;
 }
 
 .metric-value {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 800;
-  letter-spacing: -1.5px;
-  margin-top: 4px;
+  letter-spacing: -2px;
+  margin-top: 6px;
   line-height: 1;
   font-family: 'Outfit', sans-serif;
 }
 
 .metric-sub {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-dim);
-  margin-top: 6px;
+  margin-top: 8px;
   font-family: 'Inter', sans-serif;
+  line-height: 1.5;
 }
 
 .text-profit { color: var(--profit-color); }
@@ -939,15 +945,17 @@ button.ghost:hover {
    ============================================================ */
 .controls-bar {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 14px 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  margin-bottom: 24px;
+  padding: 16px 22px;
+  background: rgba(15,15,26,0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 
 .controls-bar::before {
@@ -1170,12 +1178,21 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
    DAILY FEED
    ============================================================ */
 .daily-feed-container { display: flex; flex-direction: column; gap: 24px; }
-.day-block { border-radius: var(--radius-lg); padding: 24px; background: var(--surface); border: 1px solid var(--border); }
-.day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 20px; }
-.day-header h2 { margin: 0; font-size: 20px; color: var(--text-main); font-weight: 700; font-family: 'Outfit', sans-serif; }
+.day-block {
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  background: rgba(15,15,26,0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.day-block:hover { border-color: rgba(255,255,255,0.12); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+.day-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; margin-bottom: 22px; }
+.day-header h2 { margin: 0; font-size: 21px; color: var(--text-main); font-weight: 800; font-family: 'Outfit', sans-serif; letter-spacing: -0.3px; }
 .day-actions { display: flex; gap: 10px; }
-.expand-btn { background: transparent; border: 1px solid var(--border); padding: 5px 12px; font-size: 12px; }
-.expand-btn:hover { background: rgba(255,255,255,0.04); }
+.expand-btn { background: transparent; border: 1px solid rgba(255,255,255,0.08); padding: 6px 13px; font-size: 12px; border-radius: 8px; }
+.expand-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); }
 
 
 /* ============================================================
@@ -1278,16 +1295,66 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 
 /* ============================================================
+   SKELETON LOADER — SHIMMER SYSTEM
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.10) 40%,
+    rgba(255,255,255,0.04) 80%
+  );
+  background-size: 300% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.skeleton-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-line {
+  height: 12px; border-radius: 6px;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+
+/* ============================================================
+   AMBIENT ORB (reusable floating gradient blob)
+   ============================================================ */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  animation: float-orb 14s ease-in-out infinite;
+  z-index: 0;
+}
+
+
+/* ============================================================
    EMPTY STATE
    ============================================================ */
 .empty-state {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 64px 40px;
+  justify-content: center; padding: 72px 40px;
   text-align: center; color: var(--text-muted);
 }
-.empty-state-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.4; }
-.empty-state-text { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); font-family: 'Outfit', sans-serif; }
-.empty-state-sub  { font-size: 13px; color: var(--text-dim); }
+.empty-state-icon { font-size: 44px; margin-bottom: 20px; opacity: 0.5; }
+.empty-state-text { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); font-family: 'Outfit', sans-serif; }
+.empty-state-sub  { font-size: 13.5px; color: var(--text-dim); max-width: 340px; line-height: 1.7; }
 
 
 /* ============================================================
