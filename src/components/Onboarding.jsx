@@ -269,12 +269,12 @@ export default function Onboarding({ session, isEmbedded = false }) {
         </header>
       )}
 
-      <div className="onboard-page" style={isEmbedded ? { padding: '0' } : { flex: 1, padding: '40px 20px' }}>
+      <div className="onboard-page" style={isEmbedded ? { padding: '0' } : { flex: 1, padding: step === 1 ? '40px' : '40px 20px', alignItems: step === 1 ? 'flex-start' : 'center', maxWidth: step === 1 ? '1100px' : '100%', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
         <div
           className="onboard-card"
           style={isEmbedded
-            ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0' }
-            : { maxWidth: step === 1 ? '560px' : '480px', transition: 'max-width 0.3s ease' }
+            ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0', width: '100%' }
+            : { maxWidth: step === 1 ? '100%' : '500px', width: '100%', transition: 'max-width 0.3s ease' }
           }
         >
 
@@ -356,10 +356,13 @@ export default function Onboarding({ session, isEmbedded = false }) {
             )}
 
             {/* ══════════════════════════════════
-                STEP 1 — Connect Shopify
+                STEP 1 — Connect Shopify (TWO COLUMN)
             ══════════════════════════════════ */}
             {step === 1 && (
-              <div style={{ animation: 'fadeInUp 0.3s ease' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'start', animation: 'fadeInUp 0.3s ease' }}>
+
+                {/* ── LEFT: Form ── */}
+                <div>
                 <h2 style={{ margin: '0 0 6px 0', fontFamily: 'Outfit', fontSize: '21px', fontWeight: 800 }}>
                   Connect your Shopify store
                 </h2>
@@ -482,16 +485,73 @@ export default function Onboarding({ session, isEmbedded = false }) {
                   <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>
                     ← Back
                   </button>
-                  <button
-                    type="button"
-                    className="primary"
-                    style={{ flex: 2, padding: '13px' }}
-                    onClick={nextStep}
-                    disabled={!shopifyDomain.trim() || !accessToken.trim()}
-                  >
+                  <button type="button" className="primary" style={{ flex: 2, padding: '13px' }} onClick={nextStep} disabled={!shopifyDomain.trim() || !accessToken.trim()}>
                     Continue →
                   </button>
                 </div>
+                </div>{/* end LEFT */}
+
+                {/* ── RIGHT: Premium Info Panel ── */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '100px' }}>
+
+                  {/* What you unlock */}
+                  <div style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(20px)' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-dim)', marginBottom: '16px' }}>What you unlock</div>
+                    {[
+                      { icon: '📊', color: '#2dd4a0', label: 'Real-time Net Profit', sub: 'After every deduction' },
+                      { icon: '🔴', color: '#fb7185', label: 'Margin Leak Alerts', sub: 'RTO, shipping, COGS' },
+                      { icon: '📦', color: '#f5c842', label: 'Product-level P&L', sub: 'Per SKU profitability' },
+                      { icon: '🤖', color: '#a78bfa', label: 'AI Co-Pilot Insights', sub: 'Actionable recommendations' },
+                      { icon: '📅', color: '#38bdf8', label: 'Daily / Monthly Reports', sub: 'Automated breakdowns' },
+                    ].map(({ icon, color, label, sub }) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `rgba(${color === '#2dd4a0' ? '45,212,160' : color === '#fb7185' ? '251,113,133' : color === '#f5c842' ? '245,200,66' : color === '#a78bfa' ? '167,139,250' : '56,189,248'},0.1)`, border: `1px solid ${color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', flexShrink: 0 }}>{icon}</div>
+                        <div>
+                          <div style={{ fontSize: '13.5px', fontWeight: 600, color: '#eeeef8', marginBottom: '1px' }}>{label}</div>
+                          <div style={{ fontSize: '11.5px', color: 'var(--text-dim)' }}>{sub}</div>
+                        </div>
+                        <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}`, flexShrink: 0 }} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mini dashboard mockup */}
+                  <div style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', backdropFilter: 'blur(20px)' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-dim)', marginBottom: '14px' }}>Your dashboard preview</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      {[
+                        { label: 'Net Profit', val: '₹1,24,500', color: '#2dd4a0', border: 'rgba(45,212,160,0.2)' },
+                        { label: 'Margin Leaked', val: '₹18,200', color: '#fb7185', border: 'rgba(251,113,133,0.2)' },
+                        { label: 'Net Margin', val: '34.2%', color: '#f5c842', border: 'rgba(245,200,66,0.2)' },
+                        { label: 'Gross Revenue', val: '₹3,64,000', color: '#eeeef8', border: 'rgba(255,255,255,0.1)' },
+                      ].map(({ label, val, color, border }) => (
+                        <div key={label} style={{ background: 'rgba(0,0,0,0.3)', border: `1px solid ${border}`, borderRadius: '10px', padding: '12px' }}>
+                          <div style={{ fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--text-dim)', marginBottom: '6px' }}>{label}</div>
+                          <div style={{ fontSize: '17px', fontWeight: 800, color, fontFamily: 'Outfit', letterSpacing: '-0.5px' }}>{val}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(45,212,160,0.05)', border: '1px solid rgba(45,212,160,0.15)', borderRadius: '8px', fontSize: '11.5px', color: '#2dd4a0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2dd4a0', boxShadow: '0 0 8px #2dd4a0', animation: 'pulse-live 2s infinite' }} />
+                      Live data syncs every time you click Sync
+                    </div>
+                  </div>
+
+                  {/* Trust stats */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {[
+                      { num: '100%', label: 'Read-only' },
+                      { num: '2 min', label: 'Setup time' },
+                      { num: '0 risk', label: 'To your store' },
+                    ].map(({ num, label }) => (
+                      <div key={label} style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '14px 10px', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
+                        <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800, color: '#f5c842', letterSpacing: '-0.5px' }}>{num}</div>
+                        <div style={{ fontSize: '10.5px', color: 'var(--text-dim)', marginTop: '3px', fontWeight: 500 }}>{label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>{/* end RIGHT */}
+
               </div>
             )}
 
