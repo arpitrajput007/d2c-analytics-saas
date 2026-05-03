@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import ConnectShopifyStep from './ConnectShopifyStep';
 
 const STEPS = ['Store Info', 'Connect Shopify', 'Brand'];
 
@@ -269,29 +270,38 @@ export default function Onboarding({ session, isEmbedded = false }) {
         </header>
       )}
 
-      <div className="onboard-page" style={isEmbedded ? { padding: '0' } : { flex: 1, padding: step === 1 ? '40px' : '40px 20px', alignItems: step === 1 ? 'flex-start' : 'center', maxWidth: step === 1 ? '1100px' : '100%', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-        <div
-          className="onboard-card"
-          style={isEmbedded
-            ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0', width: '100%' }
-            : { maxWidth: step === 1 ? '100%' : '500px', width: '100%', transition: 'max-width 0.3s ease' }
-          }
-        >
+      <div style={isEmbedded ? { padding: '0' } : {
+        flex: 1,
+        padding: step === 1 ? '40px' : '40px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: step === 1 ? 'stretch' : 'center',
+        maxWidth: step === 1 ? '1100px' : '100%',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}>
+        <div style={isEmbedded
+          ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0', width: '100%' }
+          : step === 1
+            ? { width: '100%' }
+            : { maxWidth: '500px', width: '100%', background: 'var(--surface)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-2xl)', padding: '44px', boxShadow: 'var(--shadow-xl)', position: 'relative' }
+        }>
 
           {/* ── Title + step indicators ── */}
-          <div style={{ marginBottom: '28px' }}>
+          <div style={{ marginBottom: '32px' }}>
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '7px',
-              padding: '4px 12px', borderRadius: '20px',
-              background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.18)',
-              fontSize: '11px', fontWeight: 700, color: 'var(--primary)',
-              letterSpacing: '0.4px', textTransform: 'uppercase',
-              marginBottom: '14px',
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',
+              borderRadius: '20px', padding: '5px 12px',
+              fontSize: '11px', fontWeight: 600, color: '#f59e0b',
+              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px',
             }}>
-              <span>🔒</span> Secure Setup
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ color: '#f59e0b' }}><path d="M7 1L1.5 4v4.5C1.5 11.5 4 13.5 7 14c3-.5 5.5-2.5 5.5-5.5V4L7 1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>
+              Secure Setup
             </div>
-            <h1 style={{ margin: '0 0 24px 0', fontFamily: 'Outfit', fontSize: '26px', fontWeight: 800, lineHeight: 1.2 }}>
-              Let's build your dashboard
+            <h1 style={{ fontSize: 36, fontWeight: 700, color: '#f1f5f9', margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.5px', fontFamily: 'Outfit, sans-serif' }}>
+              Let's build your <span style={{ background: 'linear-gradient(135deg,#10b981,#34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>dashboard</span>
             </h1>
             <div className="onboard-steps">
               {STEPS.map((label, i) => (
@@ -356,203 +366,19 @@ export default function Onboarding({ session, isEmbedded = false }) {
             )}
 
             {/* ══════════════════════════════════
-                STEP 1 — Connect Shopify (TWO COLUMN)
+                STEP 1 — Connect Shopify
             ══════════════════════════════════ */}
             {step === 1 && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'start', animation: 'fadeInUp 0.3s ease' }}>
-
-                {/* ── LEFT: Form ── */}
-                <div>
-                <h2 style={{ margin: '0 0 6px 0', fontFamily: 'Outfit', fontSize: '21px', fontWeight: 800 }}>
-                  Connect your Shopify store
-                </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '22px', lineHeight: 1.65 }}>
-                  We need <strong style={{ color: '#eeeef8' }}>read-only</strong> access to pull your orders &amp;
-                  products data. We cannot make any changes to your store.
-                </p>
-
-                {/* Security Trust Bar */}
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                  padding: '10px 14px', marginBottom: '22px',
-                  background: 'rgba(45,212,160,0.05)',
-                  border: '1px solid rgba(45,212,160,0.15)',
-                  borderRadius: '10px',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                }}>
-                  {[
-                    { icon: '🔍', text: 'Read-only access' },
-                    { icon: '🔒', text: 'Token encrypted at rest' },
-                    { icon: '🚫', text: 'No write permissions' },
-                  ].map(({ icon, text }) => (
-                    <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#2dd4a0', fontWeight: 600 }}>
-                      <span>{icon}</span> {text}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Shopify Domain */}
-                <div style={{ marginBottom: '18px' }}>
-                  <label style={labelStyle}>Shopify Domain</label>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="text"
-                      required
-                      value={shopifyDomain}
-                      onChange={e => setShopifyDomain(e.target.value)}
-                      placeholder="your-store-name"
-                      style={{ ...inputStyle, borderRadius: '8px 0 0 8px', borderRight: 'none', flex: 1 }}
-                      onFocus={inputFocus}
-                      onBlur={inputBlur}
-                    />
-                    <div style={{
-                      padding: '12px 14px',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '0 8px 8px 0',
-                      color: 'var(--text-muted)',
-                      fontSize: '13px',
-                      whiteSpace: 'nowrap',
-                      userSelect: 'none',
-                    }}>
-                      .myshopify.com
-                    </div>
-                  </div>
-                </div>
-
-                {/* Access Token */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={labelStyle}>Custom App Access Token</label>
-                  <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '8px', lineHeight: 1.5, marginTop: 0 }}>
-                    Create a custom app in Shopify Admin with{' '}
-                    <code style={codeStyle}>read_orders</code> &amp;{' '}
-                    <code style={codeStyle}>read_products</code> scopes. See the FAQ below for step-by-step instructions.
-                  </p>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={showToken ? 'text' : 'password'}
-                      required
-                      value={accessToken}
-                      onChange={e => setAccessToken(e.target.value)}
-                      placeholder="shpat_..."
-                      style={{ ...inputStyle, fontFamily: 'monospace', paddingRight: '44px' }}
-                      onFocus={inputFocus}
-                      onBlur={inputBlur}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowToken(v => !v)}
-                      style={{
-                        all: 'unset', position: 'absolute', right: '12px', top: '50%',
-                        transform: 'translateY(-50%)', cursor: 'pointer',
-                        fontSize: '15px', color: 'var(--text-muted)',
-                        transition: 'color 0.2s',
-                      }}
-                      title={showToken ? 'Hide token' : 'Show token'}
-                    >
-                      {showToken ? '🙈' : '👁️'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Disclaimer Box */}
-                <DisclaimerBox />
-
-                {/* FAQ Accordion */}
-                <div style={{
-                  marginTop: '22px',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  background: 'rgba(255,255,255,0.02)',
-                }}>
-                  <div style={{
-                    padding: '12px 16px',
-                    fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px',
-                    textTransform: 'uppercase', color: 'var(--text-dim)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    display: 'flex', alignItems: 'center', gap: '7px',
-                  }}>
-                    <span>❓</span> Frequently Asked Questions
-                  </div>
-                  {FAQ_ITEMS.map((item, i) => (
-                    <FaqItem key={i} q={item.q} a={item.a} />
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: '22px' }}>
-                  <button type="button" className="ghost" style={{ flex: 1, padding: '13px' }} onClick={prevStep}>
-                    ← Back
-                  </button>
-                  <button type="button" className="primary" style={{ flex: 2, padding: '13px' }} onClick={nextStep} disabled={!shopifyDomain.trim() || !accessToken.trim()}>
-                    Continue →
-                  </button>
-                </div>
-                </div>{/* end LEFT */}
-
-                {/* ── RIGHT: Premium Info Panel ── */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '100px' }}>
-
-                  {/* What you unlock */}
-                  <div style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(20px)' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-dim)', marginBottom: '16px' }}>What you unlock</div>
-                    {[
-                      { icon: '📊', color: '#2dd4a0', label: 'Real-time Net Profit', sub: 'After every deduction' },
-                      { icon: '🔴', color: '#fb7185', label: 'Margin Leak Alerts', sub: 'RTO, shipping, COGS' },
-                      { icon: '📦', color: '#f5c842', label: 'Product-level P&L', sub: 'Per SKU profitability' },
-                      { icon: '🤖', color: '#a78bfa', label: 'AI Co-Pilot Insights', sub: 'Actionable recommendations' },
-                      { icon: '📅', color: '#38bdf8', label: 'Daily / Monthly Reports', sub: 'Automated breakdowns' },
-                    ].map(({ icon, color, label, sub }) => (
-                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `rgba(${color === '#2dd4a0' ? '45,212,160' : color === '#fb7185' ? '251,113,133' : color === '#f5c842' ? '245,200,66' : color === '#a78bfa' ? '167,139,250' : '56,189,248'},0.1)`, border: `1px solid ${color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', flexShrink: 0 }}>{icon}</div>
-                        <div>
-                          <div style={{ fontSize: '13.5px', fontWeight: 600, color: '#eeeef8', marginBottom: '1px' }}>{label}</div>
-                          <div style={{ fontSize: '11.5px', color: 'var(--text-dim)' }}>{sub}</div>
-                        </div>
-                        <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}`, flexShrink: 0 }} />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Mini dashboard mockup */}
-                  <div style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', backdropFilter: 'blur(20px)' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-dim)', marginBottom: '14px' }}>Your dashboard preview</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      {[
-                        { label: 'Net Profit', val: '₹1,24,500', color: '#2dd4a0', border: 'rgba(45,212,160,0.2)' },
-                        { label: 'Margin Leaked', val: '₹18,200', color: '#fb7185', border: 'rgba(251,113,133,0.2)' },
-                        { label: 'Net Margin', val: '34.2%', color: '#f5c842', border: 'rgba(245,200,66,0.2)' },
-                        { label: 'Gross Revenue', val: '₹3,64,000', color: '#eeeef8', border: 'rgba(255,255,255,0.1)' },
-                      ].map(({ label, val, color, border }) => (
-                        <div key={label} style={{ background: 'rgba(0,0,0,0.3)', border: `1px solid ${border}`, borderRadius: '10px', padding: '12px' }}>
-                          <div style={{ fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'var(--text-dim)', marginBottom: '6px' }}>{label}</div>
-                          <div style={{ fontSize: '17px', fontWeight: 800, color, fontFamily: 'Outfit', letterSpacing: '-0.5px' }}>{val}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(45,212,160,0.05)', border: '1px solid rgba(45,212,160,0.15)', borderRadius: '8px', fontSize: '11.5px', color: '#2dd4a0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2dd4a0', boxShadow: '0 0 8px #2dd4a0', animation: 'pulse-live 2s infinite' }} />
-                      Live data syncs every time you click Sync
-                    </div>
-                  </div>
-
-                  {/* Trust stats */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                    {[
-                      { num: '100%', label: 'Read-only' },
-                      { num: '2 min', label: 'Setup time' },
-                      { num: '0 risk', label: 'To your store' },
-                    ].map(({ num, label }) => (
-                      <div key={label} style={{ background: 'rgba(15,15,26,0.75)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '14px 10px', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
-                        <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800, color: '#f5c842', letterSpacing: '-0.5px' }}>{num}</div>
-                        <div style={{ fontSize: '10.5px', color: 'var(--text-dim)', marginTop: '3px', fontWeight: 500 }}>{label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>{/* end RIGHT */}
-
-              </div>
+              <ConnectShopifyStep
+                shopifyDomain={shopifyDomain}
+                setShopifyDomain={setShopifyDomain}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+                showToken={showToken}
+                setShowToken={setShowToken}
+                onBack={prevStep}
+                onContinue={nextStep}
+              />
             )}
 
             {/* ══════════════════════════════════
