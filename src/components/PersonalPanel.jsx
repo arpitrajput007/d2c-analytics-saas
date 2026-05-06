@@ -15,6 +15,7 @@ import MonthlyView from './MonthlyView';
 import AllTimeView from './AllTimeView';
 import BusinessAnalytics from './BusinessAnalytics';
 import SheetView from './SheetView';
+import CopilotChat from './CopilotChat';
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -286,6 +287,7 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
 export default function PersonalPanel({ session, store }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
 
   const userEmail = session?.user?.email || '';
   const userInitial = userEmail.charAt(0).toUpperCase();
@@ -528,7 +530,15 @@ export default function PersonalPanel({ session, store }) {
             </div>
 
             {/* AI Co-Pilot CTA */}
-            <div style={{
+            <div 
+              onClick={() => {
+                if (isConnected && store.subscription_plan === 'starter') {
+                  setActiveTab('copilot-upgrade'); // Force show upgrade
+                } else {
+                  setCopilotOpen(true);
+                }
+              }}
+              style={{
               display: 'flex', alignItems: 'center', gap: '7px',
               padding: '8px 16px', borderRadius: '11px',
               background: 'linear-gradient(135deg, rgba(167,139,250,1), rgba(56,189,248,1))',
@@ -556,7 +566,7 @@ export default function PersonalPanel({ session, store }) {
                 )}
                 {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
                 
-                {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
+                {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced', 'copilot-upgrade'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
                   <ProRequiredState onUpgradeClick={() => setActiveTab('pricing')} />
                 )}
 
@@ -587,6 +597,13 @@ export default function PersonalPanel({ session, store }) {
           </div>
         </div>
       </div>
+      
+      {/* Global Modals/Overlays */}
+      <CopilotChat 
+        store={store} 
+        isOpen={copilotOpen} 
+        onClose={() => setCopilotOpen(false)} 
+      />
     </>
   );
 }

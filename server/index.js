@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const { OpenAI } = require('openai');
 const { syncStoreData } = require('./syncService');
 const { encrypt } = require('./cryptoUtils');
 
@@ -134,9 +135,81 @@ app.post('/api/sync/:storeId', async (req, res) => {
 });
 
 /**
- * GET /api/health
- * Simple health check
+ * POST /api/copilot
+ * Handles AI Co-Pilot chat messages with RAG (Retrieval-Augmented Generation)
  */
+app.post('/api/copilot', async (req, res) => {
+  const { storeId, messages } = req.body;
+  
+  if (!storeId || !messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'Missing storeId or messages' });
+  }
+
+  try {
+    // 1. Fetch recent store context from Supabase to feed the AI
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('id, total_price, created_at, financial_status, fulfillment_status, tags, line_items')
+      .eq('store_id', storeId)
+      .gte('created_at', thirtyDaysAgo.toISOString());
+
+    if (error) throw error;
+
+    // Aggregate some quick stats so we don't blow up the prompt size
+    let totalRevenue = 0;
+    let totalOrders = orders.length;
+    let rtoCount = 0;
+    
+    orders.forEach(o => {
+      totalRevenue += parseFloat(o.total_price || 0);
+      const tags = (o.tags || '').toLowerCase();
+      if (tags.includes('rto') || tags.includes('return to origin') || o.financial_status === 'refunded') {
+        rtoCount++;
+      }
+    });
+
+    const rtoRate = totalOrders > 0 ? ((rtoCount / totalOrders) * 100).toFixed(1) : 0;
+
+    // 2. Initialize OpenAI
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    // 3. Construct the system prompt with the live data context
+    const systemPrompt = `You are the AI Co-Pilot for a D2C E-commerce dashboard called "Pocket Dashboard". 
+You are an expert in D2C e-commerce, specifically in the Indian market (handling COD, RTOs, Net Profit).
+Here is the live data context for this user's store over the last 30 days:
+- Total Orders: ${totalOrders}
+- Total Revenue: ₹${totalRevenue.toLocaleString('en-IN')}
+- RTO / Returned Orders: ${rtoCount} (${rtoRate}%)
+
+Your job is to answer the user's questions about their business using this context. 
+Keep your answers concise, highly actionable, and professional. Use formatting (bullet points, bold text) where appropriate. 
+If they ask for specific products and you don't have the granular line_item data here, tell them you can see the high-level metrics but recommend checking the "Products" tab for SKU-level breakdowns.`;
+
+    const chatResponse = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages.map(m => ({ role: m.role, content: m.content }))
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    });
+
+    res.json({ 
+      reply: chatResponse.choices[0].message.content 
+    });
+
+  } catch (err) {
+    console.error('[Copilot Error]', err);
+    res.status(500).json({ error: 'Failed to process AI request.' });
+  }
+});
+
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 if (require.main === module) {
