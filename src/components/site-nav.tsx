@@ -19,7 +19,7 @@ export function SiteNav({ onSignInClick }) {
             <Sparkles className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
           </span>
           <span className="text-sm font-semibold tracking-tight">
-            Profit<span className="text-gradient">Control</span>
+            Pocket<span className="text-gradient"> Dashboard</span>
           </span>
         </a>
 

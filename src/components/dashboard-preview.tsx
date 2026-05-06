@@ -29,7 +29,7 @@ export function DashboardPreview() {
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--aurora-violet)" }} />
           </div>
           <div className="text-[11px] tracking-wider text-muted-foreground">
-            profitcontrol.app / command-center
+            pocketdashboard.app / command-center
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-glass-border bg-glass px-2.5 py-1 text-[10px] text-accent">
             <span className="relative flex h-1.5 w-1.5">
