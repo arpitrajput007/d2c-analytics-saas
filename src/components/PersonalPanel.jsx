@@ -75,6 +75,125 @@ function NoStoreState({ onConnectClick }) {
 }
 
 /* ─────────────────────────────────────────────
+   PRO PLAN REQUIRED STATE
+───────────────────────────────────────────── */
+function ProRequiredState({ onUpgradeClick }) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', height: '100%', minHeight: '60vh',
+      textAlign: 'center', gap: '22px', padding: '40px',
+    }}>
+      <div style={{
+        width: '84px', height: '84px', borderRadius: '24px',
+        background: 'linear-gradient(135deg, rgba(245,200,66,0.1), rgba(234,88,12,0.1))',
+        border: '1px solid rgba(245,200,66,0.2)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 0 48px -12px rgba(245,200,66,0.3)',
+      }}>
+        <Sparkles size={38} color="rgba(245,200,66,0.85)" strokeWidth={1.5} />
+      </div>
+      <div>
+        <div style={{
+          display: 'inline-block', padding: '4px 14px', borderRadius: '999px',
+          background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.18)',
+          color: 'rgba(245,200,66,0.9)', fontSize: '11px', fontWeight: 700,
+          textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '14px',
+        }}>
+          Pro Feature
+        </div>
+        <h2 style={{
+          fontFamily: 'Outfit, sans-serif', fontSize: '24px', fontWeight: 800,
+          color: '#fff', margin: '0 0 10px 0', letterSpacing: '-0.3px',
+        }}>
+          Unlock Complete Analytics
+        </h2>
+        <p style={{
+          color: 'rgba(255,255,255,0.45)', fontSize: '14px',
+          maxWidth: '360px', lineHeight: 1.6, margin: 0,
+        }}>
+          You're currently on the Starter plan. Upgrade to Pro to unlock SKU-level insights, loss identification, and AI-powered recommendations.
+        </p>
+      </div>
+
+      <button
+        onClick={onUpgradeClick}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '12px 24px', borderRadius: '12px', border: 'none',
+          background: 'rgba(245,200,66,0.1)', color: 'rgba(245,200,66,1)',
+          border: '1px solid rgba(245,200,66,0.3)',
+          fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
+          transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.15)'; e.currentTarget.style.borderColor = 'rgba(245,200,66,0.5)'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.1)'; e.currentTarget.style.borderColor = 'rgba(245,200,66,0.3)'; }}
+      >
+        Upgrade to Pro
+      </button>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   TRIAL EXPIRED STATE
+───────────────────────────────────────────── */
+function TrialExpiredState({ onUpgradeClick }) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', height: '100%', minHeight: '70vh',
+      textAlign: 'center', gap: '28px', padding: '40px',
+    }}>
+      <div style={{
+        width: '110px', height: '110px', borderRadius: '30px',
+        background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(249,115,22,0.12))',
+        border: '1px solid rgba(239,68,68,0.25)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 0 80px -10px rgba(239,68,68,0.35), 0 0 0 1px rgba(239,68,68,0.1)',
+        animation: 'panel-float 4s ease-in-out infinite',
+      }}>
+        <div style={{ fontSize: '48px' }}>⏳</div>
+      </div>
+
+      <div>
+        <h2 style={{
+          fontFamily: 'Outfit, sans-serif', fontSize: '28px', fontWeight: 800,
+          color: '#fff', margin: '0 0 12px 0', letterSpacing: '-0.5px',
+        }}>
+          Your 14-Day Free Trial has expired
+        </h2>
+        <p style={{
+          color: 'rgba(255,255,255,0.45)', fontSize: '15px',
+          maxWidth: '440px', lineHeight: 1.75, margin: 0,
+        }}>
+          Upgrade to a paid plan to continue tracking your real profit,
+          optimizing your metrics, and reducing your RTO losses.
+        </p>
+      </div>
+
+      <button
+        onClick={onUpgradeClick}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '15px 30px', borderRadius: '14px', border: 'none',
+          background: 'linear-gradient(135deg, rgba(245,200,66,1), rgba(234,88,12,1))',
+          color: '#000', fontWeight: 700, fontSize: '15px',
+          cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
+          boxShadow: '0 0 48px -8px rgba(245,200,66,0.55)',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 0 64px -8px rgba(245,200,66,0.75)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 0 48px -8px rgba(245,200,66,0.55)'; }}
+      >
+        <DollarSign size={18} />
+        View Pricing & Upgrade
+      </button>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    COMING SOON PLACEHOLDER
 ───────────────────────────────────────────── */
 function ComingSoon({ icon: Icon, title, description }) {
@@ -171,6 +290,10 @@ export default function PersonalPanel({ session, store }) {
   const userEmail = session?.user?.email || '';
   const userInitial = userEmail.charAt(0).toUpperCase();
   const isConnected = !!store;
+  
+  const trialDuration = 14 * 24 * 60 * 60 * 1000;
+  const storeCreatedAt = store?.created_at ? new Date(store.created_at).getTime() : Date.now();
+  const isTrialExpired = isConnected && (Date.now() - storeCreatedAt > trialDuration) && store.subscription_status !== 'active';
 
   const handleSignOut = () => supabase.auth.signOut();
 
@@ -424,30 +547,42 @@ export default function PersonalPanel({ session, store }) {
 
           {/* Content */}
           <div className="panel-content">
-            {activeTab === 'dashboard' && (
-              isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
-            )}
-            {activeTab === 'weekly' && isConnected && <WeeklyView store={store} />}
-            {activeTab === 'monthly' && isConnected && <MonthlyView store={store} />}
-            {activeTab === 'all-time' && isConnected && <AllTimeView store={store} />}
-            {activeTab === 'analytics' && isConnected && <BusinessAnalytics store={store} />}
-            {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
-            {['weekly', 'monthly', 'all-time', 'analytics', 'sheet'].includes(activeTab) && !isConnected && (
-              <NoStoreState onConnectClick={() => setActiveTab('connect')} />
-            )}
-            {activeTab === 'connect' && (
-              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <Onboarding session={session} isEmbedded />
-              </div>
-            )}
-            {activeTab === 'products' && <ProductsView store={store} />}
-            {activeTab === 'pricing' && <PricingView store={store} />}
-            {activeTab === 'advanced' && <AdvancedSettings store={store} />}
-            {activeTab === 'settings' && (
-              <ComingSoon icon={Settings} title="Settings" description="Manage your account preferences, notifications, and billing options — coming very soon." />
-            )}
-            {activeTab === 'support' && (
-              <ComingSoon icon={Headphones} title="Talk to Support" description="Live chat and priority support for all brand owners. Launching shortly — you'll be notified." />
+            {isTrialExpired && !['pricing', 'connect', 'support', 'settings'].includes(activeTab) ? (
+              <TrialExpiredState onUpgradeClick={() => setActiveTab('pricing')} />
+            ) : (
+              <>
+                {activeTab === 'dashboard' && (
+                  isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+                )}
+                {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
+                
+                {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
+                  <ProRequiredState onUpgradeClick={() => setActiveTab('pricing')} />
+                )}
+
+                {activeTab === 'weekly' && isConnected && store.subscription_plan !== 'starter' && <WeeklyView store={store} />}
+                {activeTab === 'monthly' && isConnected && store.subscription_plan !== 'starter' && <MonthlyView store={store} />}
+                {activeTab === 'all-time' && isConnected && store.subscription_plan !== 'starter' && <AllTimeView store={store} />}
+                {activeTab === 'analytics' && isConnected && store.subscription_plan !== 'starter' && <BusinessAnalytics store={store} />}
+                {activeTab === 'products' && store.subscription_plan !== 'starter' && <ProductsView store={store} />}
+                {activeTab === 'advanced' && store.subscription_plan !== 'starter' && <AdvancedSettings store={store} />}
+
+                {['weekly', 'monthly', 'all-time', 'analytics', 'sheet', 'products', 'advanced'].includes(activeTab) && !isConnected && (
+                  <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+                )}
+                {activeTab === 'connect' && (
+                  <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                    <Onboarding session={session} isEmbedded />
+                  </div>
+                )}
+                {activeTab === 'pricing' && <PricingView store={store} />}
+                {activeTab === 'settings' && (
+                  <ComingSoon icon={Settings} title="Settings" description="Manage your account preferences, notifications, and billing options — coming very soon." />
+                )}
+                {activeTab === 'support' && (
+                  <ComingSoon icon={Headphones} title="Talk to Support" description="Live chat and priority support for all brand owners. Launching shortly — you'll be notified." />
+                )}
+              </>
             )}
           </div>
         </div>

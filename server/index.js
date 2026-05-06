@@ -25,6 +25,21 @@ app.post('/api/store', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  const cleanDomain = shopify_domain.replace('.myshopify.com', '');
+
+  // Trial abuse protection: Check if domain is already registered
+  const { data: existingStore } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('shopify_domain', cleanDomain)
+    .single();
+
+  if (existingStore) {
+    return res.status(403).json({ 
+      error: 'This Shopify store has already been connected. Free trials are limited to one per store.' 
+    });
+  }
+
   // Encrypt the token
   const encryptedToken = encrypt(shopify_access_token);
 
@@ -33,7 +48,7 @@ app.post('/api/store', async (req, res) => {
     .insert([{
       owner_id,
       store_name,
-      shopify_domain: shopify_domain.replace('.myshopify.com', ''),
+      shopify_domain: cleanDomain,
       shopify_access_token: encryptedToken,
       primary_color,
       dashboard_style

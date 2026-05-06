@@ -2,15 +2,14 @@ import { Check, ShieldCheck, Zap } from "lucide-react";
 
 const tiers = [
   {
-    name: "Foundation Plan",
-    price: "₹3,500",
+    name: "Starter",
+    price: "₹999",
     cadence: "/ month",
-    desc: "For founders who want clarity without manual work",
+    desc: "For new founders who want clarity without manual work",
     features: [
       "1 store connection",
       "Daily business dashboard",
       "Order tracking (COD + prepaid)",
-      "RTO & unreachable order visibility",
       "Basic profit tracking",
       "Limited data history (30 days)",
       "Email support"
@@ -19,17 +18,17 @@ const tiers = [
     cta: "Start 14-day free trial"
   },
   {
-    name: "Profit Engine",
-    price: "₹6,999",
+    name: "Pro",
+    price: "₹1,499",
     cadence: "/ month",
     desc: "For brands serious about controlling profit and reducing losses",
     features: [
-      "Everything in Foundation +",
+      "Everything in Starter +",
       "Complete business analytics (no limits)",
       "SKU-level profit tracking",
       "Ad spend vs profit visibility",
-      "Loss identification (RTO, unreachable, failed delivery)",
-      "AI-powered insights (suggestions, not predictions)",
+      "Loss identification (RTO, failed delivery)",
+      "AI-powered insights",
       "Weekly performance summaries",
       "Priority support"
     ],
@@ -38,15 +37,16 @@ const tiers = [
     cta: "Start 14-day free trial"
   },
   {
-    name: "Scale / Custom Plan",
+    name: "Custom",
     price: "Custom",
     cadence: "",
-    desc: "For multi-store and high-scale operations",
+    desc: "For multi-store and custom requirements",
     features: [
+      "Custom dashboard creation",
       "Multi-store dashboards",
       "Custom reporting",
       "API integrations",
-      "Dedicated support",
+      "Dedicated account manager",
       "Workflow automation support"
     ],
     highlight: false,
