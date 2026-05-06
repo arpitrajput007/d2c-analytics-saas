@@ -2,12 +2,19 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
-  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign
+  LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign,
+  BarChart, Calendar, TrendingUp, PieChart, List
 } from 'lucide-react';
 import Onboarding from './Onboarding';
 import AdvancedSettings from './AdvancedSettings';
 import ProductsView from './ProductsView';
 import PricingView from './PricingView';
+import DailyDashboard from './DailyDashboard';
+import WeeklyView from './WeeklyView';
+import MonthlyView from './MonthlyView';
+import AllTimeView from './AllTimeView';
+import BusinessAnalytics from './BusinessAnalytics';
+import SheetView from './SheetView';
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -169,6 +176,11 @@ export default function PersonalPanel({ session, store }) {
 
   const tabTitles = {
     dashboard: 'Business Dashboard',
+    weekly: 'Weekly Performance',
+    monthly: 'Monthly Overview',
+    'all-time': 'All-Time Analytics',
+    analytics: 'Business Analytics',
+    sheet: 'Sheet View',
     connect: 'Connect your Store',
     products: 'Products',
     pricing: 'Pricing Management',
@@ -308,9 +320,20 @@ export default function PersonalPanel({ session, store }) {
           {/* Nav */}
           <nav style={{ flex: 1, padding: '14px 10px', display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
             <div style={{ fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.2)', letterSpacing: '1.2px', textTransform: 'uppercase', padding: '8px 10px 6px', marginBottom: '2px' }}>
-              Main
+              Analytics
             </div>
-            <NavItem icon={LayoutDashboard} label="Business Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={LayoutDashboard} label="Daily Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={BarChart} label="Weekly Performance" active={activeTab === 'weekly'} onClick={() => { setActiveTab('weekly'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={Calendar} label="Monthly Overview" active={activeTab === 'monthly'} onClick={() => { setActiveTab('monthly'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={TrendingUp} label="All-Time Analytics" active={activeTab === 'all-time'} onClick={() => { setActiveTab('all-time'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={PieChart} label="Business Analytics" active={activeTab === 'analytics'} onClick={() => { setActiveTab('analytics'); setMobileSidebarOpen(false); }} />
+            <NavItem icon={List} label="Sheet View" active={activeTab === 'sheet'} onClick={() => { setActiveTab('sheet'); setMobileSidebarOpen(false); }} />
+
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 4px' }} />
+            
+            <div style={{ fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.2)', letterSpacing: '1.2px', textTransform: 'uppercase', padding: '8px 10px 6px', marginBottom: '2px' }}>
+              Management
+            </div>
             <NavItem icon={Package} label="Products" active={activeTab === 'products'} onClick={() => { setActiveTab('products'); setMobileSidebarOpen(false); }} />
             <NavItem icon={DollarSign} label="Pricing" active={activeTab === 'pricing'} onClick={() => { setActiveTab('pricing'); setMobileSidebarOpen(false); }} />
             <NavItem icon={Link2} label="Connect your Store" active={activeTab === 'connect'} onClick={() => { setActiveTab('connect'); setMobileSidebarOpen(false); }} badge={isConnected ? null : 'Setup'} />
@@ -402,11 +425,15 @@ export default function PersonalPanel({ session, store }) {
           {/* Content */}
           <div className="panel-content">
             {activeTab === 'dashboard' && (
-              isConnected
-                ? <div style={{ color: '#fff' }}>
-                    <p style={{ color: 'rgba(255,255,255,0.4)' }}>Your analytics dashboard will appear here once data syncs.</p>
-                  </div>
-                : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+              isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+            )}
+            {activeTab === 'weekly' && isConnected && <WeeklyView store={store} />}
+            {activeTab === 'monthly' && isConnected && <MonthlyView store={store} />}
+            {activeTab === 'all-time' && isConnected && <AllTimeView store={store} />}
+            {activeTab === 'analytics' && isConnected && <BusinessAnalytics store={store} />}
+            {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
+            {['weekly', 'monthly', 'all-time', 'analytics', 'sheet'].includes(activeTab) && !isConnected && (
+              <NoStoreState onConnectClick={() => setActiveTab('connect')} />
             )}
             {activeTab === 'connect' && (
               <div style={{ maxWidth: '600px', margin: '0 auto' }}>

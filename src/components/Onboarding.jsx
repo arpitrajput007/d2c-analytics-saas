@@ -168,31 +168,39 @@ export default function Onboarding({ session, isEmbedded = false }) {
     e.preventDefault();
     setLoading(true);
 
-    const { data: insertData, error } = await supabase
-      .from('stores')
-      .insert([{
-        owner_id: session.user.id,
-        store_name: storeName,
-        shopify_domain: shopifyDomain,
-        shopify_access_token: accessToken,
-        primary_color: themeColor,
-        dashboard_style: 'dark-modern'
-      }])
-      .select()
-      .single();
+    try {
+      const response = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          owner_id: session.user.id,
+          store_name: storeName,
+          shopify_domain: shopifyDomain,
+          shopify_access_token: accessToken,
+          primary_color: themeColor,
+          dashboard_style: 'dark-modern'
+        })
+      });
 
-    if (error) {
-      setLoading(false);
-      alert('Error creating store: ' + error.message);
-      return;
-    }
+      const data = await response.json();
 
-    if (insertData?.id) {
-      try {
-        await fetch(`/api/sync/${insertData.id}`, { method: 'POST' });
-      } catch (syncErr) {
-        console.warn('Initial auto-sync failed (non-critical):', syncErr.message);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create store');
       }
+
+      if (data?.id) {
+        try {
+          await fetch(`/api/sync/${data.id}`, { method: 'POST' });
+        } catch (syncErr) {
+          console.warn('Initial auto-sync failed (non-critical):', syncErr.message);
+        }
+      }
+    } catch (err) {
+      setLoading(false);
+      alert('Error creating store: ' + err.message);
+      return;
     }
 
     setLoading(false);

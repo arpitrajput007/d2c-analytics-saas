@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { decrypt } = require('./cryptoUtils');
 // In a real environment, you'd load from dotenv
 // require('dotenv').config();
 
@@ -24,47 +25,61 @@ async function syncStoreData(storeId) {
 
     if (storeError || !store) throw new Error('Store not found or access token missing.');
 
-    const { shopify_domain, shopify_access_token } = store;
+    const { shopify_domain } = store;
+    const shopify_access_token = decrypt(store.shopify_access_token);
 
-    // 2. Query Shopify Admin API for Orders
+    // 2. Query Shopify Admin API for Orders with Pagination
     console.log(`Fetching orders from https://${shopify_domain}.myshopify.com...`);
-    const shopifyResponse = await fetch(`https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': shopify_access_token
+    let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
+    let totalSynced = 0;
+
+    while (url) {
+      const shopifyResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': shopify_access_token
+        }
+      });
+
+      if (!shopifyResponse.ok) {
+        throw new Error(`Shopify API Error: ${shopifyResponse.statusText}`);
       }
-    });
 
-    if (!shopifyResponse.ok) {
-      throw new Error(`Shopify API Error: ${shopifyResponse.statusText}`);
-    }
+      const { orders } = await shopifyResponse.json();
+      
+      if (orders.length === 0) break;
 
-    const { orders } = await shopifyResponse.json();
-    console.log(`Successfully fetched ${orders.length} orders from Shopify.`);
+      // 3. Normalize & Insert into Supabase in Batches
+      const normalizedOrders = orders.map(order => ({
+        store_id: storeId,
+        shopify_order_id: order.id.toString(),
+        customer_name: order.customer ? `${order.customer.first_name} ${order.customer.last_name}` : 'Guest',
+        total_price: order.total_price,
+        status: mapShopifyStatus(order),
+        created_at: order.created_at,
+        tags: order.tags ? order.tags.split(',').map(t => t.trim()) : []
+      }));
 
-    // 3. Normalize & Insert into Supabase
-    // We execute batches to respect Row Level Security and standard database limits
-    const normalizedOrders = orders.map(order => ({
-      store_id: storeId,
-      shopify_order_id: order.id.toString(),
-      customer_name: order.customer ? `${order.customer.first_name} ${order.customer.last_name}` : 'Guest',
-      total_price: order.total_price,
-      status: mapShopifyStatus(order),
-      created_at: order.created_at,
-      tags: order.tags ? order.tags.split(',').map(t => t.trim()) : []
-    }));
-
-    if (normalizedOrders.length > 0) {
       const { error: insertError } = await supabase
         .from('orders')
         .upsert(normalizedOrders, { onConflict: 'store_id, shopify_order_id' });
       
-      if (insertError) console.error('Failed to insert orders to database:', insertError);
-      else console.log(`Stored ${normalizedOrders.length} orders in Supabase safely.`);
+      if (insertError) {
+        console.error('Failed to insert orders to database:', insertError);
+        throw insertError;
+      }
+
+      totalSynced += normalizedOrders.length;
+      console.log(`Synced ${totalSynced} orders safely for store ${storeId}...`);
+
+      // 4. Get the next page URL from the Link header
+      const linkHeader = shopifyResponse.headers.get('Link');
+      const nextMatch = linkHeader ? linkHeader.match(/<([^>]+)>;\s*rel="next"/) : null;
+      url = nextMatch ? nextMatch[1] : null;
     }
 
-    console.log('Sync complete.');
+    console.log(`Sync complete. Total orders processed: ${totalSynced}`);
 
   } catch (error) {
     console.error('Data Sync Failed:', error.message);
