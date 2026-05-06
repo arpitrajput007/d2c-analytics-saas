@@ -296,7 +296,7 @@ export default function PersonalPanel({ session, store }) {
               </div>
               <div>
                 <div style={{ fontFamily: 'Outfit', fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-                  PocketDashboard
+                  Pocket Dashboard
                 </div>
                 <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.3)', marginTop: '1px', letterSpacing: '0.3px' }}>
                   Your Command Center

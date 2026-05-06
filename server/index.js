@@ -35,7 +35,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`PocketDashboard Sync Server running on http://localhost:${PORT}`);
+    console.log(`Pocket Dashboard Sync Server running on http://localhost:${PORT}`);
   });
 }
 

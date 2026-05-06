@@ -26,7 +26,7 @@ const FAQ_ITEMS = [
         <ol style={{ margin: '10px 0 0 0', paddingLeft: '18px', lineHeight: 2 }}>
           <li>Go to <strong style={{ color: '#eeeef8' }}>Shopify Admin → Settings → Apps and sales channels</strong></li>
           <li>Click <strong style={{ color: '#eeeef8' }}>"Develop apps"</strong> (top-right corner)</li>
-          <li>Click <strong style={{ color: '#eeeef8' }}>"Create an app"</strong> → name it anything (e.g. <em>PocketDashboard</em>)</li>
+          <li>Click <strong style={{ color: '#eeeef8' }}>"Create an app"</strong> → name it anything (e.g. <em>Pocket Dashboard</em>)</li>
           <li>Go to <strong style={{ color: '#eeeef8' }}>"Configuration" → "Admin API integration" → Edit</strong></li>
           <li>Enable only these two scopes: <code style={codeStyle}>read_orders</code> &amp; <code style={codeStyle}>read_products</code></li>
           <li>Click <strong style={{ color: '#eeeef8' }}>Save</strong>, then navigate to <strong style={{ color: '#eeeef8' }}>"API credentials"</strong></li>
@@ -54,7 +54,7 @@ const FAQ_ITEMS = [
     ),
   },
   {
-    q: 'Can PocketDashboard edit or delete my store data?',
+    q: 'Can Pocket Dashboard edit or delete my store data?',
     a: (
       <>
         <strong style={{ color: '#2dd4a0' }}>Absolutely not.</strong> We only request{' '}
@@ -261,7 +261,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
               background: 'var(--primary-gradient)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             }}>
-              PocketDashboard
+              Pocket Dashboard
             </div>
           </div>
           <button className="ghost" style={{ fontSize: '13px', padding: '7px 16px' }} onClick={handleSignOut}>
@@ -346,7 +346,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
                 <div style={trustBoxStyle}>
                   <span style={{ fontSize: '15px' }}>🛡️</span>
                   <span style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                    <strong style={{ color: '#eeeef8' }}>Your data stays yours.</strong> PocketDashboard is a
+                    <strong style={{ color: '#eeeef8' }}>Your data stays yours.</strong> Pocket Dashboard is a
                     read-only analytics tool. We never edit, delete, or share your store data.
                   </span>
                 </div>
@@ -500,7 +500,7 @@ function DisclaimerBox() {
         <span>🔐</span> Security &amp; Privacy Guarantee
       </div>
       <p style={{ margin: '0 0 8px 0' }}>
-        <strong style={{ color: '#eeeef8' }}>PocketDashboard is a read-only dashboard tool.</strong> We use your
+        <strong style={{ color: '#eeeef8' }}>Pocket Dashboard is a read-only dashboard tool.</strong> We use your
         access token solely to fetch order and product data for display purposes. We{' '}
         <strong style={{ color: '#fb7185' }}>cannot</strong> and{' '}
         <strong style={{ color: '#fb7185' }}>will not</strong> make any changes to your Shopify store.

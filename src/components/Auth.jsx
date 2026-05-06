@@ -99,7 +99,7 @@ export default function Auth() {
               <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, rgba(167, 139, 250, 1), rgba(56, 189, 248, 1))', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center' }}>
                 <Shield color="#000" />
               </div>
-              <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: '#fff' }}>PocketDashboard</div>
+              <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: '#fff' }}>Pocket Dashboard</div>
             </div>
 
             <h1 style={{ fontFamily: 'Outfit', fontSize: '28px', fontWeight: 800, marginBottom: '8px', color: '#fff' }}>

@@ -10,8 +10,8 @@ export function Hero() {
         <h1
           className="animate-fade-up mx-auto max-w-4xl text-5xl font-semibold leading-[1.05] tracking-tight sm:text-7xl"
         >
-          Know Your Real Profit.{" "}
-          <span className="text-gradient">Not Just Revenue.</span>
+          A business dashboard that fits{" "}
+          <span className="text-gradient">into your pocket.</span>
         </h1>
 
         <p
