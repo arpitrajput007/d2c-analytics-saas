@@ -51,7 +51,7 @@ export function CtaFooter() {
           <div className="flex flex-col items-center justify-between gap-3 border-t border-glass-border pt-6 sm:flex-row">
             <div>
               <div className="text-sm font-medium text-foreground/80 mb-1">Revenue is vanity. Profit is sanity.</div>
-              <div>We help you track what actually matters. © {new Date().getFullYear()} Profit Control.</div>
+              <div>We help you track what actually matters. © {new Date().getFullYear()} PocketDashboard.</div>
             </div>
             <div className="flex items-center gap-5">
               <a href="#" className="hover:text-foreground">Privacy</a>

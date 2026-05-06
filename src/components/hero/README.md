@@ -1,7 +1,7 @@
 # Robot + iPad Scroll-Pinned Hero — Copy Guide
 
 A reusable, drop-in hero section inspired by ChainGPT's robot scroll-scene,
-tailored for **ProfitControl / D2C Analytics SaaS**.
+tailored for **PocketDashboard**.
 
 As the user scrolls, the iPad content and headline swap across 3 scenes,
 while a cute 3D robot mascot holds the tablet. Dashboard content also

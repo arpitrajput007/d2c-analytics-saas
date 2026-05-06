@@ -164,7 +164,7 @@ export default function ConnectShopifyStep({ shopifyDomain, setShopifyDomain, ac
             </div>
             <div>
               <p style={s.secTitle}>Security &amp; Privacy Guarantee</p>
-              <p style={s.secSub}>D2C Analytics is a read-only dashboard tool</p>
+              <p style={s.secSub}>PocketDashboard is a read-only dashboard tool</p>
             </div>
           </div>
           <div style={s.secPoints}>
