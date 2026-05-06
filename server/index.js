@@ -23,6 +23,39 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 /**
+ * Registers Webhooks in Shopify automatically
+ */
+async function registerShopifyWebhooks(domain, accessToken) {
+  const backendUrl = process.env.RENDER_EXTERNAL_URL || process.env.VITE_API_URL || 'https://pocket-dashboard-mwjn.onrender.com';
+  const webhookUrl = `${backendUrl}/api/webhooks/shopify`;
+  const topics = ['orders/create', 'orders/updated'];
+
+  for (const topic of topics) {
+    try {
+      const res = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/webhooks.json`, {
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': accessToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          webhook: { topic, address: webhookUrl, format: 'json' }
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // "Address has already been taken" is a common safe error
+        console.warn(`[Webhook Registration] ${topic} warning for ${domain}:`, JSON.stringify(data.errors));
+      } else {
+        console.log(`[Webhook Registration] ${topic} registered successfully for ${domain}`);
+      }
+    } catch (err) {
+      console.error(`[Webhook Registration] Network error for ${topic}:`, err.message);
+    }
+  }
+}
+
+/**
  * POST /api/store
  * Securely creates a store and encrypts the shopify token before saving it to the database
  */
@@ -68,6 +101,9 @@ app.post('/api/store', async (req, res) => {
     console.error('Failed to create store:', error);
     return res.status(500).json({ error: error.message });
   }
+
+  // Automatically register webhooks so the user doesn't have to
+  await registerShopifyWebhooks(cleanDomain, shopify_access_token);
 
   res.json(data);
 });
