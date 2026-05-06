@@ -116,7 +116,8 @@ export default function AllTimeView({ store }) {
     if (!store?.id) return;
     setLoading(true);
     try {
-      await fetch(`/api/sync/${store.id}`, { method: 'POST' });
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
       alert('Sync triggered successfully! Data will populate in the background.');
     } catch(e) {
       alert('Sync failed: ' + e.message);

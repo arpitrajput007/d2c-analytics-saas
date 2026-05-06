@@ -169,7 +169,8 @@ export default function Onboarding({ session, isEmbedded = false }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/store', {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/store`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -192,7 +193,8 @@ export default function Onboarding({ session, isEmbedded = false }) {
 
       if (data?.id) {
         try {
-          await fetch(`/api/sync/${data.id}`, { method: 'POST' });
+          const apiUrl = import.meta.env.VITE_API_URL || '';
+          await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' });
         } catch (syncErr) {
           console.warn('Initial auto-sync failed (non-critical):', syncErr.message);
         }
