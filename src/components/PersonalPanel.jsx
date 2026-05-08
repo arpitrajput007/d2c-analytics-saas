@@ -438,8 +438,9 @@ export default function PersonalPanel({ session, store }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 0 24px -4px rgba(167,139,250,0.65), 0 0 0 1px rgba(167,139,250,0.2)',
               }}>
-                <ShieldCheck size={19} color="#000" strokeWidth={2.5} />
+                <img src="/logo.svg" alt="Logo" style={{ width: '20px', height: '20px' }} />
               </div>
+
               <div>
                 <div style={{ fontFamily: 'Outfit', fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
                   Pocket Dashboard

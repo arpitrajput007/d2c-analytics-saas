@@ -263,9 +263,10 @@ export default function Onboarding({ session, isEmbedded = false }) {
               background: 'var(--primary-gradient)',
               borderRadius: '9px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '17px',
               boxShadow: '0 0 20px var(--primary-glow)',
-            }}>📊</div>
+            }}>
+              <img src="/logo.svg" alt="Logo" style={{ width: '20px', height: '20px' }} />
+            </div>
             <div style={{
               fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800,
               background: 'var(--primary-gradient)',
@@ -274,6 +275,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
               Pocket Dashboard
             </div>
           </div>
+
           <button className="ghost" style={{ fontSize: '13px', padding: '7px 16px' }} onClick={handleSignOut}>
             ← Back to Login
           </button>

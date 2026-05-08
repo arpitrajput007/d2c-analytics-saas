@@ -31,12 +31,13 @@ export function SiteNav({ onSignInClick }) {
             className="grid h-8 w-8 place-items-center rounded-full"
             style={{ background: "var(--gradient-button)" }}
           >
-            <Sparkles className="h-4 w-4 text-primary-foreground" strokeWidth={2.5} />
+            <img src="/logo.svg" alt="Logo" className="h-4.5 w-4.5" />
           </span>
           <span className="text-sm font-semibold tracking-tight text-foreground">
             Pocket<span className="text-gradient"> Dashboard</span>
           </span>
         </Link>
+
 
         <div className="hidden items-center gap-1 md:flex">
           {links.map((l) => (

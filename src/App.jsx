@@ -24,10 +24,9 @@ const LoadingFallback = () => (
       boxShadow: '0 0 40px rgba(167, 139, 250, 0.3)',
       animation: 'pulse 2s ease-in-out infinite',
     }}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '26px' }}>
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
+      <img src="/logo.svg" alt="Pocket Dashboard Logo" style={{ width: '28px', height: '28px' }} />
     </div>
+
     <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', fontWeight: 500, letterSpacing: '0.2px' }}>
       Loading...
     </div>
