@@ -259,13 +259,14 @@ export default function Onboarding({ session, isEmbedded = false }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: '34px', height: '34px',
+              width: '46px', height: '46px',
               background: 'var(--primary-gradient)',
-              borderRadius: '9px',
+              borderRadius: '13px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 20px var(--primary-glow)',
+              boxShadow: 'var(--shadow-brand)',
+              overflow: 'hidden',
             }}>
-              <img src="/logo.svg" alt="Logo" style={{ width: '20px', height: '20px' }} />
+              <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '34px', height: '34px', objectFit: 'cover' }} />
             </div>
             <div style={{
               fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800,

@@ -26,12 +26,12 @@ export function SiteNav({ onSignInClick }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4">
       <nav className="glass shadow-glass flex w-full max-w-6xl items-center justify-between rounded-full px-3 py-2.5 sm:px-5">
-        <Link to="/" className="flex items-center gap-2 pl-2 no-underline">
+        <Link to="/" className="flex items-center gap-2 pl-1 no-underline">
           <span
-            className="grid h-8 w-8 place-items-center rounded-full"
-            style={{ background: "var(--gradient-button)" }}
+            className="grid place-items-center rounded-xl overflow-hidden flex-shrink-0"
+            style={{ width: '44px', height: '44px', background: 'var(--gradient-button)', boxShadow: 'var(--shadow-brand)' }}
           >
-            <img src="/logo.svg" alt="Logo" className="h-4.5 w-4.5" />
+            <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '44px', height: '44px', objectFit: 'cover' }} />
           </span>
           <span className="text-sm font-semibold tracking-tight text-foreground">
             Pocket<span className="text-gradient"> Dashboard</span>

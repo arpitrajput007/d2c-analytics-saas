@@ -433,12 +433,13 @@ export default function PersonalPanel({ session, store }) {
           <div style={{ padding: '22px 18px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
-                width: '38px', height: '38px', borderRadius: '11px', flexShrink: 0,
-                background: 'linear-gradient(135deg, #a78bfa, #38bdf8)',
+                width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
+                background: 'var(--primary-gradient)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 24px -4px rgba(167,139,250,0.65), 0 0 0 1px rgba(167,139,250,0.2)',
+                boxShadow: 'var(--shadow-brand)',
+                overflow: 'hidden',
               }}>
-                <img src="/logo.svg" alt="Logo" style={{ width: '20px', height: '20px' }} />
+                <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '48px', height: '48px', objectFit: 'cover' }} />
               </div>
 
               <div>
