@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { supabase } from '../supabaseClient';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
   LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign,
   BarChart, Calendar, TrendingUp, PieChart, List
 } from 'lucide-react';
-import Onboarding from './Onboarding';
-import AdvancedSettings from './AdvancedSettings';
-import ProductsView from './ProductsView';
-import PricingView from './PricingView';
-import DailyDashboard from './DailyDashboard';
-import WeeklyView from './WeeklyView';
-import MonthlyView from './MonthlyView';
-import AllTimeView from './AllTimeView';
-import BusinessAnalytics from './BusinessAnalytics';
-import SheetView from './SheetView';
-import CopilotChat from './CopilotChat';
+
+// Lazy load dashboard sub-views for performance
+const Onboarding = lazy(() => import('./Onboarding'));
+const AdvancedSettings = lazy(() => import('./AdvancedSettings'));
+const ProductsView = lazy(() => import('./ProductsView'));
+const PricingView = lazy(() => import('./PricingView'));
+const DailyDashboard = lazy(() => import('./DailyDashboard'));
+const WeeklyView = lazy(() => import('./WeeklyView'));
+const MonthlyView = lazy(() => import('./MonthlyView'));
+const AllTimeView = lazy(() => import('./AllTimeView'));
+const BusinessAnalytics = lazy(() => import('./BusinessAnalytics'));
+const SheetView = lazy(() => import('./SheetView'));
+const CopilotChat = lazy(() => import('./CopilotChat'));
+
+const ViewLoading = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '400px', color: 'rgba(255,255,255,0.2)', fontSize: '14px' }}>
+    <div className="spinner" style={{ marginRight: '12px' }} /> Loading view...
+  </div>
+);
+
 
 /* ─────────────────────────────────────────────
    EMPTY STATE — No store connected
@@ -557,53 +566,58 @@ export default function PersonalPanel({ session, store }) {
 
           {/* Content */}
           <div className="panel-content">
-            {isTrialExpired && !['pricing', 'connect', 'support', 'settings'].includes(activeTab) ? (
-              <TrialExpiredState onUpgradeClick={() => setActiveTab('pricing')} />
-            ) : (
-              <>
-                {activeTab === 'dashboard' && (
-                  isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
-                )}
-                {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
-                
-                {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced', 'copilot-upgrade'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
-                  <ProRequiredState onUpgradeClick={() => setActiveTab('pricing')} />
-                )}
+            <Suspense fallback={<ViewLoading />}>
+              {isTrialExpired && !['pricing', 'connect', 'support', 'settings'].includes(activeTab) ? (
+                <TrialExpiredState onUpgradeClick={() => setActiveTab('pricing')} />
+              ) : (
+                <>
+                  {activeTab === 'dashboard' && (
+                    isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+                  )}
+                  {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
+                  
+                  {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced', 'copilot-upgrade'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
+                    <ProRequiredState onUpgradeClick={() => setActiveTab('pricing')} />
+                  )}
 
-                {activeTab === 'weekly' && isConnected && store.subscription_plan !== 'starter' && <WeeklyView store={store} />}
-                {activeTab === 'monthly' && isConnected && store.subscription_plan !== 'starter' && <MonthlyView store={store} />}
-                {activeTab === 'all-time' && isConnected && store.subscription_plan !== 'starter' && <AllTimeView store={store} />}
-                {activeTab === 'analytics' && isConnected && store.subscription_plan !== 'starter' && <BusinessAnalytics store={store} />}
-                {activeTab === 'products' && store.subscription_plan !== 'starter' && <ProductsView store={store} />}
-                {activeTab === 'advanced' && store.subscription_plan !== 'starter' && <AdvancedSettings store={store} />}
+                  {activeTab === 'weekly' && isConnected && store.subscription_plan !== 'starter' && <WeeklyView store={store} />}
+                  {activeTab === 'monthly' && isConnected && store.subscription_plan !== 'starter' && <MonthlyView store={store} />}
+                  {activeTab === 'all-time' && isConnected && store.subscription_plan !== 'starter' && <AllTimeView store={store} />}
+                  {activeTab === 'analytics' && isConnected && store.subscription_plan !== 'starter' && <BusinessAnalytics store={store} />}
+                  {activeTab === 'products' && store.subscription_plan !== 'starter' && <ProductsView store={store} />}
+                  {activeTab === 'advanced' && store.subscription_plan !== 'starter' && <AdvancedSettings store={store} />}
 
-                {['weekly', 'monthly', 'all-time', 'analytics', 'sheet', 'products', 'advanced'].includes(activeTab) && !isConnected && (
-                  <NoStoreState onConnectClick={() => setActiveTab('connect')} />
-                )}
-                {activeTab === 'connect' && (
-                  <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                    <Onboarding session={session} isEmbedded />
-                  </div>
-                )}
-                {activeTab === 'pricing' && <PricingView store={store} />}
-                {activeTab === 'settings' && (
-                  <ComingSoon icon={Settings} title="Settings" description="Manage your account preferences, notifications, and billing options — coming very soon." />
-                )}
-                {activeTab === 'support' && (
-                  <ComingSoon icon={Headphones} title="Talk to Support" description="Live chat and priority support for all brand owners. Launching shortly — you'll be notified." />
-                )}
-              </>
-            )}
+                  {['weekly', 'monthly', 'all-time', 'analytics', 'sheet', 'products', 'advanced'].includes(activeTab) && !isConnected && (
+                    <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+                  )}
+                  {activeTab === 'connect' && (
+                    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                      <Onboarding session={session} isEmbedded />
+                    </div>
+                  )}
+                  {activeTab === 'pricing' && <PricingView store={store} />}
+                  {activeTab === 'settings' && (
+                    <ComingSoon icon={Settings} title="Settings" description="Manage your account preferences, notifications, and billing options — coming very soon." />
+                  )}
+                  {activeTab === 'support' && (
+                    <ComingSoon icon={Headphones} title="Talk to Support" description="Live chat and priority support for all brand owners. Launching shortly — you'll be notified." />
+                  )}
+                </>
+              )}
+            </Suspense>
           </div>
         </div>
       </div>
       
       {/* Global Modals/Overlays */}
-      <CopilotChat 
-        store={store} 
-        isOpen={copilotOpen} 
-        onClose={() => setCopilotOpen(false)} 
-      />
+      <Suspense fallback={null}>
+        <CopilotChat 
+          store={store} 
+          isOpen={copilotOpen} 
+          onClose={() => setCopilotOpen(false)} 
+        />
+      </Suspense>
+
     </>
   );
 }

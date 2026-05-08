@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function CtaFooter() {
   return (
@@ -26,19 +27,19 @@ export function CtaFooter() {
               </p>
 
               <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <a
-                  href="#"
-                  className="btn-aurora group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium"
+                <Link
+                  to="/signup"
+                  className="btn-aurora group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium no-underline"
                 >
                   Start Your 14-Day Free Trial
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
-                <a
-                  href="#dashboard"
-                  className="glass inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium hover:bg-glass-strong"
+                </Link>
+                <Link
+                  to="/login"
+                  className="glass inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium hover:bg-glass-strong no-underline"
                 >
-                  Request Demo
-                </a>
+                  Sign In
+                </Link>
               </div>
               <div className="relative mt-6 text-xs text-muted-foreground">
                 No credit card required · Cancel anytime · Built for Indian D2C businesses
@@ -54,9 +55,9 @@ export function CtaFooter() {
               <div>We help you track what actually matters. © {new Date().getFullYear()} Pocket Dashboard.</div>
             </div>
             <div className="flex items-center gap-5">
-              <a href="#" className="hover:text-foreground">Privacy</a>
-              <a href="#" className="hover:text-foreground">Terms</a>
-              <a href="#" className="hover:text-foreground">Contact</a>
+              <a href="#" className="hover:text-foreground no-underline">Privacy</a>
+              <a href="#" className="hover:text-foreground no-underline">Terms</a>
+              <a href="#" className="hover:text-foreground no-underline">Contact</a>
             </div>
           </div>
         </footer>
@@ -64,3 +65,4 @@ export function CtaFooter() {
     </section>
   );
 }
+
