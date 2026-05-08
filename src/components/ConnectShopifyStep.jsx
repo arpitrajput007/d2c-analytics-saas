@@ -7,7 +7,7 @@ const trustBadges = [
   },
   {
     icon: (<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="6" width="8" height="6" rx="1" stroke="currentColor" strokeWidth="1.2"/><path d="M5 6V4.5a2 2 0 014 0V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>),
-    label: "Token encrypted at rest", color: "#f59e0b",
+    label: "Token encrypted at rest", color: "var(--primary)",
   },
   {
     icon: (<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L2 5v4c0 2.2 2.1 4.1 5 4.9 2.9-.8 5-2.7 5-4.9V5L7 2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M4.5 7l1.8 1.8L9.5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>),
@@ -38,27 +38,27 @@ const s = {
   trustLabel: { fontSize:12, color:"#94a3b8", fontWeight:500 },
   field: { marginBottom:24 },
   label: { display:"flex", alignItems:"center", gap:7, fontSize:11, fontWeight:700, color:"#64748b", letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:10 },
-  labelDot: { width:5, height:5, borderRadius:"50%", background:"#10b981" },
+  labelDot: { width:5, height:5, borderRadius:"50%", background:"var(--primary)" },
   inputGroup: { display:"flex", borderRadius:10, border:"1px solid rgba(255,255,255,0.1)", overflow:"hidden", background:"rgba(255,255,255,0.03)", transition:"border-color 0.2s" },
   input: { flex:1, background:"transparent", border:"none", outline:"none", padding:"12px 16px", fontSize:14, color:"#e2e8f0", fontFamily:"inherit" },
   inputSuffix: { padding:"12px 16px", fontSize:13, color:"#475569", background:"rgba(255,255,255,0.03)", borderLeft:"1px solid rgba(255,255,255,0.08)", fontWeight:500, whiteSpace:"nowrap" },
   fieldHint: { fontSize:12, color:"#64748b", margin:"0 0 10px", lineHeight:1.6 },
-  code: { background:"rgba(16,185,129,0.12)", border:"1px solid rgba(16,185,129,0.2)", borderRadius:4, padding:"1px 6px", fontSize:11, color:"#34d399", fontFamily:"'JetBrains Mono',monospace" },
+  code: { background:"var(--primary-dim)", border:"1px solid var(--primary-glow)", borderRadius:4, padding:"1px 6px", fontSize:11, color:"var(--primary)", fontFamily:"'JetBrains Mono',monospace" },
   tokenWrap: { display:"flex", borderRadius:10, border:"1px solid rgba(255,255,255,0.1)", overflow:"hidden", background:"rgba(255,255,255,0.03)", alignItems:"center" },
   eyeBtn: { background:"none", border:"none", cursor:"pointer", padding:"12px 16px", color:"#475569", display:"flex", alignItems:"center", transition:"color 0.2s" },
-  ctaBtn: { width:"100%", padding:"14px 20px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#10b981,#059669)", color:"white", fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.2px", transition:"opacity 0.2s,transform 0.1s", marginTop:8 },
+  ctaBtn: { width:"100%", padding:"14px 20px", borderRadius:10, border:"none", background:"var(--primary-gradient)", color:"#000", fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit", letterSpacing:"-0.2px", transition:"opacity 0.2s,transform 0.1s", marginTop:8, boxShadow: "var(--shadow-brand)" },
   ctaDisabled: { opacity:0.4, cursor:"not-allowed" },
   btnRow: { display:"flex", gap:10, marginTop:8 },
   backBtn: { flex:1, padding:"14px 16px", borderRadius:10, border:"1px solid rgba(255,255,255,0.1)", background:"rgba(255,255,255,0.03)", color:"#94a3b8", fontSize:14, fontWeight:500, cursor:"pointer", fontFamily:"inherit", transition:"all 0.2s" },
   right: { display:"flex", flexDirection:"column", gap:16 },
-  secCard: { background:"rgba(245,158,11,0.04)", border:"1px solid rgba(245,158,11,0.15)", borderRadius:14, padding:20 },
+  secCard: { background:"var(--primary-dim)", border:"1px solid var(--primary-glow)", borderRadius:14, padding:20 },
   secHeader: { display:"flex", gap:12, alignItems:"flex-start", marginBottom:16 },
-  shieldWrap: { width:36, height:36, background:"rgba(245,158,11,0.1)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 },
-  secTitle: { fontSize:13, fontWeight:700, color:"#f59e0b", margin:"0 0 3px", letterSpacing:"0.03em", textTransform:"uppercase" },
+  shieldWrap: { width:36, height:36, background:"var(--primary-dim)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 },
+  secTitle: { fontSize:13, fontWeight:700, color:"var(--primary)", margin:"0 0 3px", letterSpacing:"0.03em", textTransform:"uppercase" },
   secSub: { fontSize:12, color:"#78716c", margin:0 },
   secPoints: { display:"flex", flexDirection:"column", gap:10 },
   secPoint: { display:"flex", gap:10, alignItems:"flex-start" },
-  checkDot: { width:5, height:5, borderRadius:"50%", background:"#f59e0b", marginTop:6, flexShrink:0 },
+  checkDot: { width:5, height:5, borderRadius:"50%", background:"var(--primary)", marginTop:6, flexShrink:0 },
   secText: { fontSize:12, color:"#94a3b8", lineHeight:1.6 },
   unlockCard: { background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:14, padding:20 },
   unlockTitle: { fontSize:12, fontWeight:700, color:"#64748b", letterSpacing:"0.08em", textTransform:"uppercase", margin:"0 0 14px" },
@@ -91,7 +91,7 @@ export default function ConnectShopifyStep({ shopifyDomain, setShopifyDomain, ac
       {/* LEFT: Form */}
       <div style={s.card}>
         <div style={s.cardHeader}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ color:"#10b981", flexShrink:0, marginTop:2 }}>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ color:"var(--primary)", flexShrink:0, marginTop:2 }}>
             <path d="M10 2L3 6v5c0 4.1 3 7.7 7 8.9 4-1.2 7-4.8 7-8.9V6L10 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
           </svg>
           <div>
@@ -158,8 +158,8 @@ export default function ConnectShopifyStep({ shopifyDomain, setShopifyDomain, ac
           <div style={s.secHeader}>
             <div style={s.shieldWrap}>
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M9 1.5L2.25 5.25v4.5C2.25 13.65 5.14 17.1 9 18c3.86-.9 6.75-4.35 6.75-8.25v-4.5L9 1.5z" fill="#f59e0b" fillOpacity="0.15" stroke="#f59e0b" strokeWidth="1.3" strokeLinejoin="round"/>
-                <path d="M6 9l2.1 2.1L12 6" stroke="#f59e0b" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 1.5L2.25 5.25v4.5C2.25 13.65 5.14 17.1 9 18c3.86-.9 6.75-4.35 6.75-8.25v-4.5L9 1.5z" fill="var(--primary)" fillOpacity="0.15" stroke="var(--primary)" strokeWidth="1.3" strokeLinejoin="round"/>
+                <path d="M6 9l2.1 2.1L12 6" stroke="var(--primary)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div>

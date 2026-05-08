@@ -38,13 +38,13 @@ function NoStoreState({ onConnectClick }) {
     }}>
       <div style={{
         width: '110px', height: '110px', borderRadius: '30px',
-        background: 'linear-gradient(135deg, rgba(167,139,250,0.12), rgba(56,189,248,0.12))',
-        border: '1px solid rgba(167,139,250,0.25)',
+        background: 'var(--primary-dim)',
+        border: '1px solid var(--primary-glow)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 0 80px -10px rgba(167,139,250,0.35), 0 0 0 1px rgba(167,139,250,0.1)',
+        boxShadow: 'var(--shadow-glow-aurora), 0 0 0 1px var(--primary-glow)',
         animation: 'panel-float 4s ease-in-out infinite',
       }}>
-        <Unplug size={48} color="rgba(167,139,250,0.85)" strokeWidth={1.5} />
+        <Unplug size={48} color="var(--primary)" strokeWidth={1.5} />
       </div>
 
       <div>
@@ -68,14 +68,14 @@ function NoStoreState({ onConnectClick }) {
         style={{
           display: 'flex', alignItems: 'center', gap: '10px',
           padding: '15px 30px', borderRadius: '14px', border: 'none',
-          background: 'linear-gradient(135deg, rgba(167,139,250,1), rgba(56,189,248,1))',
+          background: 'var(--primary-gradient)',
           color: '#000', fontWeight: 700, fontSize: '15px',
           cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-          boxShadow: '0 0 48px -8px rgba(167,139,250,0.55)',
+          boxShadow: 'var(--shadow-brand)',
           transition: 'transform 0.2s, box-shadow 0.2s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 0 64px -8px rgba(167,139,250,0.75)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 0 48px -8px rgba(167,139,250,0.55)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-brand-lg)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow-brand)'; }}
       >
         <Link2 size={18} />
         Connect your Store
@@ -106,8 +106,8 @@ function ProRequiredState({ onUpgradeClick }) {
       <div>
         <div style={{
           display: 'inline-block', padding: '4px 14px', borderRadius: '999px',
-          background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.18)',
-          color: 'rgba(245,200,66,0.9)', fontSize: '11px', fontWeight: 700,
+          background: 'var(--primary-dim)', border: '1px solid var(--primary-glow)',
+          color: 'var(--primary)', fontSize: '11px', fontWeight: 700,
           textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '14px',
         }}>
           Pro Feature
@@ -130,14 +130,14 @@ function ProRequiredState({ onUpgradeClick }) {
         onClick={onUpgradeClick}
         style={{
           display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '12px 24px', borderRadius: '12px', border: 'none',
-          background: 'rgba(245,200,66,0.1)', color: 'rgba(245,200,66,1)',
-          border: '1px solid rgba(245,200,66,0.3)',
+          padding: '12px 24px', borderRadius: '12px',
+          background: 'var(--primary-dim)', color: 'var(--primary)',
+          border: '1px solid var(--primary-glow)',
           fontWeight: 700, fontSize: '14px', cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
           transition: 'all 0.2s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.15)'; e.currentTarget.style.borderColor = 'rgba(245,200,66,0.5)'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.1)'; e.currentTarget.style.borderColor = 'rgba(245,200,66,0.3)'; }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-glow)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-dim)'; e.currentTarget.style.borderColor = 'var(--primary-glow)'; }}
       >
         Upgrade to Pro
       </button>
@@ -187,14 +187,14 @@ function TrialExpiredState({ onUpgradeClick }) {
         style={{
           display: 'flex', alignItems: 'center', gap: '10px',
           padding: '15px 30px', borderRadius: '14px', border: 'none',
-          background: 'linear-gradient(135deg, rgba(245,200,66,1), rgba(234,88,12,1))',
+          background: 'var(--primary-gradient)',
           color: '#000', fontWeight: 700, fontSize: '15px',
           cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-          boxShadow: '0 0 48px -8px rgba(245,200,66,0.55)',
+          boxShadow: 'var(--shadow-brand)',
           transition: 'transform 0.2s, box-shadow 0.2s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 0 64px -8px rgba(245,200,66,0.75)'; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 0 48px -8px rgba(245,200,66,0.55)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-brand-lg)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow-brand)'; }}
       >
         <DollarSign size={18} />
         View Pricing & Upgrade
@@ -255,14 +255,14 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
         display: 'flex', alignItems: 'center', gap: '12px',
         width: '100%', padding: '11px 14px', borderRadius: '12px',
         background: active
-          ? 'linear-gradient(135deg, rgba(245,200,66,0.12) 0%, rgba(245,200,66,0.05) 100%)'
+          ? 'linear-gradient(135deg, var(--primary-dim) 0%, rgba(34,211,238,0.05) 100%)'
           : hovered ? 'rgba(255,255,255,0.05)' : 'transparent',
-        border: active ? '1px solid rgba(245,200,66,0.22)' : '1px solid transparent',
+        border: active ? '1px solid var(--primary-glow)' : '1px solid transparent',
         color: active ? '#fff' : hovered ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)',
         cursor: 'pointer', textAlign: 'left',
         transition: 'all 0.2s ease',
         fontFamily: 'Outfit, sans-serif', fontSize: '13.5px', fontWeight: active ? 600 : 500,
-        boxShadow: active ? '0 0 24px -8px rgba(245,200,66,0.3), inset 0 0 20px rgba(245,200,66,0.03)' : 'none',
+        boxShadow: active ? 'var(--shadow-brand), inset 0 0 20px rgba(34,211,238,0.03)' : 'none',
         position: 'relative',
         transform: hovered && !active ? 'translateX(2px)' : 'translateX(0)',
       }}
@@ -272,8 +272,8 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
         <div style={{
           position: 'absolute', left: 0, top: '18%', bottom: '18%',
           width: '3px', borderRadius: '0 3px 3px 0',
-          background: 'linear-gradient(180deg, #f5c842, #f0a520)',
-          boxShadow: '0 0 12px rgba(245,200,66,0.6)',
+          background: 'var(--primary-gradient)',
+          boxShadow: '0 0 12px var(--primary-glow)',
         }} />
       )}
       <Icon size={17} strokeWidth={active ? 2.2 : 1.8} style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }} />
@@ -281,8 +281,8 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
       {badge && (
         <span style={{
           fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px',
-          background: 'rgba(245,200,66,0.15)', color: 'rgba(245,200,66,1)',
-          border: '1px solid rgba(245,200,66,0.25)', letterSpacing: '0.5px',
+          background: 'var(--primary-dim)', color: 'var(--primary)',
+          border: '1px solid var(--primary-glow)', letterSpacing: '0.5px',
         }}>{badge}</span>
       )}
       {active && <ChevronRight size={13} style={{ opacity: 0.35, flexShrink: 0 }} />}
@@ -374,9 +374,9 @@ export default function PersonalPanel({ session, store }) {
           width: 1px; height: 100%;
           background: linear-gradient(180deg,
             transparent 0%,
-            rgba(245,200,66,0.25) 20%,
-            rgba(245,200,66,0.1) 50%,
-            rgba(167,139,250,0.15) 80%,
+            var(--primary-glow) 20%,
+            var(--primary-dim) 50%,
+            var(--purple-glow) 80%,
             transparent 100%
           );
           pointer-events: none;
@@ -399,7 +399,7 @@ export default function PersonalPanel({ session, store }) {
           content: '';
           position: absolute; bottom: -1px; left: 0; right: 0;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(245,200,66,0.18) 30%, rgba(167,139,250,0.12) 70%, transparent);
+          background: linear-gradient(90deg, transparent, var(--primary-dim) 30%, var(--purple-glow) 70%, transparent);
           pointer-events: none;
         }
         .panel-content {
@@ -408,7 +408,7 @@ export default function PersonalPanel({ session, store }) {
         .panel-content::-webkit-scrollbar { width: 4px; }
         .panel-content::-webkit-scrollbar-track { background: transparent; }
         .panel-content::-webkit-scrollbar-thumb {
-          background: rgba(245,200,66,0.2);
+          background: var(--primary-dim);
           border-radius: 99px;
         }
         .sidebar-overlay {
@@ -498,10 +498,10 @@ export default function PersonalPanel({ session, store }) {
             >
               <div style={{
                 width: '32px', height: '32px', borderRadius: '9px', flexShrink: 0,
-                background: 'linear-gradient(135deg, rgba(167,139,250,0.8), rgba(56,189,248,0.8))',
+                background: 'var(--primary-gradient)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '14px', fontWeight: 800, color: '#000',
-                boxShadow: '0 0 12px rgba(167,139,250,0.25)',
+                boxShadow: 'var(--shadow-brand)',
               }}>{userInitial}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</div>
@@ -533,7 +533,7 @@ export default function PersonalPanel({ session, store }) {
               )}
               {isConnected && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: 'rgba(45,212,160,0.85)', marginTop: '2px', fontWeight: 500 }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2dd4a0', animation: 'live-pulse 2s ease infinite' }} />
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--profit-color)', animation: 'live-pulse 2s ease infinite' }} />
                   {store?.store_name} — Live
                 </div>
               )}
@@ -551,14 +551,14 @@ export default function PersonalPanel({ session, store }) {
               style={{
               display: 'flex', alignItems: 'center', gap: '7px',
               padding: '8px 16px', borderRadius: '11px',
-              background: 'linear-gradient(135deg, rgba(167,139,250,1), rgba(56,189,248,1))',
+              background: 'var(--primary-gradient)',
               color: '#000', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
-              boxShadow: '0 0 28px -6px rgba(167,139,250,0.55), 0 0 0 1px rgba(167,139,250,0.2)',
+              boxShadow: 'var(--shadow-brand), 0 0 0 1px var(--primary-glow)',
               fontFamily: 'Outfit, sans-serif',
               transition: 'box-shadow 0.2s, transform 0.2s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 44px -4px rgba(167,139,250,0.75), 0 0 0 1px rgba(167,139,250,0.35)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 28px -6px rgba(167,139,250,0.55), 0 0 0 1px rgba(167,139,250,0.2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow-brand-lg), 0 0 0 1px var(--primary-glow)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'var(--shadow-brand), 0 0 0 1px var(--primary-glow)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <Sparkles size={14} />
               Co-Pilot

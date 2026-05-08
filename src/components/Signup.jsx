@@ -32,13 +32,13 @@ export default function Signup() {
       
       <div style={{ 
         position: 'relative', 
-        background: '#0a0a0f', 
-        borderRadius: '24px', 
+        background: 'var(--bg-secondary)', 
+        borderRadius: 'var(--radius-xl)', 
         padding: '40px', 
         maxWidth: '440px', 
         width: '100%', 
-        boxShadow: '0 0 60px -10px rgba(56, 189, 248, 0.4)', 
-        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: 'var(--shadow-glow-aurora)', 
+        border: '1px solid var(--border-light)',
         zIndex: 10
       }}>
         
@@ -50,10 +50,10 @@ export default function Signup() {
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px', marginTop: '12px' }}>
-          <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, rgba(167, 139, 250, 1), rgba(56, 189, 248, 1))', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '40px', height: '40px', background: 'var(--primary-gradient)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-brand)' }}>
             <img src="/logo.svg" alt="Logo" style={{ width: '22px', height: '22px' }} />
           </div>
-          <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: '#fff' }}>Pocket Dashboard</div>
+          <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: 'var(--text-bright)' }}>Pocket Dashboard</div>
         </div>
 
 
@@ -107,7 +107,7 @@ export default function Signup() {
           <button
             id="auth-submit"
             type="submit"
-            style={{ width: '100%', padding: '16px', fontSize: '15px', background: 'linear-gradient(135deg, rgba(167, 139, 250, 1), rgba(56, 189, 248, 1))', color: '#000', fontWeight: 'bold', borderRadius: '12px', cursor: 'pointer', border: 'none' }}
+            style={{ width: '100%', padding: '16px', fontSize: '15px', background: 'var(--primary-gradient)', color: '#000', fontWeight: 'bold', borderRadius: 'var(--radius)', cursor: 'pointer', border: 'none', boxShadow: 'var(--shadow-brand)' }}
             disabled={loading}
           >
             {loading ? '⟳ Processing...' : '🚀 Create Account'}

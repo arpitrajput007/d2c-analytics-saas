@@ -14,20 +14,20 @@ const LoadingFallback = () => (
     display: 'flex', flexDirection: 'column',
     justifyContent: 'center', alignItems: 'center',
     gap: '20px',
-    background: '#07071a',
+    background: 'var(--bg-primary)',
   }}>
     <div style={{
       width: '52px', height: '52px',
-      background: 'linear-gradient(135deg, #a78bfa, #38bdf8)',
+      background: 'var(--primary-gradient)',
       borderRadius: '14px',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: '0 0 40px rgba(167, 139, 250, 0.3)',
+      boxShadow: 'var(--shadow-brand-lg)',
       animation: 'pulse 2s ease-in-out infinite',
     }}>
       <img src="/logo.svg" alt="Pocket Dashboard Logo" style={{ width: '28px', height: '28px' }} />
     </div>
 
-    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', fontWeight: 500, letterSpacing: '0.2px' }}>
+    <div style={{ color: 'var(--text-dim)', fontSize: '14px', fontWeight: 500, letterSpacing: '0.2px' }}>
       Loading...
     </div>
     <style>{`

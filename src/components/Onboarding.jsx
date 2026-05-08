@@ -79,7 +79,7 @@ const codeStyle = {
   borderRadius: '4px',
   fontFamily: 'monospace',
   fontSize: '12px',
-  color: '#f5c842',
+  color: 'var(--primary)',
 };
 
 function FaqItem({ q, a }) {
@@ -120,8 +120,8 @@ function FaqItem({ q, a }) {
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: '50%',
-            background: open ? 'rgba(245,200,66,0.15)' : 'rgba(255,255,255,0.05)',
-            color: open ? '#f5c842' : '#6b6b90',
+            background: open ? 'var(--primary-dim)' : 'rgba(255,255,255,0.05)',
+            color: open ? 'var(--primary)' : 'var(--text-dim)',
             fontSize: '14px',
             transition: 'all 0.25s ease',
             transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
@@ -233,7 +233,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
   };
   const inputFocus = (e) => {
     e.target.style.borderColor = 'var(--primary)';
-    e.target.style.boxShadow = '0 0 0 3px rgba(245,200,66,0.12)';
+    e.target.style.boxShadow = '0 0 0 3px var(--primary-dim)';
   };
   const inputBlur = (e) => {
     e.target.style.borderColor = 'var(--border)';
@@ -302,12 +302,12 @@ export default function Onboarding({ session, isEmbedded = false }) {
           <div style={{ marginBottom: '40px', maxWidth: step === 1 ? 'none' : '100%' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',
+              background: 'var(--primary-dim)', border: '1px solid var(--primary-glow)',
               borderRadius: '20px', padding: '5px 12px',
-              fontSize: '11px', fontWeight: 600, color: '#f59e0b',
+              fontSize: '11px', fontWeight: 600, color: 'var(--primary)',
               letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px',
             }}>
-              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ color: '#f59e0b' }}><path d="M7 1L1.5 4v4.5C1.5 11.5 4 13.5 7 14c3-.5 5.5-2.5 5.5-5.5V4L7 1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ color: 'var(--primary)' }}><path d="M7 1L1.5 4v4.5C1.5 11.5 4 13.5 7 14c3-.5 5.5-2.5 5.5-5.5V4L7 1z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>
               Secure Setup
             </div>
             <h1 style={{ fontSize: 36, fontWeight: 700, color: '#f1f5f9', margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.5px', fontFamily: 'Outfit, sans-serif' }}>
@@ -505,7 +505,7 @@ function DisclaimerBox() {
     }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '7px',
-        fontWeight: 700, color: '#f5c842', fontSize: '12px',
+        fontWeight: 700, color: 'var(--primary)', fontSize: '12px',
         textTransform: 'uppercase', letterSpacing: '0.4px',
         marginBottom: '8px',
       }}>
