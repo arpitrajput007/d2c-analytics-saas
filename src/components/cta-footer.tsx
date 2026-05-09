@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import BrandLogo from './BrandLogo';
 
 export function CtaFooter() {
   return (
@@ -49,10 +50,13 @@ export function CtaFooter() {
         </div>
 
         <footer className="mx-auto mt-16 max-w-6xl px-4 text-xs text-muted-foreground">
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-glass-border pt-6 sm:flex-row">
-            <div>
-              <div className="text-sm font-medium text-foreground/80 mb-1">Revenue is vanity. Profit is sanity.</div>
-              <div>We help you track what actually matters. © {new Date().getFullYear()} Pocket Dashboard.</div>
+          <div className="flex flex-col items-center justify-between gap-6 border-t border-glass-border pt-8 sm:flex-row">
+            <div className="flex flex-col items-center gap-3 sm:items-start">
+              <BrandLogo variant="compact" iconSize={32} />
+              <div className="text-center sm:text-left">
+                <div className="text-sm font-medium text-foreground/80 mb-1">Revenue is vanity. Profit is sanity.</div>
+                <div>We help you track what actually matters. © {new Date().getFullYear()} Pocket Dashboard.</div>
+              </div>
             </div>
             <div className="flex items-center gap-5">
               <a href="#" className="hover:text-foreground no-underline">Privacy</a>

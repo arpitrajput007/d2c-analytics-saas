@@ -4,9 +4,9 @@ import React from 'react';
  * BrandLogo — Pocket Dashboard brand mark
  *
  * Variants:
- *  "full"    — icon + wordmark + tagline (hero, loading screen)
- *  "compact" — icon + wordmark           (navbar, sidebar, login)
- *  "icon"    — icon only                 (favicon fallback, small spaces)
+ *  "full"    — complete horizontal logo image (hero, loading screen)
+ *  "compact" — real pocket icon + wordmark text  (navbar, sidebar, login)
+ *  "icon"    — P-mark color icon only            (favicon fallback, small spaces)
  *
  * Usage:
  *  <BrandLogo variant="compact" iconSize={40} />
@@ -20,6 +20,72 @@ export default function BrandLogo({
 }) {
   const textScale = iconSize / 40; // base is 40px
 
+  // ── ICON ONLY variant: P-mark color logo
+  if (variant === 'icon') {
+    return (
+      <div
+        className={className}
+        onClick={onClick}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: onClick ? 'pointer' : 'default',
+          transition: 'opacity 0.25s ease',
+          userSelect: 'none',
+          ...style,
+        }}
+        onMouseEnter={e => { if (onClick) e.currentTarget.style.opacity = '0.82'; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+      >
+        <img
+          src="/P_mark_color.png"
+          alt="Pocket Dashboard"
+          style={{
+            width: iconSize + 'px',
+            height: iconSize + 'px',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      </div>
+    );
+  }
+
+  // ── FULL variant: complete horizontal lockup image
+  if (variant === 'full') {
+    const imgHeight = Math.round(iconSize * 1.6);
+    return (
+      <div
+        className={className}
+        onClick={onClick}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          cursor: onClick ? 'pointer' : 'default',
+          transition: 'opacity 0.25s ease',
+          userSelect: 'none',
+          ...style,
+        }}
+        onMouseEnter={e => { if (onClick) e.currentTarget.style.opacity = '0.82'; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+      >
+        <img
+          src="/Pocket-Dashboard_white_hor.png"
+          alt="Pocket Dashboard — Your Business. In Your Pocket."
+          style={{
+            height: imgHeight + 'px',
+            width: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+            maxWidth: '100%',
+          }}
+        />
+      </div>
+    );
+  }
+
+  // ── COMPACT variant (default): real pocket icon + text wordmark
   return (
     <div
       className={className}
@@ -36,78 +102,50 @@ export default function BrandLogo({
       onMouseEnter={e => { if (onClick || style.cursor === 'pointer') e.currentTarget.style.opacity = '0.82'; }}
       onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
     >
-      {/* ── Icon mark ── */}
-      <div style={{
-        width: iconSize + 'px',
-        height: iconSize + 'px',
-        flexShrink: 0,
-        borderRadius: Math.round(iconSize * 0.25) + 'px',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(145deg, #4F46E5 0%, #7C3AED 100%)',
-        boxShadow: `0 ${Math.round(iconSize * 0.1)}px ${Math.round(iconSize * 0.4)}px rgba(99,102,241,0.45)`,
-      }}>
-        <img
-          src="/favicon.svg"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: Math.round(iconSize * 0.72) + 'px',
-            height: Math.round(iconSize * 0.72) + 'px',
-            objectFit: 'contain',
-            display: 'block',
-          }}
-        />
-      </div>
+      {/* ── Real pocket icon ── */}
+      <img
+        src="/Logo_icon_white.png"
+        alt=""
+        aria-hidden="true"
+        style={{
+          width: iconSize + 'px',
+          height: iconSize + 'px',
+          objectFit: 'contain',
+          display: 'block',
+          flexShrink: 0,
+          filter: 'drop-shadow(0 4px 12px rgba(99,102,241,0.5))',
+        }}
+      />
 
       {/* ── Wordmark ── */}
-      {variant !== 'icon' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-          {/* "pocket" */}
-          <span style={{
-            fontFamily: "'Outfit', 'Inter', sans-serif",
-            fontSize: Math.round(16 * textScale) + 'px',
-            fontWeight: 700,
-            color: '#ffffff',
-            lineHeight: 1.1,
-            letterSpacing: '-0.3px',
-          }}>
-            pocket
-          </span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+        {/* "pocket" */}
+        <span style={{
+          fontFamily: "'Outfit', 'Inter', sans-serif",
+          fontSize: Math.round(16 * textScale) + 'px',
+          fontWeight: 700,
+          color: '#ffffff',
+          lineHeight: 1.1,
+          letterSpacing: '-0.3px',
+        }}>
+          pocket
+        </span>
 
-          {/* "dashboard" — gradient */}
-          <span style={{
-            fontFamily: "'Outfit', 'Inter', sans-serif",
-            fontSize: Math.round(16 * textScale) + 'px',
-            fontWeight: 700,
-            lineHeight: 1.1,
-            letterSpacing: '-0.3px',
-            background: 'linear-gradient(90deg, #818CF8 0%, #A78BFA 50%, #C084FC 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>
-            dashboard
-          </span>
-
-          {/* Tagline — only in "full" variant */}
-          {variant === 'full' && (
-            <span style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: Math.round(9 * textScale) + 'px',
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.38)',
-              letterSpacing: '0.2px',
-              marginTop: '3px',
-              lineHeight: 1,
-            }}>
-              Your Business. In Your Pocket.
-            </span>
-          )}
-        </div>
-      )}
+        {/* "dashboard" — gradient matching the real logo */}
+        <span style={{
+          fontFamily: "'Outfit', 'Inter', sans-serif",
+          fontSize: Math.round(16 * textScale) + 'px',
+          fontWeight: 700,
+          lineHeight: 1.1,
+          letterSpacing: '-0.3px',
+          background: 'linear-gradient(90deg, #6366F1 0%, #818CF8 40%, #A78BFA 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
+          dashboard
+        </span>
+      </div>
     </div>
   );
 }
