@@ -24,7 +24,7 @@ const LoadingFallback = () => (
       boxShadow: 'var(--shadow-brand-lg)',
       animation: 'pulse 2s ease-in-out infinite',
     }}>
-      <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '52px', height: '52px', objectFit: 'cover' }} />
+      <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '52px', height: '52px', objectFit: 'cover' }} />
     </div>
 
     <div style={{ color: 'var(--text-dim)', fontSize: '14px', fontWeight: 500, letterSpacing: '0.2px' }}>

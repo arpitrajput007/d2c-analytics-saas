@@ -266,7 +266,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
               boxShadow: 'var(--shadow-brand)',
               overflow: 'hidden',
             }}>
-              <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '34px', height: '34px', objectFit: 'cover' }} />
+              <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '34px', height: '34px', objectFit: 'cover' }} />
             </div>
             <div style={{
               fontFamily: 'Outfit', fontSize: '18px', fontWeight: 800,

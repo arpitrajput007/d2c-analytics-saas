@@ -439,7 +439,7 @@ export default function PersonalPanel({ session, store }) {
                 boxShadow: 'var(--shadow-brand)',
                 overflow: 'hidden',
               }}>
-                <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '48px', height: '48px', objectFit: 'cover' }} />
+                <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '48px', height: '48px', objectFit: 'cover' }} />
               </div>
 
               <div>

@@ -51,7 +51,7 @@ export default function Signup() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', marginTop: '12px' }}>
           <div style={{ width: '56px', height: '56px', background: 'var(--primary-gradient)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-brand)', overflow: 'hidden', flexShrink: 0 }}>
-            <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '56px', height: '56px', objectFit: 'cover' }} />
+            <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '56px', height: '56px', objectFit: 'cover' }} />
           </div>
           <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: 'var(--text-bright)' }}>Pocket Dashboard</div>
         </div>

@@ -12,18 +12,11 @@ export default function Navbar() {
           className="flex items-center gap-2.5"
           data-testid="nav-logo"
         >
-          <span className="relative h-7 w-7 rounded-lg brand-gradient grid place-items-center">
-            <svg viewBox="0 0 20 20" width="14" height="14" fill="none">
-              <path
-                d="M10 2v6m0 4v6M2 10h6m4 0h6"
-                stroke="#0a0b14"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-            </svg>
+          <span className="relative h-8 w-8 rounded-lg overflow-hidden grid place-items-center">
+            <img src="/icon.svg?v=2" alt="Logo" className="w-full h-full object-cover" />
           </span>
           <span className="font-display font-semibold text-white">
-            Profit<span className="brand-gradient-text">Control</span>
+            Pocket<span className="brand-gradient-text"> Dashboard</span>
           </span>
         </a>
 

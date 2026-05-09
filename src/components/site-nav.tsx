@@ -31,7 +31,7 @@ export function SiteNav({ onSignInClick }) {
             className="grid place-items-center rounded-xl overflow-hidden flex-shrink-0"
             style={{ width: '44px', height: '44px', background: 'var(--gradient-button)', boxShadow: 'var(--shadow-brand)' }}
           >
-            <img src="/icon.svg" alt="Pocket Dashboard Logo" style={{ width: '44px', height: '44px', objectFit: 'cover' }} />
+            <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '44px', height: '44px', objectFit: 'cover' }} />
           </span>
           <span className="text-sm font-semibold tracking-tight text-foreground">
             Pocket<span className="text-gradient"> Dashboard</span>
