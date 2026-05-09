@@ -1,5 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { supabase } from '../supabaseClient';
+import BrandLogo from './BrandLogo';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
   LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign,
@@ -435,11 +436,11 @@ export default function PersonalPanel({ session, store }) {
         <aside className={`panel-sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
           {/* Brand */}
           <div style={{
-            padding: '20px 16px 16px',
+            padding: '20px 16px 18px',
             borderBottom: '1px solid rgba(255,255,255,0.06)',
             position: 'relative',
           }}>
-            {/* Soft radial glow behind logo — animated */}
+            {/* Animated radial glow */}
             <div style={{
               position: 'absolute',
               top: 0, left: 0, right: 0, bottom: 0,
@@ -447,37 +448,17 @@ export default function PersonalPanel({ session, store }) {
               pointerEvents: 'none',
               animation: 'brandGlowPulse 4s ease-in-out infinite',
             }} />
-            <div
-              style={{
-                position: 'relative',
-                padding: '10px 12px',
-                borderRadius: '14px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(8px)',
-                cursor: 'pointer',
-                transition: 'opacity 0.2s ease, box-shadow 0.2s ease',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.opacity = '0.85';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.15)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <img
-                src="/pocket-dashboard-logo.svg?v=2"
-                alt="Pocket Dashboard"
-                style={{
-                  width: '100%',
-                  maxWidth: '190px',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  display: 'block',
-                }}
-              />
+            {/* Glass card */}
+            <div style={{
+              position: 'relative',
+              padding: '10px 14px',
+              borderRadius: '14px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(8px)',
+              display: 'inline-block',
+            }}>
+              <BrandLogo variant="compact" iconSize={40} />
             </div>
           </div>
 
@@ -569,11 +550,7 @@ export default function PersonalPanel({ session, store }) {
                   <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
               </button>
-              <img
-                src="/pocket-dashboard-logo.svg?v=2"
-                alt="Pocket Dashboard"
-                style={{ height: '30px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
-              />
+              <BrandLogo variant="compact" iconSize={28} />
             </div>
 
             <div style={{ flex: 1 }}>

@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { Shield, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useNavigate, Link } from 'react-router-dom';
 import { AuroraBackground } from './aurora-background';
+import BrandLogo from './BrandLogo';
 
 export default function Login() {
   const [loading, setLoading]             = useState(false);
@@ -49,11 +50,7 @@ export default function Login() {
         </Link>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px', marginTop: '12px' }}>
-          <img
-            src="/pocket-dashboard-logo.svg?v=2"
-            alt="Pocket Dashboard"
-            style={{ width: '200px', height: 'auto', objectFit: 'contain', display: 'block' }}
-          />
+          <BrandLogo variant="compact" iconSize={44} />
         </div>
 
 

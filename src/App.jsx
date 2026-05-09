@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { supabase } from './supabaseClient';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import BrandLogo from './components/BrandLogo';
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import('./components/Landing'));
@@ -37,7 +38,7 @@ const LoadingFallback = () => (
     }}>
       {/* Glass backing card */}
       <div style={{
-        padding: '20px 36px',
+        padding: '20px 32px',
         borderRadius: '20px',
         background: 'rgba(255,255,255,0.04)',
         backdropFilter: 'blur(12px)',
@@ -45,16 +46,7 @@ const LoadingFallback = () => (
         boxShadow: '0 8px 40px rgba(99,102,241,0.12), 0 0 0 1px rgba(99,102,241,0.08)',
         animation: 'pulse 2.4s ease-in-out infinite',
       }}>
-        <img
-          src="/pocket-dashboard-logo.svg?v=2"
-          alt="Pocket Dashboard"
-          style={{
-            width: '220px',
-            height: 'auto',
-            objectFit: 'contain',
-            display: 'block',
-          }}
-        />
+        <BrandLogo variant="full" iconSize={56} />
       </div>
     </div>
 

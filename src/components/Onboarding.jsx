@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import ConnectShopifyStep from './ConnectShopifyStep';
+import BrandLogo from './BrandLogo';
 
 const STEPS = ['Store Info', 'Connect Shopify', 'Brand'];
 
@@ -258,11 +259,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
           zIndex: 50,
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <img
-              src="/pocket-dashboard-logo.svg?v=2"
-              alt="Pocket Dashboard"
-              style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'block' }}
-            />
+            <BrandLogo variant="compact" iconSize={30} />
           </div>
 
           <button className="ghost" style={{ fontSize: '13px', padding: '7px 16px' }} onClick={handleSignOut}>

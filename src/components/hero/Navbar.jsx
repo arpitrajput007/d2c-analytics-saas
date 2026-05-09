@@ -1,4 +1,5 @@
 import React from "react";
+import BrandLogo from '../BrandLogo';
 
 export default function Navbar() {
   return (
@@ -11,15 +12,8 @@ export default function Navbar() {
           href="#"
           className="flex items-center"
           data-testid="nav-logo"
-          style={{ transition: 'opacity 0.2s ease' }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          <img
-            src="/pocket-dashboard-logo.svg?v=2"
-            alt="Pocket Dashboard"
-            style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
-          />
+          <BrandLogo variant="compact" iconSize={34} />
         </a>
 
         <nav className="hidden md:flex items-center gap-7 text-[13px] text-white/70">

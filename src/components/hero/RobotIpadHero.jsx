@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import DashboardScroller from "./DashboardScroller";
 import RobotFallback from "./RobotFallback";
+import BrandLogo from '../BrandLogo';
 
 /**
  * RobotIpadHero
@@ -138,26 +139,9 @@ export default function RobotIpadHero() {
         <div className="relative z-10 h-full max-w-[1400px] mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 items-center gap-8 pt-28 pb-10">
           {/* Left copy */}
           <div className="lg:col-span-5 order-2 lg:order-1">
-            {/* Brand logo lockup — premium placement */}
-            <div
-              style={{
-                display: 'inline-flex',
-                marginBottom: '28px',
-                padding: '8px 14px',
-                borderRadius: '14px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(8px)',
-                transition: 'opacity 0.25s ease',
-              }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
-              <img
-                src="/pocket-dashboard-logo.svg?v=2"
-                alt="Pocket Dashboard"
-                style={{ height: '44px', width: 'auto', objectFit: 'contain', display: 'block' }}
-              />
+            {/* Brand logo lockup — premium placement, matches screenshot */}
+            <div style={{ marginBottom: '24px' }}>
+              <BrandLogo variant="full" iconSize={52} />
             </div>
 
             <div
