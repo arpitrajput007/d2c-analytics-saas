@@ -458,7 +458,7 @@ export default function PersonalPanel({ session, store }) {
               backdropFilter: 'blur(8px)',
               display: 'inline-block',
             }}>
-              <BrandLogo variant="compact" iconSize={40} />
+              <BrandLogo variant="compact" iconSize={48} />
             </div>
           </div>
 
@@ -550,7 +550,7 @@ export default function PersonalPanel({ session, store }) {
                   <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
               </button>
-              <BrandLogo variant="compact" iconSize={28} />
+              <BrandLogo variant="compact" iconSize={32} />
             </div>
 
             <div style={{ flex: 1 }}>

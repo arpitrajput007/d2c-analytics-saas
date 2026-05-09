@@ -50,8 +50,8 @@ export default function Signup() {
           <ArrowLeft size={16} /> Back
         </Link>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px', marginTop: '12px' }}>
-          <BrandLogo variant="compact" iconSize={44} />
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '36px', marginTop: '12px' }}>
+          <BrandLogo variant="compact" iconSize={52} />
         </div>
 
 

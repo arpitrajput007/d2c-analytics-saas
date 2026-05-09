@@ -140,8 +140,8 @@ export default function RobotIpadHero() {
           {/* Left copy */}
           <div className="lg:col-span-5 order-2 lg:order-1">
             {/* Brand logo lockup — premium placement, matches screenshot */}
-            <div style={{ marginBottom: '24px' }}>
-              <BrandLogo variant="full" iconSize={52} />
+            <div style={{ marginBottom: '28px' }}>
+              <BrandLogo variant="full" iconSize={68} />
             </div>
 
             <div

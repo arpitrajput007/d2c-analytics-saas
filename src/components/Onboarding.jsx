@@ -259,7 +259,7 @@ export default function Onboarding({ session, isEmbedded = false }) {
           zIndex: 50,
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <BrandLogo variant="compact" iconSize={30} />
+            <BrandLogo variant="compact" iconSize={40} />
           </div>
 
           <button className="ghost" style={{ fontSize: '13px', padding: '7px 16px' }} onClick={handleSignOut}>

@@ -110,7 +110,6 @@
     <linearGradient id="linear-gradient7" x1="79.88" x2="240.12" xlink:href="#linear-gradient5"/>
     <linearGradient id="linear-gradient8" y1="207.89" x2="240.12" y2="207.89" xlink:href="#linear-gradient5"/>
   </defs>
-  <rect class="st14" width="320" height="320" rx="50" ry="50"/>
   <g>
     <path class="st9" d="M174.45,95.66l74.19,28.6c1.17-.32,2.32.56,2.32,1.78v79.49c0,20.42-11.43,39.12-29.6,48.43l-42.06,21.55c-12.11,6.21-26.47,6.21-38.59,0l-42.06-21.55c-18.17-9.31-29.6-28.01-29.6-48.43v-79.49c0-1.21,1.15-2.1,2.32-1.78l74.19-28.6c9.3-3.59,19.6-3.59,28.9,0Z"/>
     <rect class="st8" x="79.79" y="47.46" width="160.41" height="115.16" rx="16.88" ry="16.88"/>

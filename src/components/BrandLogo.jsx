@@ -4,11 +4,16 @@ import React from 'react';
  * BrandLogo — Pocket Dashboard brand mark
  *
  * Variants:
- *  "full"    — complete horizontal logo image (hero, loading screen)
- *  "compact" — real pocket icon + wordmark text  (navbar, sidebar, login)
- *  "icon"    — P-mark color icon only            (favicon fallback, small spaces)
+ *  "full"    — complete transparent horizontal SVG lockup with tagline (hero)
+ *  "compact" — transparent pocket icon SVG + wordmark text (navbar, sidebar, login)
+ *  "icon"    — P-mark color SVG only (favicon fallback, small spaces)
+ *
+ * iconSize for "full"    = reference icon height; full lockup width scales ~5.5×
+ * iconSize for "compact" = icon height in px
+ * iconSize for "icon"    = icon width/height in px
  *
  * Usage:
+ *  <BrandLogo variant="full" iconSize={60} />
  *  <BrandLogo variant="compact" iconSize={40} />
  */
 export default function BrandLogo({
@@ -18,9 +23,9 @@ export default function BrandLogo({
   className = '',
   onClick,
 }) {
-  const textScale = iconSize / 40; // base is 40px
+  const textScale = iconSize / 40;
 
-  // ── ICON ONLY variant: P-mark color logo
+  /* ── ICON ONLY: transparent P-mark SVG ── */
   if (variant === 'icon') {
     return (
       <div
@@ -39,22 +44,25 @@ export default function BrandLogo({
         onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
       >
         <img
-          src="/P_mark_color.png"
+          src="/P_mark_color.svg"
           alt="Pocket Dashboard"
           style={{
             width: iconSize + 'px',
             height: iconSize + 'px',
             objectFit: 'contain',
             display: 'block',
+            filter: 'drop-shadow(0 4px 16px rgba(99,102,241,0.65))',
           }}
         />
       </div>
     );
   }
 
-  // ── FULL variant: complete horizontal lockup image
+  /* ── FULL: complete transparent horizontal SVG lockup (icon + text + tagline) ── */
   if (variant === 'full') {
-    const imgHeight = Math.round(iconSize * 1.6);
+    /* Drive by width so the entire tagline is always legible.
+       iconSize × 5.5 gives a natural proportional width for the horizontal lockup. */
+    const logoWidth = Math.round(iconSize * 5.5);
     return (
       <div
         className={className}
@@ -67,25 +75,28 @@ export default function BrandLogo({
           userSelect: 'none',
           ...style,
         }}
-        onMouseEnter={e => { if (onClick) e.currentTarget.style.opacity = '0.82'; }}
+        onMouseEnter={e => { if (onClick) e.currentTarget.style.opacity = '0.85'; }}
         onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
       >
         <img
-          src="/Pocket-Dashboard_white_hor.png"
+          src="/Pocket-Dashboard_white_hor.svg"
           alt="Pocket Dashboard — Your Business. In Your Pocket."
+          draggable={false}
           style={{
-            height: imgHeight + 'px',
-            width: 'auto',
+            width: logoWidth + 'px',
+            height: 'auto',
             objectFit: 'contain',
             display: 'block',
             maxWidth: '100%',
+            /* Subtle glow to pop the 3D pocket icon off dark backgrounds */
+            filter: 'drop-shadow(0 6px 28px rgba(99,102,241,0.40))',
           }}
         />
       </div>
     );
   }
 
-  // ── COMPACT variant (default): real pocket icon + text wordmark
+  /* ── COMPACT (default): transparent pocket icon SVG + stacked wordmark ── */
   return (
     <div
       className={className}
@@ -102,24 +113,24 @@ export default function BrandLogo({
       onMouseEnter={e => { if (onClick || style.cursor === 'pointer') e.currentTarget.style.opacity = '0.82'; }}
       onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
     >
-      {/* ── Real pocket icon ── */}
+      {/* Transparent pocket icon SVG — no background box */}
       <img
-        src="/Logo_icon_white.png"
+        src="/Logo_icon_white.svg"
         alt=""
         aria-hidden="true"
+        draggable={false}
         style={{
           width: iconSize + 'px',
           height: iconSize + 'px',
           objectFit: 'contain',
           display: 'block',
           flexShrink: 0,
-          filter: 'drop-shadow(0 4px 12px rgba(99,102,241,0.5))',
+          filter: 'drop-shadow(0 4px 14px rgba(99,102,241,0.55))',
         }}
       />
 
-      {/* ── Wordmark ── */}
+      {/* Stacked wordmark */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
-        {/* "pocket" */}
         <span style={{
           fontFamily: "'Outfit', 'Inter', sans-serif",
           fontSize: Math.round(16 * textScale) + 'px',
@@ -131,7 +142,6 @@ export default function BrandLogo({
           pocket
         </span>
 
-        {/* "dashboard" — gradient matching the real logo */}
         <span style={{
           fontFamily: "'Outfit', 'Inter', sans-serif",
           fontSize: Math.round(16 * textScale) + 'px',
