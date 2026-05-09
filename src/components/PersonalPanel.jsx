@@ -416,11 +416,15 @@ export default function PersonalPanel({ session, store }) {
           position: fixed; inset: 0; background: rgba(0,0,0,0.65);
           backdrop-filter: blur(4px); z-index: 9;
         }
+        @keyframes brandGlowPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
         @media (max-width: 768px) {
           .panel-sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
           .panel-sidebar.open { transform: translateX(0); }
           .sidebar-overlay.visible { display: block; }
-          .mobile-menu-btn { display: flex !important; }
+          .mobile-menu-btn-wrap { display: flex !important; }
         }
       `}</style>
 
@@ -435,13 +439,13 @@ export default function PersonalPanel({ session, store }) {
             borderBottom: '1px solid rgba(255,255,255,0.06)',
             position: 'relative',
           }}>
-            {/* Soft radial glow behind logo */}
+            {/* Soft radial glow behind logo — animated */}
             <div style={{
               position: 'absolute',
               top: 0, left: 0, right: 0, bottom: 0,
-              background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.14) 0%, transparent 70%)',
               pointerEvents: 'none',
-              borderRadius: '0',
+              animation: 'brandGlowPulse 4s ease-in-out infinite',
             }} />
             <div
               style={{
@@ -541,11 +545,36 @@ export default function PersonalPanel({ session, store }) {
         <div className="panel-main">
           {/* Topbar */}
           <header className="panel-topbar">
-            <button
-              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              style={{ display: 'none', background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}
-              className="mobile-menu-btn"
-            >☰</button>
+            {/* Mobile: Logo + hamburger side-by-side */}
+            <div style={{ display: 'none', alignItems: 'center', gap: '10px' }} className="mobile-menu-btn-wrap">
+              <button
+                onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  padding: '7px 8px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 1,
+                  fontSize: '16px',
+                  flexShrink: 0,
+                }}
+                aria-label="Open menu"
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+              </button>
+              <img
+                src="/pocket-dashboard-logo.svg?v=2"
+                alt="Pocket Dashboard"
+                style={{ height: '30px', width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }}
+              />
+            </div>
 
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: 'Outfit', fontSize: '18px', fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>

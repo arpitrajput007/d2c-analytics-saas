@@ -31,11 +31,12 @@ export function SiteNav({ onSignInClick }) {
             src="/pocket-dashboard-logo.svg?v=2"
             alt="Pocket Dashboard"
             style={{
-              height: '40px',
+              height: 'clamp(30px, 5vw, 40px)',
               width: 'auto',
               objectFit: 'contain',
               display: 'block',
               transition: 'opacity 0.2s ease',
+              maxWidth: '180px',
             }}
             onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
