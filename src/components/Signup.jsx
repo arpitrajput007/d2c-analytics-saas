@@ -49,11 +49,12 @@ export default function Signup() {
           <ArrowLeft size={16} /> Back
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '32px', marginTop: '12px' }}>
-          <div style={{ width: '56px', height: '56px', background: 'var(--primary-gradient)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-brand)', overflow: 'hidden', flexShrink: 0 }}>
-            <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '56px', height: '56px', objectFit: 'cover' }} />
-          </div>
-          <div style={{ fontFamily: 'Outfit', fontSize: '24px', fontWeight: 800, color: 'var(--text-bright)' }}>Pocket Dashboard</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px', marginTop: '12px' }}>
+          <img
+            src="/pocket-dashboard-logo.svg?v=2"
+            alt="Pocket Dashboard"
+            style={{ width: '200px', height: 'auto', objectFit: 'contain', display: 'block' }}
+          />
         </div>
 
 

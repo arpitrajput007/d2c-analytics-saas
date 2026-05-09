@@ -430,26 +430,50 @@ export default function PersonalPanel({ session, store }) {
         {/* ══════ SIDEBAR ══════ */}
         <aside className={`panel-sidebar ${mobileSidebarOpen ? 'open' : ''}`}>
           {/* Brand */}
-          <div style={{ padding: '22px 18px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
-                background: 'var(--primary-gradient)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'var(--shadow-brand)',
-                overflow: 'hidden',
-              }}>
-                <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '48px', height: '48px', objectFit: 'cover' }} />
-              </div>
-
-              <div>
-                <div style={{ fontFamily: 'Outfit', fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-                  Pocket Dashboard
-                </div>
-                <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.3)', marginTop: '1px', letterSpacing: '0.3px' }}>
-                  Your Command Center
-                </div>
-              </div>
+          <div style={{
+            padding: '20px 16px 16px',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            position: 'relative',
+          }}>
+            {/* Soft radial glow behind logo */}
+            <div style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none',
+              borderRadius: '0',
+            }} />
+            <div
+              style={{
+                position: 'relative',
+                padding: '10px 12px',
+                borderRadius: '14px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(8px)',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease, box-shadow 0.2s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.opacity = '0.85';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.15)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <img
+                src="/pocket-dashboard-logo.svg?v=2"
+                alt="Pocket Dashboard"
+                style={{
+                  width: '100%',
+                  maxWidth: '190px',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
             </div>
           </div>
 

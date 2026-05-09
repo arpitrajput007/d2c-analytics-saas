@@ -13,27 +13,75 @@ const LoadingFallback = () => (
     height: '100vh',
     display: 'flex', flexDirection: 'column',
     justifyContent: 'center', alignItems: 'center',
-    gap: '20px',
+    gap: '28px',
     background: 'var(--bg-primary)',
+    position: 'relative',
+    overflow: 'hidden',
   }}>
+    {/* Ambient glow */}
     <div style={{
-      width: '52px', height: '52px',
-      background: 'var(--primary-gradient)',
-      borderRadius: '14px',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: 'var(--shadow-brand-lg)',
-      animation: 'pulse 2s ease-in-out infinite',
+      position: 'absolute',
+      width: '400px', height: '400px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
+      top: '50%', left: '50%',
+      transform: 'translate(-50%, -50%)',
+      pointerEvents: 'none',
+    }} />
+
+    {/* Logo container */}
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px',
+      animation: 'logoFadeIn 0.6s ease forwards',
+      position: 'relative', zIndex: 1,
     }}>
-      <img src="/icon.svg?v=2" alt="Pocket Dashboard Logo" style={{ width: '52px', height: '52px', objectFit: 'cover' }} />
+      {/* Glass backing card */}
+      <div style={{
+        padding: '20px 36px',
+        borderRadius: '20px',
+        background: 'rgba(255,255,255,0.04)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 8px 40px rgba(99,102,241,0.12), 0 0 0 1px rgba(99,102,241,0.08)',
+        animation: 'pulse 2.4s ease-in-out infinite',
+      }}>
+        <img
+          src="/pocket-dashboard-logo.svg?v=2"
+          alt="Pocket Dashboard"
+          style={{
+            width: '220px',
+            height: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      </div>
     </div>
 
-    <div style={{ color: 'var(--text-dim)', fontSize: '14px', fontWeight: 500, letterSpacing: '0.2px' }}>
-      Loading...
+    {/* Loading dots */}
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+      {[0,1,2].map(i => (
+        <div key={i} style={{
+          width: '6px', height: '6px',
+          borderRadius: '50%',
+          background: 'rgba(99,102,241,0.6)',
+          animation: `dotBounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+        }} />
+      ))}
     </div>
+
     <style>{`
       @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.8; }
+        0%, 100% { transform: scale(1); box-shadow: 0 8px 40px rgba(99,102,241,0.12); }
+        50% { transform: scale(1.015); box-shadow: 0 8px 56px rgba(99,102,241,0.22); }
+      }
+      @keyframes logoFadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes dotBounce {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+        40% { transform: scale(1); opacity: 1; }
       }
     `}</style>
   </div>

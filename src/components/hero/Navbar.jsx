@@ -9,15 +9,17 @@ export default function Navbar() {
       <div className="glass-card flex items-center justify-between pl-5 pr-2 py-2">
         <a
           href="#"
-          className="flex items-center gap-2.5"
+          className="flex items-center"
           data-testid="nav-logo"
+          style={{ transition: 'opacity 0.2s ease' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          <span className="relative h-8 w-8 rounded-lg overflow-hidden grid place-items-center">
-            <img src="/icon.svg?v=2" alt="Logo" className="w-full h-full object-cover" />
-          </span>
-          <span className="font-display font-semibold text-white">
-            Pocket<span className="brand-gradient-text"> Dashboard</span>
-          </span>
+          <img
+            src="/pocket-dashboard-logo.svg?v=2"
+            alt="Pocket Dashboard"
+            style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
+          />
         </a>
 
         <nav className="hidden md:flex items-center gap-7 text-[13px] text-white/70">
