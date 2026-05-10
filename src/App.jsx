@@ -10,6 +10,7 @@ const Signup = lazy(() => import('./components/Signup'));
 const PersonalPanel = lazy(() => import('./components/PersonalPanel'));
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
 const TermsAndConditions = lazy(() => import('./components/TermsAndConditions'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
 
 const LoadingFallback = () => (
   <div style={{
@@ -143,6 +144,7 @@ export default function App() {
         <Route path="/onboard" element={<Navigate to="/dashboard" />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/contact-us" element={<ContactPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>

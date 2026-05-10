@@ -73,7 +73,7 @@ export function CtaFooter() {
             <div className="flex items-center gap-5">
               <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-foreground no-underline">Privacy</a>
               <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-foreground no-underline">Terms</a>
-              <a href="#contact" className="hover:text-foreground no-underline">Contact</a>
+              <a href="/contact-us" target="_blank" rel="noopener noreferrer" className="hover:text-foreground no-underline">Contact</a>
             </div>
           </div>
         </footer>
