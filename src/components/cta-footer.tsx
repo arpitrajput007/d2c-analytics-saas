@@ -1,8 +1,20 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import BrandLogo from './BrandLogo';
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 export function CtaFooter() {
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const ctaHref = session ? "/dashboard" : "/signup";
+  const ctaLabel = session ? "Go to Dashboard" : "Start Your 14-Day Free Trial";
   return (
     <section id="cta" className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4">
@@ -29,10 +41,10 @@ export function CtaFooter() {
 
               <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
-                  to="/signup"
+                  to={ctaHref}
                   className="btn-aurora group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-medium no-underline"
                 >
-                  Start Your 14-Day Free Trial
+                  {ctaLabel}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <Link

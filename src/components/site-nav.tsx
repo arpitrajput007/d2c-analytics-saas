@@ -1,6 +1,8 @@
 import { Sparkles } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import BrandLogo from './BrandLogo';
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 const links = [
   { label: "Features", href: "/#features" },
@@ -12,6 +14,15 @@ const links = [
 export function SiteNav({ onSignInClick }) {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const launchHref = session ? "/dashboard" : "/signup";
 
   const handleScroll = (e, href) => {
     if (isHome && href.startsWith("/#")) {
@@ -53,14 +64,23 @@ export function SiteNav({ onSignInClick }) {
             Sign in
           </Link>
           <Link
-            to="/signup"
-            className="btn-aurora inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium no-underline"
+            to={launchHref}
+            className="btn-aurora inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium no-underline"
           >
-            Launch app
+            {session ? (
+              <>
+                <span>Go to Dashboard</span>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5h8M7 3l3.5 3.5L7 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </>
+            ) : (
+              <>
+                <Sparkles size={13} />
+                <span>Start Free Trial</span>
+              </>
+            )}
           </Link>
         </div>
       </nav>
     </header>
   );
 }
-
