@@ -1,228 +1,443 @@
 import React from 'react';
-import { AuroraBackground } from './aurora-background';
-import { SiteNav } from './site-nav';
-import { CtaFooter } from './cta-footer';
+import { Link } from 'react-router-dom';
+import { Shield, Clock, Lock, Database, Eye, Server, Users, FileText, Globe, Mail, ChevronRight } from 'lucide-react';
+import BrandLogo from './BrandLogo';
+
+const sections = [
+  { id: "information", number: "01", title: "Information We Collect" },
+  { id: "usage", number: "02", title: "How We Use Information" },
+  { id: "ai", number: "03", title: "AI Systems & Business Intelligence" },
+  { id: "readonly", number: "04", title: "Read-Only Platform Access" },
+  { id: "security", number: "05", title: "Data Security" },
+  { id: "retention", number: "06", title: "Data Retention" },
+  { id: "integrations", number: "07", title: "Third-Party Integrations" },
+  { id: "cookies", number: "08", title: "Cookies & Analytics" },
+  { id: "responsibilities", number: "09", title: "User Responsibilities" },
+  { id: "confidentiality", number: "10", title: "Confidentiality & Business Data" },
+  { id: "liability", number: "11", title: "Limitation of Liability" },
+  { id: "international", number: "12", title: "International Users" },
+  { id: "changes", number: "13", title: "Policy Changes" },
+  { id: "contact", number: "14", title: "Contact Information" },
+  { id: "consent", number: "15", title: "Consent" },
+];
+
+function SectionHeading({ id, number, title, icon: Icon }) {
+  return (
+    <div id={id} className="flex items-start gap-4 mb-6 pt-12 first:pt-0">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '40px',
+        height: '40px',
+        minWidth: '40px',
+        borderRadius: '10px',
+        background: 'rgba(99,102,241,0.1)',
+        border: '1px solid rgba(99,102,241,0.2)',
+      }}>
+        {Icon ? <Icon size={18} style={{ color: '#818cf8' }} /> : (
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#818cf8', fontFamily: 'monospace' }}>{number}</span>
+        )}
+      </div>
+      <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#f8fafc', margin: 0, paddingTop: '8px', lineHeight: 1.3 }}>
+        {number}. {title}
+      </h2>
+    </div>
+  );
+}
+
+function ListItem({ children }) {
+  return (
+    <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '8px' }}>
+      <ChevronRight size={14} style={{ color: '#6366f1', marginTop: '4px', flexShrink: 0 }} />
+      <span style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.7 }}>{children}</span>
+    </li>
+  );
+}
+
+function Callout({ children, type = 'info' }) {
+  const colors = {
+    info: { bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.25)', icon: '#818cf8' },
+    warning: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', icon: '#f59e0b' },
+    success: { bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)', icon: '#10b981' },
+  };
+  const c = colors[type];
+  return (
+    <div style={{
+      background: c.bg,
+      border: `1px solid ${c.border}`,
+      borderRadius: '12px',
+      padding: '16px 20px',
+      marginBottom: '24px',
+      display: 'flex',
+      gap: '12px',
+      alignItems: 'flex-start',
+    }}>
+      <Shield size={16} style={{ color: c.icon, marginTop: '2px', flexShrink: 0 }} />
+      <span style={{ color: '#cbd5e1', fontSize: '13px', lineHeight: 1.7 }}>{children}</span>
+    </div>
+  );
+}
+
+function Divider() {
+  return <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '8px 0 0 0' }} />;
+}
 
 export default function PrivacyPolicy() {
   return (
-    <div className="dark min-h-screen bg-background text-foreground antialiased selection:bg-accent/20">
-      <AuroraBackground />
-      <SiteNav />
-      
-      <main className="relative pt-32 pb-24 sm:pt-40 sm:pb-32">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-glass-border bg-glass/50 p-8 sm:p-12 shadow-glow backdrop-blur-md">
-            
-            <div className="mb-10 border-b border-glass-border pb-8">
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl mb-4">
-                Privacy Policy <span className="text-muted-foreground">— Pocket Dashboard</span>
-              </h1>
-              <p className="text-muted-foreground">Last Updated: May 2026</p>
-            </div>
-
-            <div className="prose prose-invert max-w-none text-muted-foreground">
-              <p className="lead text-lg text-foreground mb-8">
-                Welcome to Pocket Dashboard (“Pocket Dashboard”, “we”, “our”, or “us”).
-                Pocket Dashboard is an operational analytics and business intelligence platform designed for modern D2C brands, e-commerce operators, and online businesses. This Privacy Policy explains how we collect, use, process, store, and protect information when you access our website, applications, integrations, dashboards, AI systems, and related services (collectively, the “Services”).
-                By accessing or using Pocket Dashboard, you acknowledge and agree to the practices described in this Privacy Policy.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">1. Information We Collect</h2>
-              
-              <h3 className="text-lg font-semibold text-foreground mt-6 mb-2">1.1 Account Information</h3>
-              <p>When creating or managing an account, we may collect:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Full name</li>
-                <li>Business/store name</li>
-                <li>Email address</li>
-                <li>Phone number</li>
-                <li>Billing information</li>
-                <li>Account credentials</li>
-                <li>Subscription details</li>
-              </ul>
-
-              <h3 className="text-lg font-semibold text-foreground mt-6 mb-2">1.2 Connected Platform Data</h3>
-              <p>When you connect third-party services such as Shopify, WooCommerce, Meta Ads, Shiprocket, Razorpay, Cashfree, or similar platforms, Pocket Dashboard may securely access operational business data including:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Orders and fulfilment data</li>
-                <li>Product and SKU information</li>
-                <li>Shipping and logistics data</li>
-                <li>Payment and transaction metadata</li>
-                <li>Advertising metrics and campaign performance</li>
-                <li>Revenue and profitability metrics</li>
-                <li>Inventory-related information</li>
-                <li>Operational performance indicators</li>
-              </ul>
-              <p className="mb-6">Pocket Dashboard accesses only the permissions and data necessary to provide analytics, synchronization, operational intelligence, reporting, and AI-assisted insights.</p>
-
-              <h3 className="text-lg font-semibold text-foreground mt-6 mb-2">1.3 AI & Operational Intelligence Data</h3>
-              <p>To provide contextual insights and AI-assisted features, our systems may process:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Historical operational patterns</li>
-                <li>Business performance trends</li>
-                <li>Aggregated analytical metrics</li>
-                <li>User queries and interactions with AI systems</li>
-                <li>Dashboard usage behavior</li>
-                <li>Performance summaries and generated insights</li>
-              </ul>
-              <p className="mb-4">This data helps create a business-specific operational intelligence layer designed to improve the relevance and usefulness of insights over time.</p>
-              <div className="bg-glass-strong border border-glass-border rounded-lg p-4 mb-6">
-                <strong className="text-foreground">IMPORTANT:</strong> Pocket Dashboard does not use private customer business data to train public AI models.
-              </div>
-
-              <h3 className="text-lg font-semibold text-foreground mt-6 mb-2">1.4 Technical & Device Information</h3>
-              <p>We may automatically collect certain technical information including:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>IP address</li>
-                <li>Browser type</li>
-                <li>Device information</li>
-                <li>Operating system</li>
-                <li>Session identifiers</li>
-                <li>Usage analytics</li>
-                <li>Error logs</li>
-                <li>Cookie and diagnostic information</li>
-              </ul>
-              <p className="mb-6">This information helps maintain platform stability, security, and performance.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">2. How We Use Information</h2>
-              <p>We use collected information to:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Provide and maintain Services</li>
-                <li>Generate analytics and operational insights</li>
-                <li>Synchronize business data across integrations</li>
-                <li>Improve AI-assisted recommendations</li>
-                <li>Enhance platform reliability and performance</li>
-                <li>Detect operational anomalies and system abuse</li>
-                <li>Provide customer support</li>
-                <li>Process billing and subscription management</li>
-                <li>Monitor infrastructure health and security</li>
-                <li>Improve user experience and product functionality</li>
-              </ul>
-              <p className="mb-6 font-medium text-foreground">We do not sell customer data or personal information to third parties.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">3. AI Systems & Business Intelligence</h2>
-              <p className="mb-4">Pocket Dashboard includes AI-assisted operational intelligence systems designed to help users better understand business performance and operational patterns. Our AI systems may:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Analyze historical trends</li>
-                <li>Surface operational anomalies</li>
-                <li>Generate summaries and recommendations</li>
-                <li>Identify inefficiencies and margin leakage</li>
-                <li>Provide context-aware business insights</li>
-              </ul>
-              <p className="mb-6">These systems are designed to assist decision-making and operational visibility. They do not guarantee financial outcomes, business performance improvements, or predictive certainty. All AI-generated insights should be independently reviewed before making financial or operational decisions.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">4. Read-Only Platform Access</h2>
-              <p className="mb-4">Pocket Dashboard primarily operates using read-only integrations wherever possible. We:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Do not modify your store content</li>
-                <li>Do not create or edit orders without explicit authorization</li>
-                <li>Do not manage customer payments</li>
-                <li>Do not access unnecessary permissions</li>
-              </ul>
-              <p className="mb-6">Our systems are designed to retrieve and process data for analytics and operational intelligence purposes only.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">5. Data Security</h2>
-              <p className="mb-4">We implement commercially reasonable safeguards intended to protect customer information, including:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>HTTPS/SSL encrypted communication</li>
-                <li>Access control mechanisms</li>
-                <li>Encrypted credential storage</li>
-                <li>Infrastructure monitoring</li>
-                <li>Authentication and authorization controls</li>
-                <li>Internal access restrictions</li>
-                <li>Secure cloud infrastructure practices</li>
-              </ul>
-              <p className="mb-6">While we strive to protect information, no digital system can guarantee absolute security.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">6. Data Retention</h2>
-              <p className="mb-4">We retain information only for as long as reasonably necessary to:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Provide Services</li>
-                <li>Maintain account functionality</li>
-                <li>Improve platform operations</li>
-                <li>Comply with legal obligations</li>
-                <li>Resolve disputes</li>
-                <li>Enforce agreements</li>
-              </ul>
-              <p className="mb-6">Users may request deletion of their account and associated data subject to applicable legal or operational requirements.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">7. Third-Party Integrations</h2>
-              <p className="mb-4">Pocket Dashboard integrates with third-party platforms and service providers. Your use of those services remains subject to their respective terms and privacy policies. These services may include:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Shopify</li>
-                <li>WooCommerce</li>
-                <li>Meta</li>
-                <li>Google</li>
-                <li>Shiprocket</li>
-                <li>Razorpay</li>
-                <li>Cashfree</li>
-                <li>OpenAI or AI infrastructure providers</li>
-                <li>Cloud hosting providers</li>
-              </ul>
-              <p className="mb-6">Pocket Dashboard is not responsible for the privacy practices or operational behavior of third-party services.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">8. Cookies & Analytics Technologies</h2>
-              <p className="mb-4">We may use cookies, session storage, and similar technologies to:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Maintain authentication sessions</li>
-                <li>Remember user preferences</li>
-                <li>Analyze platform usage</li>
-                <li>Improve performance and reliability</li>
-                <li>Enhance security</li>
-              </ul>
-              <p className="mb-6">Users may disable cookies through browser settings, though certain features may become unavailable.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">9. User Responsibilities</h2>
-              <p className="mb-4">Users are responsible for:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Maintaining credential confidentiality</li>
-                <li>Ensuring lawful platform usage</li>
-                <li>Managing permissions granted to integrations</li>
-                <li>Reviewing AI-generated recommendations independently</li>
-                <li>Ensuring compliance with applicable laws and regulations</li>
-              </ul>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">10. Confidentiality & Business Data</h2>
-              <p className="mb-4">Pocket Dashboard recognizes that operational business data is commercially sensitive. Accordingly:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Customer business data is treated as confidential</li>
-                <li>Internal access is restricted to authorized personnel only</li>
-                <li>We do not publicly expose private store information</li>
-                <li>We do not knowingly share proprietary operational metrics with unrelated third parties</li>
-              </ul>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">11. Limitation of Liability</h2>
-              <p className="mb-4">Pocket Dashboard is provided on an “as available” and “as is” basis. We do not guarantee:</p>
-              <ul className="list-disc pl-6 mb-6 space-y-1">
-                <li>Business profitability</li>
-                <li>Operational outcomes</li>
-                <li>Data accuracy from third-party platforms</li>
-                <li>Continuous uptime</li>
-                <li>Error-free AI outputs</li>
-                <li>Predictive certainty</li>
-              </ul>
-              <p className="mb-6">Pocket Dashboard shall not be liable for indirect, incidental, consequential, or business-related losses arising from platform usage, external platform failures, operational decisions, or reliance on generated insights.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">12. International Users</h2>
-              <p className="mb-6">By using Pocket Dashboard, users understand that information may be processed or stored in jurisdictions outside their local region depending on infrastructure providers and operational requirements.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">13. Changes to This Privacy Policy</h2>
-              <p className="mb-6">We may update this Privacy Policy periodically to reflect operational, legal, technical, or product changes. Updated versions will be published on this page with a revised effective date. Continued use of the Services following updates constitutes acceptance of the revised Privacy Policy.</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">14. Contact Information</h2>
-              <p className="mb-6">For privacy-related inquiries, support requests, or data concerns, contact:<br />
-              <strong>Pocket Dashboard</strong><br />
-              Email: support@pocketdashboard.app</p>
-
-              <h2 className="text-2xl font-semibold text-foreground mt-10 mb-4">15. Consent</h2>
-              <p className="mb-6">By accessing or using Pocket Dashboard, you acknowledge that you have read, understood, and agreed to this Privacy Policy and our data handling practices.</p>
-
-            </div>
+    <div style={{
+      minHeight: '100vh',
+      background: '#060610',
+      color: '#f8fafc',
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    }}>
+      {/* Top Nav */}
+      <nav style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        backdropFilter: 'blur(20px)',
+        background: 'rgba(6,6,16,0.85)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <BrandLogo variant="compact" iconSize={28} />
+          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#64748b' }}>
+            <Shield size={13} style={{ color: '#6366f1' }} />
+            Privacy Policy
           </div>
         </div>
-      </main>
-      
-      <CtaFooter />
+      </nav>
+
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '48px', alignItems: 'start', paddingTop: '60px' }}>
+
+          {/* Sticky Sidebar TOC */}
+          <aside style={{ position: 'sticky', top: '80px' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '16px',
+              padding: '20px',
+            }}>
+              <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#475569', marginBottom: '16px' }}>
+                Table of Contents
+              </p>
+              <nav>
+                {sections.map((s) => (
+                  <a
+                    key={s.id}
+                    href={`#${s.id}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
+                      textDecoration: 'none',
+                      color: '#64748b',
+                      fontSize: '12px',
+                      lineHeight: 1.4,
+                      transition: 'all 0.15s ease',
+                      marginBottom: '2px',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = '#f8fafc';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = '#64748b';
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', fontFamily: 'monospace', color: '#334155', minWidth: '18px' }}>{s.number}</span>
+                    {s.title}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main>
+            {/* Hero Header */}
+            <div style={{ marginBottom: '48px' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.2)',
+                marginBottom: '20px',
+              }}>
+                <Shield size={12} style={{ color: '#818cf8' }} />
+                <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#818cf8' }}>Privacy Policy</span>
+              </div>
+
+              <h1 style={{ fontSize: '40px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: '16px', color: '#f8fafc' }}>
+                How we handle<br />your data.
+              </h1>
+
+              <p style={{ fontSize: '16px', color: '#94a3b8', lineHeight: 1.75, maxWidth: '560px', marginBottom: '28px' }}>
+                We take your privacy seriously. This document explains exactly what data we collect, why we collect it, and how it is protected.
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                {[
+                  { icon: Clock, label: 'Last updated: May 2026' },
+                  { icon: Lock, label: 'Read-only integrations' },
+                  { icon: Shield, label: 'Private to your store' },
+                ].map(({ icon: Icon, label }) => (
+                  <div key={label} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    fontSize: '12px',
+                    color: '#64748b',
+                  }}>
+                    <Icon size={12} style={{ color: '#6366f1' }} />
+                    {label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Divider />
+
+            {/* Intro */}
+            <div style={{ padding: '32px 0' }}>
+              <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: 1.8 }}>
+                Welcome to Pocket Dashboard. We are an operational analytics and business intelligence platform designed for modern D2C brands, e-commerce operators, and online businesses. This Privacy Policy explains how we collect, use, process, store, and protect information when you access our website, applications, integrations, dashboards, AI systems, and related services (collectively, the "Services").
+              </p>
+              <p style={{ fontSize: '15px', color: '#94a3b8', lineHeight: 1.8, marginTop: '16px' }}>
+                By accessing or using Pocket Dashboard, you acknowledge and agree to the practices described in this policy.
+              </p>
+            </div>
+
+            <Divider />
+
+            {/* 1. Information We Collect */}
+            <SectionHeading id="information" number="01" title="Information We Collect" icon={Database} />
+
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#cbd5e1', marginBottom: '12px', letterSpacing: '0.02em' }}>1.1 Account Information</h3>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '12px' }}>When creating or managing an account, we may collect:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0' }}>
+              {['Full name', 'Business / store name', 'Email address', 'Phone number', 'Billing information', 'Account credentials', 'Subscription details'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#cbd5e1', marginBottom: '12px', letterSpacing: '0.02em' }}>1.2 Connected Platform Data</h3>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '12px' }}>When you connect third-party services such as Shopify, WooCommerce, Meta Ads, or Shiprocket, we may access:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Orders and fulfilment data', 'Product and SKU information', 'Shipping and logistics data', 'Payment and transaction metadata', 'Advertising metrics and campaign performance', 'Revenue and profitability metrics', 'Inventory-related information', 'Operational performance indicators'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '24px' }}>
+              We access only the permissions necessary to provide analytics, synchronization, operational intelligence, and AI-assisted insights.
+            </p>
+
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#cbd5e1', marginBottom: '12px', letterSpacing: '0.02em' }}>1.3 AI & Operational Intelligence Data</h3>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '12px' }}>To provide contextual AI insights, our systems may process:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Historical operational patterns', 'Business performance trends', 'Aggregated analytical metrics', 'User queries and AI interactions', 'Dashboard usage behavior', 'Performance summaries and generated insights'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Callout type="success">
+              <strong style={{ color: '#f8fafc' }}>Important:</strong> Pocket Dashboard does not use your private business data to train public AI models. Your data is never shared with third parties for training purposes.
+            </Callout>
+
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#cbd5e1', marginBottom: '12px', letterSpacing: '0.02em' }}>1.4 Technical & Device Information</h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0' }}>
+              {['IP address', 'Browser type', 'Device information', 'Operating system', 'Session identifiers', 'Usage analytics', 'Error logs', 'Cookie and diagnostic information'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+
+            <Divider />
+
+            {/* 2. How We Use Information */}
+            <SectionHeading id="usage" number="02" title="How We Use Information" icon={Eye} />
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Provide and maintain the Services', 'Generate analytics and operational insights', 'Synchronize business data across integrations', 'Improve AI-assisted recommendations', 'Enhance platform reliability and performance', 'Detect anomalies and prevent system abuse', 'Provide customer support', 'Process billing and subscription management', 'Monitor infrastructure health and security', 'Improve user experience and product functionality'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Callout type="info">
+              We do not sell customer data or personal information to third parties. Ever.
+            </Callout>
+            <Divider />
+
+            {/* 3. AI Systems */}
+            <SectionHeading id="ai" number="03" title="AI Systems & Business Intelligence" icon={Server} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
+              Pocket Dashboard includes AI-assisted operational intelligence systems designed to help users understand business performance. These systems may:
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Analyze historical trends', 'Surface operational anomalies', 'Generate summaries and recommendations', 'Identify inefficiencies and margin leakage', 'Provide context-aware business insights'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              These systems assist decision-making only. They do not guarantee financial outcomes or predictive certainty. All AI-generated insights should be independently reviewed before making operational decisions.
+            </p>
+            <Divider />
+
+            {/* 4. Read-Only Access */}
+            <SectionHeading id="readonly" number="04" title="Read-Only Platform Access" icon={Lock} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
+              Pocket Dashboard primarily operates using read-only integrations. We:
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0' }}>
+              {['Do not modify your store content', 'Do not create or edit orders without explicit authorization', 'Do not manage customer payments', 'Do not access unnecessary permissions'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Divider />
+
+            {/* 5. Data Security */}
+            <SectionHeading id="security" number="05" title="Data Security" icon={Shield} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>We implement commercially reasonable safeguards including:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['HTTPS/SSL encrypted communication', 'Access control mechanisms', 'Encrypted credential storage', 'Infrastructure monitoring', 'Authentication and authorization controls', 'Internal access restrictions', 'Secure cloud infrastructure practices'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              While we strive to protect information, no digital system can guarantee absolute security.
+            </p>
+            <Divider />
+
+            {/* 6. Data Retention */}
+            <SectionHeading id="retention" number="06" title="Data Retention" icon={Clock} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>We retain information only as long as necessary to:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Provide Services', 'Maintain account functionality', 'Improve platform operations', 'Comply with legal obligations', 'Resolve disputes', 'Enforce agreements'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              Users may request deletion of their account and associated data, subject to applicable legal requirements.
+            </p>
+            <Divider />
+
+            {/* 7. Third-Party Integrations */}
+            <SectionHeading id="integrations" number="07" title="Third-Party Integrations" icon={Globe} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
+              Pocket Dashboard integrates with third-party platforms. Your use of those services remains subject to their respective privacy policies. Integrated services may include:
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+              {['Shopify', 'WooCommerce', 'Meta Ads', 'Google Ads', 'Shiprocket', 'Razorpay', 'Cashfree', 'OpenAI', 'Cloud Hosting Providers'].map(tag => (
+                <span key={tag} style={{
+                  fontSize: '12px', color: '#94a3b8', padding: '4px 10px',
+                  borderRadius: '6px', background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.07)'
+                }}>{tag}</span>
+              ))}
+            </div>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              Pocket Dashboard is not responsible for the privacy practices of third-party services.
+            </p>
+            <Divider />
+
+            {/* 8. Cookies */}
+            <SectionHeading id="cookies" number="08" title="Cookies & Analytics Technologies" icon={FileText} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>We may use cookies and session storage to:</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Maintain authentication sessions', 'Remember user preferences', 'Analyze platform usage', 'Improve performance and reliability', 'Enhance security'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              You may disable cookies through browser settings, though certain features may become unavailable.
+            </p>
+            <Divider />
+
+            {/* 9. User Responsibilities */}
+            <SectionHeading id="responsibilities" number="09" title="User Responsibilities" icon={Users} />
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0' }}>
+              {['Maintaining credential confidentiality', 'Ensuring lawful platform usage', 'Managing permissions granted to integrations', 'Reviewing AI-generated recommendations independently', 'Ensuring compliance with applicable laws and regulations'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Divider />
+
+            {/* 10. Confidentiality */}
+            <SectionHeading id="confidentiality" number="10" title="Confidentiality & Business Data" icon={Lock} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
+              We recognize that operational business data is commercially sensitive. Accordingly:
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px 0' }}>
+              {['Customer business data is treated as confidential', 'Internal access is restricted to authorized personnel only', 'We do not publicly expose private store information', 'We do not knowingly share proprietary operational metrics with unrelated third parties'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Divider />
+
+            {/* 11. Limitation of Liability */}
+            <SectionHeading id="liability" number="11" title="Limitation of Liability" icon={Shield} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '16px' }}>
+              Pocket Dashboard is provided on an "as available" and "as is" basis. We do not guarantee:
+            </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px 0' }}>
+              {['Business profitability', 'Operational outcomes', 'Data accuracy from third-party platforms', 'Continuous uptime', 'Error-free AI outputs', 'Predictive certainty'].map(i => <ListItem key={i}>{i}</ListItem>)}
+            </ul>
+            <Callout type="warning">
+              Pocket Dashboard shall not be liable for indirect, incidental, consequential, or business-related losses arising from platform usage, external platform failures, or reliance on generated insights.
+            </Callout>
+            <Divider />
+
+            {/* 12. International Users */}
+            <SectionHeading id="international" number="12" title="International Users" icon={Globe} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              By using Pocket Dashboard, you understand that information may be processed or stored in jurisdictions outside your local region, depending on infrastructure providers and operational requirements.
+            </p>
+            <Divider />
+
+            {/* 13. Changes */}
+            <SectionHeading id="changes" number="13" title="Changes to This Privacy Policy" icon={FileText} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '32px' }}>
+              We may update this Privacy Policy periodically to reflect operational, legal, technical, or product changes. Updated versions will be published on this page with a revised effective date. Continued use of the Services following updates constitutes acceptance of the revised Privacy Policy.
+            </p>
+            <Divider />
+
+            {/* 14. Contact */}
+            <SectionHeading id="contact" number="14" title="Contact Information" icon={Mail} />
+            <div style={{
+              background: 'rgba(99,102,241,0.06)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              borderRadius: '16px',
+              padding: '24px',
+              marginBottom: '32px',
+            }}>
+              <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '12px' }}>
+                For privacy-related inquiries, support requests, or data concerns:
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Mail size={16} style={{ color: '#818cf8' }} />
+                <a href="mailto:support@pocketdashboard.app" style={{ color: '#818cf8', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+                  support@pocketdashboard.app
+                </a>
+              </div>
+            </div>
+            <Divider />
+
+            {/* 15. Consent */}
+            <SectionHeading id="consent" number="15" title="Consent" icon={Shield} />
+            <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: 1.7, marginBottom: '48px' }}>
+              By accessing or using Pocket Dashboard, you acknowledge that you have read, understood, and agreed to this Privacy Policy and our data handling practices.
+            </p>
+
+            {/* Footer nav */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '24px 0',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}>
+              <Link to="/" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                fontSize: '13px', color: '#64748b', textDecoration: 'none',
+                transition: 'color 0.15s',
+              }}
+                onMouseEnter={e => e.currentTarget.style.color = '#f8fafc'}
+                onMouseLeave={e => e.currentTarget.style.color = '#64748b'}
+              >
+                ← Back to Pocket Dashboard
+              </Link>
+              <span style={{ fontSize: '12px', color: '#334155' }}>© {new Date().getFullYear()} Pocket Dashboard</span>
+            </div>
+          </main>
+
+        </div>
+      </div>
     </div>
   );
 }
