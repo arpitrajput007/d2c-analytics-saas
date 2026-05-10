@@ -171,6 +171,83 @@ function DomainGuideButton() {
   );
 }
 
+const TOKEN_STEPS = [
+  { icon: '⚙️', title: 'Go to Shopify Admin → Settings', desc: 'Log in at admin.shopify.com and click the "Settings" gear icon at the bottom-left of the sidebar.' },
+  { icon: '🧩', title: 'Click "Apps and sales channels"', desc: 'In Settings, find and click "Apps and sales channels" from the left menu.' },
+  { icon: '🛠️', title: 'Open "Develop apps"', desc: 'Click "Develop apps" at the top right. If prompted, click "Allow custom app development".' },
+  { icon: '➕', title: 'Create a new app', desc: 'Click "Create an app", give it any name (e.g. "Pocket Dashboard"), then click Create.' },
+  { icon: '🔑', title: 'Configure API scopes', desc: 'Click "Configure Admin API scopes". Search and enable read_orders and read_products. Then click Save.' },
+  { icon: '📦', title: 'Install the app', desc: 'Go to the "API credentials" tab and click "Install app". Confirm the installation.' },
+  { icon: '📋', title: 'Copy the access token', desc: 'After installing, click "Reveal token once" under Admin API access token. Copy it immediately — it will not be shown again.' },
+];
+
+function TokenGuideButton() {
+  const [open, setOpen] = useState(false);
+  const cs = { background:'rgba(255,255,255,0.025)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:4, padding:'1px 7px', fontSize:12, color:'#a5b4fc', fontFamily:'monospace' };
+  return (
+    <>
+      <button type="button" className="domain-guide-btn" onClick={() => setOpen(true)}
+        style={{ marginTop:10, display:'flex', alignItems:'center', gap:7, background:'rgba(99,102,241,0.06)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:8, padding:'7px 13px', cursor:'pointer', color:'#818cf8', fontSize:12.5, fontWeight:500, fontFamily:'inherit', transition:'all 0.2s' }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.2"/><path d="M7 9.5V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><circle cx="7" cy="5" r="0.7" fill="currentColor"/></svg>
+        How to create a Custom App and get the token?
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft:2 }}><path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </button>
+      {open && (
+        <div onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}
+          style={{ position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.78)', backdropFilter:'blur(6px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}
+        >
+          <div style={{ width:'100%', maxWidth:620, maxHeight:'90vh', overflowY:'auto', background:'linear-gradient(160deg,#0c0c1e,#080818)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:24, padding:'36px 36px 32px', boxShadow:'0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(99,102,241,0.1)', animation:'domainModalIn 0.3s cubic-bezier(0.34,1.56,0.64,1)', scrollbarWidth:'none' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:28 }}>
+              <div>
+                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+                  <div style={{ width:36, height:36, borderRadius:10, background:'rgba(99,102,241,0.15)', border:'1px solid rgba(99,102,241,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>🔑</div>
+                  <h3 style={{ margin:0, fontSize:20, fontWeight:800, color:'#f1f5f9', letterSpacing:'-0.3px' }}>Getting Your Access Token</h3>
+                </div>
+                <p style={{ margin:0, fontSize:13.5, color:'#64748b', lineHeight:1.6 }}>Create a read-only Custom App in Shopify Admin in 7 simple steps.</p>
+              </div>
+              <button type="button" className="domain-guide-close" onClick={() => setOpen(false)}
+                style={{ width:32, height:32, borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer', color:'#64748b', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, transition:'background 0.2s', fontSize:16, marginLeft:16 }}
+              >✕</button>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+              {TOKEN_STEPS.map((s, i) => (
+                <div key={i} style={{ display:'flex', gap:14, alignItems:'flex-start', padding:'14px 16px', background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14 }}>
+                  <div style={{ width:36, height:36, borderRadius:10, background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:17 }}>{s.icon}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                      <span style={{ width:18, height:18, borderRadius:'50%', background:'rgba(99,102,241,0.2)', border:'1px solid rgba(99,102,241,0.3)', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:10, color:'#a5b4fc', fontWeight:700, flexShrink:0 }}>{i + 1}</span>
+                      <span style={{ fontSize:13.5, fontWeight:700, color:'#e2e8f0' }}>{s.title}</span>
+                    </div>
+                    <p style={{ margin:0, fontSize:12.5, color:'#64748b', lineHeight:1.65 }}>{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding:'14px 18px', background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.2)', borderRadius:14, display:'flex', gap:12, alignItems:'flex-start', marginBottom:16 }}>
+              <span style={{ fontSize:18 }}>⚠️</span>
+              <div>
+                <p style={{ margin:'0 0 4px', fontSize:13, fontWeight:700, color:'#fbbf24' }}>Token shown only once</p>
+                <p style={{ margin:0, fontSize:12.5, color:'#64748b', lineHeight:1.65 }}>Shopify reveals the token <strong style={{ color:'#e2e8f0' }}>once</strong> after installation. Copy it immediately — if lost, you need to reinstall the app.</p>
+              </div>
+            </div>
+            <div style={{ padding:'14px 18px', background:'rgba(16,185,129,0.06)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:14, display:'flex', gap:12, alignItems:'flex-start', marginBottom:24 }}>
+              <span style={{ fontSize:18 }}>✅</span>
+              <div>
+                <p style={{ margin:'0 0 4px', fontSize:13, fontWeight:700, color:'#e2e8f0' }}>Only 2 scopes needed</p>
+                <p style={{ margin:0, fontSize:12.5, color:'#64748b', lineHeight:1.65 }}>Enable only <code style={cs}>read_orders</code> and <code style={cs}>read_products</code>. We never request write access.</p>
+              </div>
+            </div>
+            <button type="button" onClick={() => setOpen(false)}
+              style={{ width:'100%', padding:'14px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#6366f1,#4f46e5)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit', transition:'all 0.2s', boxShadow:'0 4px 20px rgba(99,102,241,0.35)' }}
+            >Got it, let me paste my token →</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, accessToken, setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [connecting, setConnecting] = useState(false);
@@ -280,6 +357,8 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
               }
             </button>
           </div>
+          {/* Token guidance button */}
+          <TokenGuideButton />
         </div>
 
         {/* Buttons */}
