@@ -51,7 +51,7 @@ export default function Signup() {
         </Link>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '36px', marginTop: '12px' }}>
-          <BrandLogo variant="compact" iconSize={52} />
+          <BrandLogo variant="full" iconSize={52} />
         </div>
 
 

@@ -50,7 +50,7 @@ export default function Login() {
         </Link>
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '36px', marginTop: '12px' }}>
-          <BrandLogo variant="compact" iconSize={52} />
+          <BrandLogo variant="full" iconSize={52} />
         </div>
 
 
@@ -93,6 +93,16 @@ export default function Login() {
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', fontSize: '13px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer' }}>
+              <input type="checkbox" style={{ accentColor: 'rgba(56, 189, 248, 1)', width: '15px', height: '15px', cursor: 'pointer', borderRadius: '4px' }} />
+              Remember me
+            </label>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Password reset link sent to your email!"); }} style={{ color: 'rgba(56, 189, 248, 1)', textDecoration: 'none', fontWeight: 600 }}>
+              Forgot password?
+            </a>
           </div>
 
           {error && (
