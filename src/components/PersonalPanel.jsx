@@ -451,14 +451,14 @@ export default function PersonalPanel({ session, store }) {
             {/* Glass card */}
             <div style={{
               position: 'relative',
-              padding: '10px 14px',
+              padding: '12px 16px 10px',
               borderRadius: '14px',
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid rgba(255,255,255,0.06)',
               backdropFilter: 'blur(8px)',
               display: 'inline-block',
             }}>
-              <BrandLogo variant="compact" iconSize={48} />
+              <BrandLogo variant="full" iconSize={44} />
             </div>
           </div>
 
@@ -550,7 +550,7 @@ export default function PersonalPanel({ session, store }) {
                   <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
               </button>
-              <BrandLogo variant="compact" iconSize={32} />
+              <BrandLogo variant="full" iconSize={28} />
             </div>
 
             <div style={{ flex: 1 }}>
