@@ -11,7 +11,7 @@ const turns = [
 
 export function CopilotShowcase() {
   return (
-    <section id="copilot" className="relative py-24 sm:py-32">
+    <section id="copilot" className="relative pt-12 sm:pt-16 pb-24 sm:pb-32">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-2">
         <div>
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-glass-border bg-glass px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
