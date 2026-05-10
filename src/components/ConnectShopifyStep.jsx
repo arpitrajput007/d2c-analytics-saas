@@ -26,10 +26,10 @@ const FAQ = [
   { q: 'Can I revoke access later?', a: 'Yes, anytime. Go to Shopify Admin → Settings → Apps and remove the custom app. This immediately cuts access.' },
 ];
 
-export default function ConnectShopifyStep({ shopifyDomain, setShopifyDomain, accessToken, setAccessToken, showToken, setShowToken, onBack, onContinue }) {
+export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, accessToken, setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [connecting, setConnecting] = useState(false);
-  const canContinue = shopifyDomain.trim() && accessToken.trim();
+  const canContinue = shopifyDomain.trim() && accessToken.trim() && (!setStoreName || storeName.trim());
 
   const handleContinue = () => {
     if (!canContinue) return;
@@ -72,6 +72,24 @@ export default function ConnectShopifyStep({ shopifyDomain, setShopifyDomain, ac
 
       {/* Main form card */}
       <div style={card({})}>
+        {/* Store name – only shown in embedded/dashboard mode */}
+        {setStoreName && (
+          <div style={{ marginBottom: 28 }}>
+            <label style={labelSt}>Store Display Name</label>
+            <p style={{ fontSize: 12.5, color: '#64748b', margin: '0 0 10px', lineHeight: 1.6 }}>
+              This name will appear on your dashboard header and analytics reports.
+            </p>
+            <input
+              className="ob-input" style={inp}
+              type="text" required
+              placeholder="e.g. Acme Apparel Co."
+              value={storeName}
+              onChange={e => setStoreName(e.target.value)}
+              onFocus={inpFocus} onBlur={inpBlur}
+            />
+          </div>
+        )}
+
         {/* Shopify domain */}
         <div style={{ marginBottom: 28 }}>
           <label style={labelSt}>Shopify Domain</label>

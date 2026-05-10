@@ -139,14 +139,47 @@ export default function Onboarding({ session, isEmbedded = false }) {
 
   /* ── Embedded mode (inside dashboard) ── */
   if (isEmbedded) {
+    const handleEmbeddedSubmit = async () => {
+      if (!storeName.trim() || !shopifyDomain.trim() || !accessToken.trim()) return;
+      setLoading(true);
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${apiUrl}/api/store`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            owner_id: session.user.id,
+            store_name: storeName,
+            shopify_domain: shopifyDomain,
+            shopify_access_token: accessToken,
+            primary_color: themeColor,
+            dashboard_style: 'dark-modern',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        if (data?.id) {
+          try { await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' }); }
+          catch (e) { console.warn('sync failed (non-critical)'); }
+        }
+      } catch (err) {
+        setLoading(false);
+        alert('Error: ' + err.message);
+        return;
+      }
+      setLoading(false);
+      navigate('/');
+    };
     return (
-      <div style={{ padding: '24px 0', maxWidth: 600, margin: '0 auto' }}>
+      <div style={{ padding: '24px 0', maxWidth: 640, margin: '0 auto' }}>
         <ConnectShopifyStep
+          storeName={storeName}         setStoreName={setStoreName}
           shopifyDomain={shopifyDomain} setShopifyDomain={setShopifyDomain}
           accessToken={accessToken}     setAccessToken={setAccessToken}
           showToken={showToken}         setShowToken={setShowToken}
-          onBack={() => {}}             onContinue={() => navigate('/')}
-          session={session}             storeName="My Store"
+          loading={loading}
+          onBack={() => {}}
+          onContinue={handleEmbeddedSubmit}
         />
       </div>
     );
