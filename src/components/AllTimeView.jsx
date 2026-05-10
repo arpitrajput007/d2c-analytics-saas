@@ -244,7 +244,7 @@ export default function AllTimeView({ store }) {
               <tr>
                 <td colSpan="5" style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-dim)', fontSize: '13.5px', lineHeight: 1.7 }}>
                   <div style={{ opacity: 0.5, fontSize: '28px', marginBottom: '10px' }}>🗓️</div>
-                  No data synced yet — click <strong style={{ color: 'var(--text-muted)' }}>Force Sync</strong> to load historical data
+                  No data synced yet. Click <strong style={{ color: 'var(--text-muted)' }}>Force Sync</strong> to load historical data
                 </td>
               </tr>
             )}

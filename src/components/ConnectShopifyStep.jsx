@@ -16,9 +16,9 @@ const trustBadges = [
 ];
 
 const securityPoints = [
-  "Your token is encrypted and stored securely — never exposed in the browser or shared",
+  "Your token is encrypted and stored securely. Never exposed in the browser or shared.",
   "You can revoke access at any time from your Shopify Admin → Apps",
-  "We only sync data — your live store is never touched",
+  "We only sync data. Your live store is never touched.",
   "This platform exists purely to save you manual work and surface insights with AI intelligence",
 ];
 

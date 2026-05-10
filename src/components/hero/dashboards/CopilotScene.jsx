@@ -5,7 +5,7 @@ const insights = [
   {
     tone: "win",
     title: "Hydra Serum is your profit engine",
-    body: "Net margin 38% — reallocate $1,840 Meta spend from Daily Cleanser for est. +$6,210 this week.",
+    body: "Net margin 38%. Reallocate $1,840 Meta spend from Daily Cleanser for est. +$6,210 this week.",
     meta: "+$6,210",
   },
   {

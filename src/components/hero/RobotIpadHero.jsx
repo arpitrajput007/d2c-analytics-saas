@@ -63,19 +63,19 @@ export default function RobotIpadHero() {
       kicker: "TODAY · LIVE",
       title: "Your real profit,",
       sub: "updating by the second.",
-      body: "Orders, fulfilment, RTO, ad spend and net profit — stitched into one live dashboard that auto-refreshes with every Shopify and Shiprocket webhook.",
+      body: "Orders, fulfilment, RTO, ad spend and net profit. All stitched into one live dashboard that auto-refreshes with every Shopify and Shiprocket webhook.",
     },
     {
       kicker: "THIS WEEK · TRENDS",
       title: "Spot leaks before",
       sub: "they dent your cash flow.",
-      body: "Canceled orders, possibility-of-RTO, unreachable customers and failed deliveries — 7-day rollups so you see patterns, not just numbers.",
+      body: "Canceled orders, possibility-of-RTO, unreachable customers and failed deliveries. 7-day rollups so you see patterns, not just numbers.",
     },
     {
       kicker: "THIS MONTH · MARGIN",
       title: "Know what to double down on.",
       sub: "And what to cut.",
-      body: "SKU-level profit, prepaid vs cash split, ROAS and MER for the full month — with a co-pilot that tells you exactly where to shift ad spend.",
+      body: "Track SKU-level profit, prepaid vs COD performance, ROAS, MER and real business margins. An AI co-pilot helps you make smarter spending decisions.",
     },
   ];
 
@@ -176,7 +176,7 @@ export default function RobotIpadHero() {
                 data-testid="hero-cta-primary"
                 className="relative inline-flex items-center gap-2 px-5 py-3 rounded-full brand-gradient text-black font-semibold text-[14px] overflow-hidden shine"
               >
-                Start 14-Day Free Trial
+                Start Your 14-Day Free Trial
                 <svg
                   width="16"
                   height="16"

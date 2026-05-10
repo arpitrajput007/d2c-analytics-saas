@@ -23,13 +23,13 @@ export function CopilotShowcase() {
             <span className="text-gradient">anything, instantly.</span>
           </h2>
           <p className="mt-4 max-w-lg text-muted-foreground">
-            Get simple, actionable answers from your own data — no complex dashboards, no manual
+            Get simple, actionable answers from your own data. No complex dashboards, no manual
             digging. Identify what needs attention before it becomes a problem.
           </p>
 
           <ul className="mt-6 space-y-3 text-sm">
             {[
-              "Ask in plain language — get clear answers",
+              "Ask in plain language, get clear answers",
               "Instant profit, loss and RTO breakdowns",
               "Weekly summaries sent automatically",
             ].map((t) => (

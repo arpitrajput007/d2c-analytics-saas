@@ -50,7 +50,7 @@ export default function AICopilot({ store }) {
           Gemini AI Executive Summary
         </div>
         <div style={{ fontSize: '13px', lineHeight: 1.6, color: '#c4b5fd', fontStyle: 'italic' }}>
-          "COD ratio at 62% — potential margin leak detected. Prepaid adoption push recommended this week."
+          "COD ratio at 62%. Potential margin leak detected. Prepaid adoption push recommended this week."
         </div>
       </div>
 

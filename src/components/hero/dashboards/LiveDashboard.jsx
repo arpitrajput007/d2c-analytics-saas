@@ -68,7 +68,7 @@ export default function LiveDashboard({ dataset = "today" }) {
       revenue: 61062, adSpend: 22270, prepaid: 8, cash: 36, net: 15077,
     },
     week: {
-      dateLabel: "Mar 25 — Mar 31, 2026",
+      dateLabel: "Mar 25 to Mar 31, 2026",
       orders: 318, fulfilled: 274, delivered: 241, transit: 14, outDel: 9, failed: 3,
       canceled: 21, possRto: 28, rto: 26, unreach: 7,
       revenue: 428910, adSpend: 154200, prepaid: 63, cash: 255, net: 108420,
@@ -173,7 +173,7 @@ export default function LiveDashboard({ dataset = "today" }) {
           </div>
           <div className="text-[9px] leading-snug text-white/85">
             Hydra Serum margin at{" "}
-            <span className="text-emerald-300 font-semibold">38%</span> — shift{" "}
+            <span className="text-emerald-300 font-semibold">38%</span>. Shift{" "}
             <span className="text-cyan-200">₹1,840</span> Meta spend for{" "}
             <span className="text-emerald-300">+₹6,210</span>.
           </div>

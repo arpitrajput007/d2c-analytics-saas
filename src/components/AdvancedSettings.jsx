@@ -337,7 +337,7 @@ export default function AdvancedSettings({ store }) {
           </div>
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>
             Each toggle controls whether that analytics view appears in your left sidebar navigation.
-            All views pull data directly from your Shopify store via Supabase — toggling simply hides/shows them.
+            All views pull data directly from your Shopify store via Supabase. Toggling simply hides/shows them.
             Your data is always synced in the background regardless of toggle state.
           </div>
         </div>
