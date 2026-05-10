@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 const links = [
-  { label: "Features", href: "/#features" },
-  { label: "Dashboard", href: "/#dashboard" },
+  { label: "Features",   href: "/#features" },
   { label: "AI Co-Pilot", href: "/#copilot" },
-  { label: "Pricing", href: "/#pricing" },
+  { label: "Pricing",    href: "/#pricing" },
+  { label: "Contact Us", href: "/contact-us" },
 ];
 
 export function SiteNav({ onSignInClick }) {
