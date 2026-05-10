@@ -80,10 +80,12 @@ function useTypingSimulation() {
 
 export function CopilotShowcase() {
   const { phase, displayedQ, displayedA, fullQuestion } = useTypingSimulation();
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [displayedA, phase]);
 
   return (
@@ -189,6 +191,7 @@ export function CopilotShowcase() {
               {/* Chat body */}
               <div
                 className="px-5 py-5 space-y-4 overflow-y-auto"
+                ref={chatContainerRef}
                 style={{ height: "380px" }}
               >
                 {/* User question bubble */}
@@ -254,8 +257,6 @@ export function CopilotShowcase() {
                     </div>
                   </div>
                 )}
-
-                <div ref={chatEndRef} />
               </div>
 
               {/* Chat input bar */}
