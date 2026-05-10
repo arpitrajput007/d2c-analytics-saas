@@ -270,12 +270,14 @@ export default function Onboarding({ session, isEmbedded = false }) {
 
       <div style={isEmbedded ? { padding: '0' } : {
         flex: 1,
-        padding: step === 1 ? '48px 48px 80px' : '40px 20px',
+        padding: step === 1 ? '56px 64px 80px' : '40px 20px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: step === 1 ? 'stretch' : 'center',
         width: '100%',
         boxSizing: 'border-box',
+        maxWidth: step === 1 ? '1400px' : 'none',
+        margin: '0 auto',
       }}>
         <div style={isEmbedded
           ? { background: 'transparent', border: 'none', boxShadow: 'none', padding: '0', width: '100%' }
