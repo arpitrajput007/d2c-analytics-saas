@@ -7,6 +7,7 @@ import { LogoMarquee } from './logo-marquee';
 import { Features } from './features';
 import { CopilotShowcase } from './copilot-showcase';
 import { Pricing } from './pricing';
+import { Contact } from './contact';
 import { CtaFooter } from './cta-footer';
 
 // Import the specific tailwind-driven styles
@@ -43,6 +44,7 @@ export default function Landing() {
         <Features />
         <CopilotShowcase />
         <Pricing />
+        <Contact />
         <CtaFooter />
       </main>
     </div>
