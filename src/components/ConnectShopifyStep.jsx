@@ -27,11 +27,11 @@ const FAQ = [
 ];
 
 const GUIDE_STEPS = [
-  { icon: '🌐', title: 'Log in to Shopify Admin', desc: 'Visit admin.shopify.com and sign in to your Shopify account.' },
+  { icon: '🌐', title: 'Log in to Shopify Admin', desc: 'Go to admin.shopify.com and sign in to your Shopify account.' },
   { icon: '⚙️', title: 'Click "Settings"', desc: 'Find the Settings option at the bottom-left corner of your Shopify Admin sidebar.' },
-  { icon: '📋', title: 'Open "General" tab', desc: 'In the Settings menu, click on "General" to see your store information.' },
-  { icon: '🔗', title: 'Find your store domain', desc: 'Under "Store details", you\'ll see your Shopify domain — it looks like your-store-name.myshopify.com.' },
-  { icon: '📋', title: 'Copy only the prefix', desc: 'Enter only the part BEFORE ".myshopify.com" — e.g. if your domain is acme.myshopify.com, enter acme.' },
+  { icon: '🔗', title: 'Click "Domains"', desc: 'In the Settings left menu, scroll down and click on "Domains".' },
+  { icon: '🔍', title: 'Find the .myshopify.com domain', desc: 'On the Domains page, you\'ll see a list of domains. Look for the one ending in .myshopify.com — it\'s always listed there.' },
+  { icon: '📋', title: 'Copy only the prefix', desc: 'Enter only the part BEFORE ".myshopify.com" — e.g. if it shows bnb-toys.myshopify.com, enter bnb-toys.' },
 ];
 
 
@@ -103,7 +103,7 @@ function DomainGuideButton() {
                   </h3>
                 </div>
                 <p style={{ margin: 0, fontSize: 13.5, color: '#64748b', lineHeight: 1.6 }}>
-                  Follow these steps to locate your store's unique Shopify domain in 30 seconds.
+                  Follow these steps to find your store's .myshopify.com domain via Settings → Domains.
                 </p>
               </div>
               <button
