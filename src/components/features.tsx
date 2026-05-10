@@ -1,41 +1,47 @@
-import { AlertTriangle, BarChart3, Brain, Clock, ShieldAlert, TrendingDown } from "lucide-react";
+import { AlertTriangle, BarChart3, Brain, Clock, Link2, ShieldAlert, TrendingDown, Zap } from "lucide-react";
 
 const features = [
   {
     icon: BarChart3,
     label: "Complete Business Visibility",
-    desc: "Orders, revenue, profit — all in one dashboard. Daily, weekly, monthly views with no more switching between tools.",
-    points: ["Orders & revenue in one place", "Daily, weekly, monthly views", "No more switching between tools"],
+    desc: "Every order, every rupee, every trend — tracked automatically. Daily, weekly, and monthly views in one unified dashboard.",
+    points: ["Orders and revenue in one place", "Daily, weekly, monthly breakdowns", "Zero manual data entry"],
+    accent: "oklch(0.78 0.18 210)",
   },
   {
     icon: TrendingDown,
-    label: "Profit Tracking That Actually Matters",
-    desc: "See your real profit after ads, shipping, and COD losses. Know which products make or lose money.",
-    points: ["Real profit after all costs", "SKU-level profitability", "Know what makes vs. loses money"],
+    label: "True Profit After Every Cost",
+    desc: "See what you actually made after ads, shipping, COD returns, and fulfilment. Not revenue. Real profit.",
+    points: ["Ad spend deducted automatically", "SKU-level profit and loss", "COD vs prepaid margin split"],
+    accent: "oklch(0.78 0.18 305)",
   },
   {
     icon: ShieldAlert,
-    label: "Loss & Risk Identification",
-    desc: "Spot high-risk orders — COD, unreachable, failed deliveries. Track RTO trends and identify where losses are coming from.",
+    label: "Loss and Risk Detection",
+    desc: "Catch high-risk orders before they drain your margins. COD non-confirmations, RTO surges, and failed deliveries flagged in real time.",
     points: ["High-risk order detection", "RTO trend tracking", "Loss source identification"],
+    accent: "oklch(0.78 0.18 25)",
   },
   {
     icon: Brain,
-    label: "Smart Insights (AI-Assisted)",
-    desc: "Get simple, actionable suggestions. Highlights unusual trends or issues so you know what needs attention today.",
-    points: ["Actionable suggestions", "Unusual trend detection", "Daily attention list"],
+    label: "AI Co-Pilot for Smarter Decisions",
+    desc: "Ask anything about your business in plain language. Get clear answers on what to fix, cut, or double down on today.",
+    points: ["Plain-language business queries", "Unusual trend detection", "Daily priority attention list"],
+    accent: "oklch(0.78 0.18 280)",
   },
   {
     icon: AlertTriangle,
-    label: "Clarity Leads to Better Decisions",
-    desc: "Spend more on what works. Cut losses early. Improve cash flow. Scale only when the numbers make sense.",
-    points: ["Double down on what's working", "Cut losses early", "Scale with confidence"],
+    label: "ROAS, MER and Ad Efficiency",
+    desc: "Know exactly what your ad spend is returning. Track ROAS and MER by day, week, or month and spend only where it works.",
+    points: ["ROAS and MER tracking", "Channel-level ad breakdown", "Scale with data, not guesswork"],
+    accent: "oklch(0.78 0.18 60)",
   },
   {
     icon: Clock,
-    label: "Save Hours Every Day",
-    desc: "No more manual tracking. No spreadsheets. No jumping between tools. Your entire business in one place.",
-    points: ["Zero manual data entry", "No spreadsheets needed", "Everything in one place"],
+    label: "Save Hours Every Single Day",
+    desc: "No spreadsheets. No copy-pasting from five tabs. Your entire business updates automatically the moment an order moves.",
+    points: ["Live Shopify and Shiprocket sync", "No spreadsheets needed", "Everything in one place"],
+    accent: "oklch(0.78 0.18 150)",
   },
 ];
 
@@ -43,6 +49,8 @@ export function Features() {
   return (
     <section id="features" className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4">
+
+        {/* Section header */}
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-4 inline-flex rounded-full border border-glass-border bg-glass px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
             Features
@@ -52,30 +60,68 @@ export function Features() {
             <span className="text-gradient">your entire business.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Bring all your data into one place and understand exactly what's happening — in real time.
+            Connect your store and ad accounts in one click. See every number that matters, live.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* One-click connect strip */}
+        <div
+          className="mx-auto mt-10 mb-2 flex max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-glass-border bg-glass px-6 py-4"
+          style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(34,211,238,0.05) 100%)",
+            boxShadow: "0 0 0 1px rgba(99,102,241,0.12)",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ background: "linear-gradient(135deg, #6366f1, #22d3ee)" }}
+            >
+              <Zap className="h-3.5 w-3.5 text-white" />
+            </span>
+            <span className="text-sm font-semibold text-foreground">One-click connect</span>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            Link your Shopify store and Meta Ads account in seconds. Your numbers go live instantly — no setup, no CSV exports, no waiting.
+          </span>
+          <div className="flex flex-wrap items-center gap-2 mt-1 w-full justify-center">
+            {["Shopify", "Meta Ads", "Shiprocket", "Google Ads", "WooCommerce", "Razorpay"].map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-1 rounded-full border border-glass-border bg-glass px-3 py-1 text-[11px] font-mono tracking-wide text-muted-foreground"
+              >
+                <Link2 className="h-2.5 w-2.5" />
+                {s}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Feature cards grid */}
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.label} className="gradient-border rounded-2xl">
-                <div className="glass h-full rounded-2xl p-6">
+              <div
+                key={f.label}
+                className="gradient-border rounded-2xl feature-card-hover"
+                style={{ "--card-accent": f.accent } as React.CSSProperties}
+              >
+                <div className="glass h-full rounded-2xl p-6 transition-all duration-300">
                   <div
                     className="mb-4 grid h-10 w-10 place-items-center rounded-xl"
                     style={{ background: "var(--gradient-button)" }}
                   >
                     <Icon className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <div className="text-[15px] font-medium">{f.label}</div>
+                  <div className="text-[15px] font-semibold text-foreground">{f.label}</div>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
                   <ul className="mt-4 space-y-1.5">
                     {f.points.map((p) => (
                       <li key={p} className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span
-                          className="h-1 w-1 shrink-0 rounded-full"
-                          style={{ background: "var(--gradient-button)" }}
+                          className="h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{ background: f.accent }}
                         />
                         {p}
                       </li>
@@ -87,6 +133,25 @@ export function Features() {
           })}
         </div>
       </div>
+
+      {/* Hover animation styles */}
+      <style>{`
+        .feature-card-hover {
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+          cursor: default;
+        }
+        .feature-card-hover:hover {
+          transform: translateY(-6px) scale(1.025);
+          box-shadow:
+            0 20px 60px -12px color-mix(in oklch, var(--card-accent) 40%, transparent),
+            0 0 0 1px color-mix(in oklch, var(--card-accent) 35%, transparent);
+          z-index: 2;
+          position: relative;
+        }
+        .feature-card-hover:hover .glass {
+          background: color-mix(in oklch, var(--card-accent) 6%, rgba(255,255,255,0.04));
+        }
+      `}</style>
     </section>
   );
 }
