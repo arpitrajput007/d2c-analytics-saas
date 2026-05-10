@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const inp = {
   width: '100%', boxSizing: 'border-box', padding: '15px 18px',
@@ -26,14 +26,6 @@ const FAQ = [
   { q: 'Can I revoke access later?', a: 'Yes, anytime. Go to Shopify Admin → Settings → Apps and remove the custom app. This immediately cuts access.' },
 ];
 
-/* ── Animated demo steps ── */
-const DEMO_STEPS = [
-  { label: 'Open Shopify Admin', url: 'admin.shopify.com', highlight: null, note: 'Log in to your Shopify account' },
-  { label: 'Go to Settings', url: 'admin.shopify.com/settings', highlight: 'Settings', note: 'Click ⚙️ Settings at the bottom-left' },
-  { label: 'Open "General"', url: 'admin.shopify.com/settings/general', highlight: 'General', note: 'Select "General" from the left menu' },
-  { label: 'Copy your domain', url: 'admin.shopify.com/settings/general', highlight: 'your-store.myshopify.com', note: 'Find "Store details" → copy the .myshopify.com URL' },
-];
-
 const GUIDE_STEPS = [
   { icon: '🌐', title: 'Log in to Shopify Admin', desc: 'Visit admin.shopify.com and sign in to your Shopify account.' },
   { icon: '⚙️', title: 'Click "Settings"', desc: 'Find the Settings option at the bottom-left corner of your Shopify Admin sidebar.' },
@@ -42,111 +34,7 @@ const GUIDE_STEPS = [
   { icon: '📋', title: 'Copy only the prefix', desc: 'Enter only the part BEFORE ".myshopify.com" — e.g. if your domain is acme.myshopify.com, enter acme.' },
 ];
 
-function AnimatedBrowserDemo() {
-  const [activeStep, setActiveStep] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveStep(s => (s + 1) % DEMO_STEPS.length);
-    }, 2200);
-    return () => clearInterval(timer);
-  }, []);
-
-  const step = DEMO_STEPS[activeStep];
-
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 14px' }}>
-        Live Demo
-      </p>
-      {/* Browser chrome */}
-      <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: '#0d0d1a', boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}>
-        {/* Title bar */}
-        <div style={{ background: 'rgba(255,255,255,0.04)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {['#ff5f56','#ffbd2e','#27c93f'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
-          </div>
-          {/* Address bar */}
-          <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 6, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid rgba(255,255,255,0.07)' }}>
-            <span style={{ fontSize: 11, color: '#10b981' }}>🔒</span>
-            <span style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace', transition: 'color 0.4s' }}>{step.url}</span>
-          </div>
-        </div>
-        {/* Page content mock */}
-        <div style={{ padding: '20px 22px', minHeight: 130, position: 'relative', overflow: 'hidden' }}>
-          {/* Sidebar mock */}
-          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 110, borderRight: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {['Home','Orders','Products','Analytics','Settings'].map((item) => {
-              const isHighlighted = step.highlight === item || (item === 'Settings' && activeStep >= 1);
-              return (
-                <div key={item} style={{ fontSize: 11.5, color: isHighlighted ? '#a5b4fc' : '#334155', fontWeight: isHighlighted ? 700 : 400, padding: '5px 8px', borderRadius: 6, background: isHighlighted ? 'rgba(99,102,241,0.12)' : 'transparent', transition: 'all 0.3s', cursor: 'default' }}>
-                  {item === 'Settings' ? '⚙️ ' : ''}{item}
-                </div>
-              );
-            })}
-          </div>
-          {/* Main content */}
-          <div style={{ marginLeft: 120 }}>
-            {activeStep === 0 && (
-              <div style={{ animation: 'domainGuideIn 0.4s ease' }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>Shopify Admin</div>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  {['📦 Orders','🛍 Products','📊 Analytics'].map(t => (
-                    <div key={t} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, fontSize: 12, color: '#64748b' }}>{t}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {activeStep === 1 && (
-              <div style={{ animation: 'domainGuideIn 0.4s ease' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginBottom: 10 }}>Settings</div>
-                {['General','Plan','Billing','Users','Notifications'].map(item => (
-                  <div key={item} style={{ fontSize: 12, color: item === 'General' ? '#a5b4fc' : '#475569', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: item === 'General' ? 600 : 400 }}>{item}</div>
-                ))}
-              </div>
-            )}
-            {activeStep === 2 && (
-              <div style={{ animation: 'domainGuideIn 0.4s ease' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginBottom: 10 }}>General — Store details</div>
-                <div style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8 }}>
-                  <div style={{ fontSize: 10, color: '#475569', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Store name</div>
-                  <div style={{ fontSize: 13, color: '#e2e8f0' }}>Acme Apparel Co.</div>
-                </div>
-              </div>
-            )}
-            {activeStep === 3 && (
-              <div style={{ animation: 'domainGuideIn 0.4s ease' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginBottom: 10 }}>General — Store details</div>
-                <div style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, marginBottom: 8 }}>
-                  <div style={{ fontSize: 10, color: '#475569', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Shopify domain</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ fontSize: 13, color: '#10b981', fontFamily: 'monospace', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 6, padding: '3px 8px', animation: 'domainPulse 1s ease infinite alternate' }}>
-                      acme-apparel.myshopify.com
-                    </div>
-                    <span style={{ fontSize: 11, background: 'rgba(16,185,129,0.15)', color: '#10b981', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>Copy this!</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        {/* Step dots */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '10px 0 12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          {DEMO_STEPS.map((_, i) => (
-            <button key={i} onClick={() => setActiveStep(i)} style={{ width: i === activeStep ? 20 : 8, height: 8, borderRadius: 4, background: i === activeStep ? '#6366f1' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', padding: 0 }} />
-          ))}
-        </div>
-      </div>
-      {/* Step label */}
-      <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#a5b4fc', fontWeight: 700, flexShrink: 0 }}>
-          {activeStep + 1}
-        </div>
-        <span style={{ fontSize: 12.5, color: '#94a3b8' }}>{DEMO_STEPS[activeStep].note}</span>
-      </div>
-    </div>
-  );
-}
 
 function DomainGuideButton() {
   const [open, setOpen] = useState(false);
@@ -225,9 +113,6 @@ function DomainGuideButton() {
                 style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.2s', fontSize: 16, marginLeft: 16 }}
               >✕</button>
             </div>
-
-            {/* Animated demo */}
-            <AnimatedBrowserDemo />
 
             {/* Step by step guide */}
             <div style={{ marginBottom: 24 }}>
