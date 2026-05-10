@@ -100,9 +100,9 @@ export default function PrivacyPolicy() {
         background: 'rgba(6,6,16,0.85)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '68px' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <BrandLogo variant="compact" iconSize={28} />
+            <BrandLogo variant="full" iconSize={40} />
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#64748b' }}>
             <Shield size={13} style={{ color: '#6366f1' }} />
