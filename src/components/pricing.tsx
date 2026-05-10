@@ -74,8 +74,8 @@ export function Pricing() {
           {tiers.map((t) => (
             <div
               key={t.name}
-              className={`gradient-border relative rounded-3xl ${
-                t.highlight ? "shadow-glow" : ""
+              className={`gradient-border relative rounded-3xl pricing-card ${
+                t.highlight ? "shadow-glow pro-highlight" : "opacity-90 hover:opacity-100"
               }`}
             >
               <div
@@ -146,6 +146,28 @@ export function Pricing() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        .pricing-card {
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transform: scale(1);
+        }
+        .pricing-card:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 20px 40px -10px rgba(99,102,241,0.2), 0 0 0 1px rgba(99,102,241,0.15);
+          z-index: 10;
+        }
+        .pricing-card.pro-highlight {
+          transform: scale(1.05);
+          z-index: 5;
+          box-shadow: 0 10px 30px -10px rgba(99,102,241,0.3);
+        }
+        .pricing-card.pro-highlight:hover {
+          transform: translateY(-8px) scale(1.07);
+          box-shadow: 0 25px 50px -12px rgba(99,102,241,0.4), 0 0 0 1px rgba(99,102,241,0.3);
+          z-index: 10;
+        }
+      `}</style>
     </section>
   );
 }
