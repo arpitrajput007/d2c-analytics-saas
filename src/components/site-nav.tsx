@@ -8,7 +8,7 @@ const links = [
   { label: "Features",   href: "/#features" },
   { label: "AI Co-Pilot", href: "/#copilot" },
   { label: "Pricing",    href: "/#pricing" },
-  { label: "Contact Us", href: "/contact-us" },
+  { label: "Contact Us", href: "/#contact" },
 ];
 
 export function SiteNav({ onSignInClick }) {
