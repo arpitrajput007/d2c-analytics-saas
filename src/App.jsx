@@ -8,6 +8,7 @@ const Landing = lazy(() => import('./components/Landing'));
 const Login = lazy(() => import('./components/Login'));
 const Signup = lazy(() => import('./components/Signup'));
 const PersonalPanel = lazy(() => import('./components/PersonalPanel'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
 
 const LoadingFallback = () => (
   <div style={{
@@ -139,6 +140,7 @@ export default function App() {
         
         {/* Compatibility routes */}
         <Route path="/onboard" element={<Navigate to="/dashboard" />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>
