@@ -64,39 +64,6 @@ export function Features() {
           </p>
         </div>
 
-        {/* One-click connect strip */}
-        <div
-          className="mx-auto mt-10 mb-2 flex max-w-3xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-glass-border bg-glass px-6 py-4"
-          style={{
-            background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(34,211,238,0.05) 100%)",
-            boxShadow: "0 0 0 1px rgba(99,102,241,0.12)",
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <span
-              className="flex h-7 w-7 items-center justify-center rounded-full"
-              style={{ background: "linear-gradient(135deg, #6366f1, #22d3ee)" }}
-            >
-              <Zap className="h-3.5 w-3.5 text-white" />
-            </span>
-            <span className="text-sm font-semibold text-foreground">One-click connect</span>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            Link your Shopify store and Meta Ads account in seconds. Your numbers go live instantly — no setup, no CSV exports, no waiting.
-          </span>
-          <div className="flex flex-wrap items-center gap-2 mt-1 w-full justify-center">
-            {["Shopify", "Meta Ads", "Shiprocket", "Google Ads", "WooCommerce", "Razorpay"].map((s) => (
-              <span
-                key={s}
-                className="inline-flex items-center gap-1 rounded-full border border-glass-border bg-glass px-3 py-1 text-[11px] font-mono tracking-wide text-muted-foreground"
-              >
-                <Link2 className="h-2.5 w-2.5" />
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
-
         {/* Feature cards grid */}
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => {
@@ -132,6 +99,60 @@ export function Features() {
             );
           })}
         </div>
+
+        {/* One-click connect strip — below cards */}
+        <div
+          className="mx-auto mt-14 flex max-w-3xl flex-col items-center gap-5 rounded-2xl border px-8 py-8"
+          style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(34,211,238,0.05) 100%)",
+            borderColor: "rgba(99,102,241,0.18)",
+            boxShadow: "0 0 40px -16px rgba(99,102,241,0.35)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-full"
+              style={{ background: "linear-gradient(135deg, #6366f1, #22d3ee)" }}
+            >
+              <Zap className="h-4 w-4 text-white" />
+            </span>
+            <span className="text-lg font-semibold text-foreground">One-click connect</span>
+          </div>
+          <p className="text-center text-sm text-muted-foreground max-w-lg">
+            Link your Shopify store and Meta Ads account in seconds. Your numbers go live instantly. No setup, no CSV exports, no waiting.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              { name: "Shopify",      live: true  },
+              { name: "Meta Ads",     live: true  },
+              { name: "Google Ads",   live: false },
+              { name: "Shiprocket",   live: false },
+              { name: "WooCommerce",  live: false },
+            ].map((s) => (
+              <span
+                key={s.name}
+                className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-mono tracking-wide"
+                style={{
+                  borderColor: s.live ? "rgba(34,211,238,0.35)" : "rgba(255,255,255,0.08)",
+                  background:  s.live ? "rgba(34,211,238,0.07)"  : "rgba(255,255,255,0.03)",
+                  color:       s.live ? "rgba(34,211,238,0.9)"   : "rgba(255,255,255,0.35)",
+                }}
+              >
+                <Link2 className="h-2.5 w-2.5" />
+                {s.name}
+                {!s.live && (
+                  <span
+                    className="ml-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+                    style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.3)" }}
+                  >
+                    Soon
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+
       </div>
 
       {/* Hover animation styles */}
