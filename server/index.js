@@ -140,6 +140,37 @@ app.post('/api/store', async (req, res) => {
 });
 
 /**
+ * Disconnect/Delete Store
+ */
+app.delete('/api/store/:id', async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase.from('stores').delete().eq('id', id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true });
+});
+
+/**
+ * Edit Store Connection Credentials
+ */
+app.put('/api/store/:id', async (req, res) => {
+  const { id } = req.params;
+  const { shopify_domain, shopify_client_id, shopify_access_token } = req.body;
+  
+  const updates = {};
+  if (shopify_domain) updates.shopify_domain = shopify_domain.replace('.myshopify.com', '');
+  if (shopify_client_id) updates.shopify_client_id = encrypt(shopify_client_id);
+  if (shopify_access_token) updates.shopify_access_token = encrypt(shopify_access_token);
+  
+  const { error } = await supabase.from('stores').update(updates).eq('id', id);
+  if (error) return res.status(500).json({ error: error.message });
+  
+  if (updates.shopify_domain && updates.shopify_access_token) {
+    await registerShopifyWebhooks(updates.shopify_domain, shopify_access_token, shopify_client_id);
+  }
+  res.json({ success: true });
+});
+
+/**
  * POST /api/webhooks/shopify
  * Listens for orders/create and orders/updated from Shopify
  */

@@ -291,11 +291,19 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
   );
 }
 
+import ConnectShopifyStep from './ConnectShopifyStep';
+
 /* ─────────────────────────────────────────────
    CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
 ───────────────────────────────────────────── */
 function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick }) {
   const [syncing, setSyncing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDomain, setEditDomain] = useState(store?.shopify_domain || '');
+  const [editClientId, setEditClientId] = useState('');
+  const [editToken, setEditToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
   const msElapsed   = Date.now() - storeCreatedAt;
   const daysElapsed = Math.floor(msElapsed / (1000 * 60 * 60 * 24));
   const totalDays   = 14;
@@ -332,6 +340,60 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!confirm('Are you sure you want to disconnect and delete your store from Pocket Dashboard? All associated analytics data will be removed.')) return;
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
+      window.location.reload();
+    } catch (e) {
+      alert('Error disconnecting store');
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editDomain.trim() || !editToken.trim()) return;
+    setSavingEdit(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/store/${store.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopify_domain: editDomain, shopify_client_id: editClientId, shopify_access_token: editToken })
+      });
+      if (!res.ok) throw new Error('Failed to update credentials');
+      alert('Store credentials updated successfully!');
+      setIsEditing(false);
+      window.location.reload();
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fadeInUp 0.35s ease forwards' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#f1f5f9', marginBottom: 24 }}>Edit Store Credentials</h2>
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '28px 32px' }}>
+          <ConnectShopifyStep 
+            shopifyDomain={editDomain} setShopifyDomain={setEditDomain}
+            clientId={editClientId} setClientId={setEditClientId}
+            accessToken={editToken} setAccessToken={setEditToken}
+            showToken={showToken} setShowToken={setShowToken}
+          />
+          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+            <button onClick={() => setIsEditing(false)} style={{ flex: 1, padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>Cancel</button>
+            <button onClick={handleSaveEdit} disabled={savingEdit} style={{ flex: 1, padding: '14px', borderRadius: 12, background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+              {savingEdit ? 'Saving...' : 'Save Credentials'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fadeInUp 0.35s ease forwards' }}>
 
@@ -367,19 +429,25 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
           </div>
           {/* Actions */}
           <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button
-              onClick={handleManualSync}
-              disabled={syncing}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', cursor: syncing ? 'wait' : 'pointer', transition: 'all 0.2s', opacity: syncing ? 0.7 : 1 }}
-              onMouseEnter={e => { if(!syncing) e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-              onMouseLeave={e => { if(!syncing) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-            >
-              <RefreshCw size={14} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
-              {syncing ? 'Syncing...' : 'Sync Data'}
-            </button>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
-              {planLabel}
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: 'none', color: '#818cf8', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Edit Credentials</button>
+                <button onClick={handleDisconnect} style={{ background: 'none', border: 'none', color: '#f87171', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Disconnect Store</button>
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <button
+                  onClick={handleManualSync}
+                  disabled={syncing}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', cursor: syncing ? 'wait' : 'pointer', transition: 'all 0.2s', opacity: syncing ? 0.7 : 1 }}
+                >
+                  <RefreshCw size={14} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
+                  {syncing ? 'Syncing...' : 'Sync Data'}
+                </button>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
+                  {planLabel}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

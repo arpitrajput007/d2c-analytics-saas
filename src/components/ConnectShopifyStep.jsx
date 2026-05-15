@@ -315,14 +315,17 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
         {/* Shopify domain */}
         <div style={{ marginBottom: 28 }}>
           <label style={labelSt}>Shopify Domain</label>
-          <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)' }}>
+          <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', position: 'relative' }}>
             <input
-              style={{ ...inp, border: 'none', borderRadius: 0, flex: 1 }}
+              style={{ ...inp, border: 'none', borderRadius: 0, flex: 1, paddingRight: 40 }}
               placeholder="your-store-name"
               value={shopifyDomain}
               onChange={e => setShopifyDomain(e.target.value)}
               onFocus={inpFocus} onBlur={inpBlur}
             />
+            {shopifyDomain.trim().length > 2 && (
+              <div style={{ position: 'absolute', right: 130, top: '50%', transform: 'translateY(-50%)', color: '#34d399', fontSize: 16, pointerEvents: 'none' }}>✓</div>
+            )}
             <div style={{ padding: '15px 18px', fontSize: 14, color: '#475569', background: 'rgba(255,255,255,0.03)', borderLeft: '1px solid rgba(255,255,255,0.07)', fontWeight: 500, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center' }}>
               .myshopify.com
             </div>
@@ -334,13 +337,18 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
         {/* Client ID */}
         <div style={{ marginBottom: 28 }}>
           <label style={labelSt}>Shopify Client ID</label>
-          <input
-            style={inp} type="text"
-            placeholder="e.g. de1c2d832ce0e7df846a7e475e3d0904"
-            value={clientId}
-            onChange={e => setClientId(e.target.value)}
-            onFocus={inpFocus} onBlur={inpBlur}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              style={inp} type="text"
+              placeholder="e.g. de1c2d832ce0e7df846a7e475e3d0904"
+              value={clientId}
+              onChange={e => setClientId(e.target.value)}
+              onFocus={inpFocus} onBlur={inpBlur}
+            />
+            {clientId.trim().length === 32 && (
+              <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#34d399', fontSize: 16 }}>✓</div>
+            )}
+          </div>
         </div>
 
         {/* Access token / Secret Key */}
@@ -349,17 +357,20 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
           <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 12px', lineHeight: 1.65 }}>
             Depending on your app type, enter your permanent Access Token ({code('shpat_')}, {code('shpca_')}) OR your Client Secret ({code('shpss_')}).
           </p>
-          <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
+          <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', alignItems: 'center', position: 'relative' }}>
             <input
-              style={{ ...inp, border: 'none', borderRadius: 0, flex: 1 }}
+              style={{ ...inp, border: 'none', borderRadius: 0, flex: 1, paddingRight: 40 }}
               type={showToken ? 'text' : 'password'}
               placeholder="shpat_..., shpca_..., or shpss_..."
               value={accessToken}
               onChange={e => setAccessToken(e.target.value)}
               onFocus={inpFocus} onBlur={inpBlur}
             />
+            {(accessToken.startsWith('shpat_') || accessToken.startsWith('shpca_') || accessToken.startsWith('shpss_')) && (
+              <div style={{ position: 'absolute', right: 60, top: '50%', transform: 'translateY(-50%)', color: '#34d399', fontSize: 16, pointerEvents: 'none' }}>✓</div>
+            )}
             <button type="button" onClick={() => setShowToken(v => !v)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '15px 18px', color: '#475569', display: 'flex', alignItems: 'center', transition: 'color 0.2s' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '15px 18px', color: '#475569', display: 'flex', alignItems: 'center', transition: 'color 0.2s', zIndex: 1 }}
               onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'}
               onMouseLeave={e => e.currentTarget.style.color = '#475569'}
             >
