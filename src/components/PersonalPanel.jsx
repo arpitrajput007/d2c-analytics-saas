@@ -292,6 +292,151 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
 }
 
 /* ─────────────────────────────────────────────
+   CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
+───────────────────────────────────────────── */
+function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick }) {
+  const msElapsed   = Date.now() - storeCreatedAt;
+  const daysElapsed = Math.floor(msElapsed / (1000 * 60 * 60 * 24));
+  const totalDays   = 14;
+  const daysLeft    = Math.max(0, totalDays - daysElapsed);
+  const trialPct    = Math.min(100, (daysElapsed / totalDays) * 100);
+
+  const plan = store?.plan_type || store?.subscription_plan || 'free';
+  const isPro     = plan === 'pro';
+  const isStarter = plan === 'starter';
+  const isFree    = !isPro && !isStarter;
+
+  const planLabel  = isPro ? '✦ Pro Plan' : isStarter ? 'Starter Plan' : isTrialExpired ? 'Trial Expired' : '🎁 Free Trial';
+  const planColor  = isPro ? '#a78bfa' : isStarter ? '#38bdf8' : isTrialExpired ? '#f87171' : '#fbbf24';
+  const planBg     = isPro ? 'rgba(167,139,250,0.1)' : isStarter ? 'rgba(56,189,248,0.1)' : isTrialExpired ? 'rgba(248,113,133,0.1)' : 'rgba(251,191,36,0.1)';
+  const planBorder = isPro ? 'rgba(167,139,250,0.3)' : isStarter ? 'rgba(56,189,248,0.3)' : isTrialExpired ? 'rgba(248,113,133,0.3)' : 'rgba(251,191,36,0.3)';
+
+  const connectedSince = store?.created_at
+    ? new Date(store.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '—';
+
+  return (
+    <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fadeInUp 0.35s ease forwards' }}>
+
+      {/* ── Header ── */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)', marginBottom: 14 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399', animation: 'live-pulse 2s ease infinite' }} />
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: '#34d399', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Store Connected</span>
+        </div>
+        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, color: '#f1f5f9', margin: '0 0 8px', letterSpacing: '-0.4px' }}>
+          Your Connected Store
+        </h2>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.7 }}>
+          Pocket Dashboard is actively syncing data from your Shopify store.
+        </p>
+      </div>
+
+      {/* ── Main Store Card ── */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '28px 32px', backdropFilter: 'blur(20px)', boxShadow: '0 24px 64px rgba(0,0,0,0.35)', marginBottom: 16 }}>
+
+        {/* Store identity row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 28 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(34,211,238,0.1))', border: '1px solid rgba(99,102,241,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>
+            🛍️
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 19, fontWeight: 800, color: '#f1f5f9', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.3px', marginBottom: 4 }}>
+              {store?.store_name || 'My Store'}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+              {store?.shopify_domain}.myshopify.com
+            </div>
+          </div>
+          {/* Plan badge */}
+          <div style={{ flexShrink: 0 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
+              {planLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 24 }} />
+
+        {/* Stats grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+          {[
+            { label: 'Status', value: '🟢 Active', sub: 'Live sync running' },
+            { label: 'Connected Since', value: connectedSince, sub: 'First sync date' },
+            { label: 'Store #', value: '1 Store', sub: 'Connected stores' },
+          ].map(({ label, value, sub }) => (
+            <div key={label} style={{ padding: '16px 18px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{label}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9', marginBottom: 3 }}>{value}</div>
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.3)' }}>{sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Free Trial progress bar */}
+        {isFree && !isTrialExpired && (
+          <div style={{ padding: '18px 20px', background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)', borderRadius: 14, marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24' }}>Free Trial Progress</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                <strong style={{ color: '#fbbf24' }}>{daysLeft} days</strong> remaining of 14
+              </span>
+            </div>
+            <div style={{ height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${trialPct}%`, borderRadius: 99, background: trialPct > 80 ? 'linear-gradient(90deg,#f87171,#ef4444)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)', transition: 'width 0.5s ease', boxShadow: trialPct > 80 ? '0 0 8px rgba(248,113,133,0.5)' : '0 0 8px rgba(251,191,36,0.4)' }} />
+            </div>
+            <p style={{ margin: '10px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              {daysLeft <= 3 ? '⚠️ Trial ending soon — upgrade to keep your analytics running.' : 'Upgrade anytime to unlock full analytics and remove limits.'}
+            </p>
+          </div>
+        )}
+
+        {/* Trial expired warning */}
+        {isTrialExpired && (
+          <div style={{ padding: '18px 20px', background: 'rgba(248,113,133,0.06)', border: '1px solid rgba(248,113,133,0.22)', borderRadius: 14, marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#f87171', marginBottom: 4 }}>⏳ Free Trial Expired</div>
+            <p style={{ margin: 0, fontSize: 12.5, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+              Your 14-day free trial has ended. Upgrade to continue accessing real-time analytics, profit tracking, and AI Co-Pilot.
+            </p>
+          </div>
+        )}
+
+        {/* Access token safety note */}
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '14px 16px', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 12 }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
+          <p style={{ margin: 0, fontSize: 12.5, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>
+            <strong style={{ color: 'rgba(255,255,255,0.7)' }}>Read-only access only.</strong> Pocket Dashboard can never modify, delete, or interact with your store data. Revoke access anytime via Shopify Admin → Settings → Apps.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Upgrade CTA (shown when not Pro) ── */}
+      {!isPro && (
+        <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(34,211,238,0.05))', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 20, padding: '24px 28px', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9', fontFamily: 'Outfit, sans-serif', marginBottom: 6 }}>
+              Unlock the full Pocket Dashboard experience
+            </div>
+            <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65 }}>
+              Weekly &amp; monthly views, SKU-level analytics, AI Co-Pilot, advanced profit reports, and more.
+            </p>
+          </div>
+          <button
+            onClick={onUpgradeClick}
+            style={{ padding: '12px 24px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(99,102,241,0.4)', transition: 'all 0.2s', flexShrink: 0 }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.5)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.4)'; }}
+          >
+            View Plans →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    MAIN PERSONAL PANEL
 ───────────────────────────────────────────── */
 export default function PersonalPanel({ session, store }) {
@@ -623,9 +768,13 @@ export default function PersonalPanel({ session, store }) {
                     <NoStoreState onConnectClick={() => setActiveTab('connect')} />
                   )}
                   {activeTab === 'connect' && (
-                    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                      <Onboarding session={session} isEmbedded />
-                    </div>
+                    isConnected ? (
+                      <ConnectedStorePanel store={store} trialDuration={trialDuration} storeCreatedAt={storeCreatedAt} isTrialExpired={isTrialExpired} onUpgradeClick={() => setActiveTab('pricing')} />
+                    ) : (
+                      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                        <Onboarding session={session} isEmbedded />
+                      </div>
+                    )
                   )}
                   {activeTab === 'pricing' && <PricingView store={store} />}
                   {activeTab === 'settings' && (
