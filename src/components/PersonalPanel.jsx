@@ -4,7 +4,7 @@ import BrandLogo from './BrandLogo';
 import {
   LayoutDashboard, Link2, Settings, Headphones,
   LogOut, ChevronRight, Unplug, ShieldCheck, Sparkles, SlidersHorizontal, Package, DollarSign,
-  BarChart, Calendar, TrendingUp, PieChart, List
+  BarChart, Calendar, TrendingUp, PieChart, List, RefreshCw
 } from 'lucide-react';
 
 // Lazy load dashboard sub-views for performance
@@ -295,6 +295,7 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
    CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
 ───────────────────────────────────────────── */
 function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick }) {
+  const [syncing, setSyncing] = useState(false);
   const msElapsed   = Date.now() - storeCreatedAt;
   const daysElapsed = Math.floor(msElapsed / (1000 * 60 * 60 * 24));
   const totalDays   = 14;
@@ -314,6 +315,22 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
   const connectedSince = store?.created_at
     ? new Date(store.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     : '—';
+
+  const handleManualSync = async () => {
+    if (!store?.id || syncing) return;
+    setSyncing(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Sync failed');
+      alert('Sync started! Your dashboard data will update momentarily. (Please refresh in 10-15 seconds)');
+    } catch (err) {
+      console.error(err);
+      alert('Error triggering sync: ' + err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fadeInUp 0.35s ease forwards' }}>
@@ -348,13 +365,29 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
               {store?.shopify_domain}.myshopify.com
             </div>
           </div>
-          {/* Plan badge */}
-          <div style={{ flexShrink: 0 }}>
+          {/* Actions */}
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={handleManualSync}
+              disabled={syncing}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', cursor: syncing ? 'wait' : 'pointer', transition: 'all 0.2s', opacity: syncing ? 0.7 : 1 }}
+              onMouseEnter={e => { if(!syncing) e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+              onMouseLeave={e => { if(!syncing) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+            >
+              <RefreshCw size={14} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
+              {syncing ? 'Syncing...' : 'Sync Data'}
+            </button>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
               {planLabel}
             </span>
           </div>
         </div>
+
+        <style>{`
+          @keyframes spin {
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
 
         {/* Divider */}
         <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 24 }} />
