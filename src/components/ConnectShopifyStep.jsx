@@ -345,15 +345,15 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
 
         {/* Access token / Secret Key */}
         <div style={{ marginBottom: 32 }}>
-          <label style={labelSt}>API Secret Key</label>
+          <label style={labelSt}>API Access Token / Secret Key</label>
           <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 12px', lineHeight: 1.65 }}>
-            Create a custom app in Shopify Admin. Copy the Client ID and API Secret Key ({code('shpss_...')}).
+            Depending on your app type, enter your permanent Access Token ({code('shpat_')}, {code('shpca_')}) OR your Client Secret ({code('shpss_')}).
           </p>
           <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
             <input
               style={{ ...inp, border: 'none', borderRadius: 0, flex: 1 }}
               type={showToken ? 'text' : 'password'}
-              placeholder="shpss_..."
+              placeholder="shpat_..., shpca_..., or shpss_..."
               value={accessToken}
               onChange={e => setAccessToken(e.target.value)}
               onFocus={inpFocus} onBlur={inpBlur}

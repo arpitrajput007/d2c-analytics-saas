@@ -35,13 +35,38 @@ async function syncStoreData(storeId) {
     let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
     let totalSynced = 0;
 
-    const headers = { 'Content-Type': 'application/json' };
+    let finalAccessToken = shopify_access_token;
     if (shopify_client_id && shopify_access_token.startsWith('shpss_')) {
-      const basicAuth = Buffer.from(`${shopify_client_id}:${shopify_access_token}`).toString('base64');
-      headers['Authorization'] = `Basic ${basicAuth}`;
-    } else {
-      headers['X-Shopify-Access-Token'] = shopify_access_token;
+      console.log(`Exchanging shpss_ token for temporary Admin API token via OAuth...`);
+      const body = new URLSearchParams();
+      body.append('grant_type', 'client_credentials');
+      body.append('client_id', shopify_client_id);
+      body.append('client_secret', shopify_access_token);
+
+      try {
+        const exchangeRes = await fetch(`https://${shopify_domain}.myshopify.com/admin/oauth/access_token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        });
+        if (exchangeRes.ok) {
+          const data = await exchangeRes.json();
+          if (data.access_token) {
+            finalAccessToken = data.access_token;
+            console.log(`Successfully generated temporary token.`);
+          }
+        } else {
+          console.warn(`OAuth token exchange failed (${exchangeRes.status}). Proceeding with original token as fallback.`);
+        }
+      } catch (err) {
+        console.warn('Error during token exchange:', err.message);
+      }
     }
+
+    const headers = { 
+      'Content-Type': 'application/json',
+      'X-Shopify-Access-Token': finalAccessToken
+    };
 
     while (url) {
       const shopifyResponse = await fetch(url, {

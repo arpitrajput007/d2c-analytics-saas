@@ -27,17 +27,38 @@ app.use(express.json());
 /**
  * Registers Webhooks in Shopify automatically
  */
-async function registerShopifyWebhooks(domain, accessToken) {
+async function registerShopifyWebhooks(domain, accessToken, clientId = null) {
   const backendUrl = process.env.RENDER_EXTERNAL_URL || process.env.VITE_API_URL || 'https://pocket-dashboard-mwjn.onrender.com';
   const webhookUrl = `${backendUrl}/api/webhooks/shopify`;
   const topics = ['orders/create', 'orders/updated'];
+
+  let finalAccessToken = accessToken;
+  if (clientId && accessToken.startsWith('shpss_')) {
+    const body = new URLSearchParams();
+    body.append('grant_type', 'client_credentials');
+    body.append('client_id', clientId);
+    body.append('client_secret', accessToken);
+    try {
+      const exchangeRes = await fetch(`https://${domain}.myshopify.com/admin/oauth/access_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      if (exchangeRes.ok) {
+        const data = await exchangeRes.json();
+        if (data.access_token) finalAccessToken = data.access_token;
+      }
+    } catch (e) {
+      console.warn('Webhook token exchange error:', e.message);
+    }
+  }
 
   for (const topic of topics) {
     try {
       const res = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/webhooks.json`, {
         method: 'POST',
         headers: {
-          'X-Shopify-Access-Token': accessToken,
+          'X-Shopify-Access-Token': finalAccessToken,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -113,7 +134,7 @@ app.post('/api/store', async (req, res) => {
   }
 
   // Automatically register webhooks so the user doesn't have to
-  await registerShopifyWebhooks(cleanDomain, shopify_access_token);
+  await registerShopifyWebhooks(cleanDomain, shopify_access_token, shopify_client_id);
 
   res.json(data);
 });
