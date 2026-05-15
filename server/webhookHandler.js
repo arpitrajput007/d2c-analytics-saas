@@ -6,7 +6,8 @@ const app = express();
 // Shopify Webhooks are sent as raw JSON, often needing HMAC verification via raw-body.
 app.use(express.json());
 
-const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+// Use Service Role Key on the server — bypasses RLS safely, never expose to frontend
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 /**
  * Endpoint to receive real-time updates from Shopify.

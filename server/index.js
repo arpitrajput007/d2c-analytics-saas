@@ -5,9 +5,11 @@ const { OpenAI } = require('openai');
 const { syncStoreData } = require('./syncService');
 const { encrypt } = require('./cryptoUtils');
 
-const VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL; 
-const VITE_SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY; 
-const supabase = createClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY);
+const VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+// Use the Service Role Key on the server — this bypasses RLS safely
+// NEVER expose this key to the frontend/browser
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
