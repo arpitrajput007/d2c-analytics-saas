@@ -69,7 +69,7 @@ function Stepper({ step }) {
   );
 }
 
-export default function Onboarding({ session, isEmbedded = false }) {
+export default function Onboarding({ session, isEmbedded = false, onStoreConnected }) {
   const [step, setStep]               = useState(0);
   const [storeName, setStoreName]     = useState('');
   const [shopifyDomain, setShopifyDomain] = useState('');
@@ -97,7 +97,8 @@ export default function Onboarding({ session, isEmbedded = false }) {
         catch { console.warn('sync failed (non-critical)'); }
       }
     } catch (err) { setLoading(false); alert('Error: ' + err.message); return; }
-    setLoading(false); navigate('/');
+    setLoading(false);
+    if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
   };
 
   if (isEmbedded) {
@@ -117,7 +118,9 @@ export default function Onboarding({ session, isEmbedded = false }) {
           catch { console.warn('sync failed'); }
         }
       } catch (err) { setLoading(false); alert('Error: ' + err.message); return; }
-      setLoading(false); navigate('/');
+      setLoading(false);
+      // Re-fetch the store in App state instead of navigating away
+      if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
     };
     return (
       <div style={{ padding: '24px 0', maxWidth: 640, margin: '0 auto' }}>

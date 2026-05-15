@@ -104,21 +104,43 @@ export default function App() {
   }, []);
 
   const checkOnboarding = async (userId) => {
-    const { data } = await supabase
-      .from('stores')
-      .select('*')
-      .eq('owner_id', userId)
-      .single();
+    try {
+      // Use maybeSingle() — safe when 0 rows exist (single() throws an error)
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('owner_id', userId)
+        .maybeSingle();
 
-    if (data) {
-      setStore(data);
-      if (data.primary_color) {
-        document.documentElement.style.setProperty('--primary', data.primary_color);
-        document.documentElement.style.setProperty('--primary-hover', data.primary_color);
-        document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${data.primary_color} 0%, #111 100%)`);
+      if (error) {
+        console.error('[checkOnboarding] Supabase error fetching store:', error.message, error.code);
       }
+
+      if (data) {
+        console.log('[checkOnboarding] Store found:', data.store_name, data.shopify_domain);
+        setStore(data);
+        if (data.primary_color) {
+          document.documentElement.style.setProperty('--primary', data.primary_color);
+          document.documentElement.style.setProperty('--primary-hover', data.primary_color);
+          document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${data.primary_color} 0%, #111 100%)`);
+        }
+      } else {
+        console.log('[checkOnboarding] No store found for userId:', userId);
+        setStore(null);
+      }
+    } catch (err) {
+      console.error('[checkOnboarding] Unexpected error:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  // Allow child components (e.g. after onboarding) to trigger a store re-fetch
+  const refreshStore = async () => {
+    if (session?.user?.id) {
+      setLoading(true);
+      await checkOnboarding(session.user.id);
+    }
   };
 
   if (loading) return <LoadingFallback />;
@@ -137,7 +159,7 @@ export default function App() {
         />
         <Route 
           path="/dashboard" 
-          element={session ? <PersonalPanel session={session} store={store} /> : <Navigate to="/login" />} 
+          element={session ? <PersonalPanel session={session} store={store} onStoreConnected={refreshStore} /> : <Navigate to="/login" />} 
         />
         
         {/* Compatibility routes */}

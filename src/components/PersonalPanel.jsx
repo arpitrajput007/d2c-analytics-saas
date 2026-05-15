@@ -439,7 +439,7 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
 /* ─────────────────────────────────────────────
    MAIN PERSONAL PANEL
 ───────────────────────────────────────────── */
-export default function PersonalPanel({ session, store }) {
+export default function PersonalPanel({ session, store, onStoreConnected }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
@@ -772,7 +772,7 @@ export default function PersonalPanel({ session, store }) {
                       <ConnectedStorePanel store={store} trialDuration={trialDuration} storeCreatedAt={storeCreatedAt} isTrialExpired={isTrialExpired} onUpgradeClick={() => setActiveTab('pricing')} />
                     ) : (
                       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                        <Onboarding session={session} isEmbedded />
+                        <Onboarding session={session} isEmbedded onStoreConnected={onStoreConnected} />
                       </div>
                     )
                   )}

@@ -73,13 +73,19 @@ app.post('/api/store', async (req, res) => {
   // Trial abuse protection: Check if domain is already registered
   const { data: existingStore } = await supabase
     .from('stores')
-    .select('id')
+    .select('id, owner_id')
     .eq('shopify_domain', cleanDomain)
-    .single();
+    .maybeSingle();
 
   if (existingStore) {
+    // If it's the SAME owner reconnecting their own store, just return it (idempotent)
+    if (existingStore.owner_id === owner_id) {
+      const { data: ownStore } = await supabase.from('stores').select('*').eq('id', existingStore.id).single();
+      return res.json(ownStore);
+    }
+    // Different owner trying same domain → block
     return res.status(403).json({ 
-      error: 'This Shopify store has already been connected. Free trials are limited to one per store.' 
+      error: 'This Shopify store is already connected to another account.' 
     });
   }
 
