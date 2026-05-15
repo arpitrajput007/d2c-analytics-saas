@@ -3,9 +3,9 @@ const { decrypt } = require('./cryptoUtils');
 // In a real environment, you'd load from dotenv
 // require('dotenv').config();
 
-const VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://missing.supabase.co';
 // Use Service Role Key on the server — bypasses RLS safely
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; 
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'MISSING_KEY'; 
 
 const supabase = createClient(VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
