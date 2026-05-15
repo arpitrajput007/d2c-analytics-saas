@@ -20,7 +20,7 @@ async function syncStoreData(storeId) {
     // 1. Fetch the store's secure record to get the API Token
     const { data: store, error: storeError } = await supabase
       .from('stores')
-      .select('shopify_domain, shopify_access_token')
+      .select('shopify_domain, shopify_client_id, shopify_access_token')
       .eq('id', storeId)
       .single();
 
@@ -28,19 +28,25 @@ async function syncStoreData(storeId) {
 
     const { shopify_domain } = store;
     const shopify_access_token = decrypt(store.shopify_access_token);
+    const shopify_client_id = store.shopify_client_id ? decrypt(store.shopify_client_id) : null;
 
     // 2. Query Shopify Admin API for Orders with Pagination
     console.log(`Fetching orders from https://${shopify_domain}.myshopify.com...`);
     let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
     let totalSynced = 0;
 
+    const headers = { 'Content-Type': 'application/json' };
+    if (shopify_client_id && shopify_access_token.startsWith('shpss_')) {
+      const basicAuth = Buffer.from(`${shopify_client_id}:${shopify_access_token}`).toString('base64');
+      headers['Authorization'] = `Basic ${basicAuth}`;
+    } else {
+      headers['X-Shopify-Access-Token'] = shopify_access_token;
+    }
+
     while (url) {
       const shopifyResponse = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': shopify_access_token
-        }
+        headers
       });
 
       if (!shopifyResponse.ok) {

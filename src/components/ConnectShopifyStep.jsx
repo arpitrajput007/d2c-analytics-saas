@@ -331,17 +331,29 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
           <DomainGuideButton />
         </div>
 
-        {/* Access token */}
+        {/* Client ID */}
+        <div style={{ marginBottom: 28 }}>
+          <label style={labelSt}>Shopify Client ID</label>
+          <input
+            style={inp} type="text"
+            placeholder="e.g. de1c2d832ce0e7df846a7e475e3d0904"
+            value={clientId}
+            onChange={e => setClientId(e.target.value)}
+            onFocus={inpFocus} onBlur={inpBlur}
+          />
+        </div>
+
+        {/* Access token / Secret Key */}
         <div style={{ marginBottom: 32 }}>
-          <label style={labelSt}>Custom App Access Token</label>
+          <label style={labelSt}>API Secret Key</label>
           <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 12px', lineHeight: 1.65 }}>
-            Create a custom app in Shopify Admin with {code('read_orders')} &amp; {code('read_products')} scopes.
+            Create a custom app in Shopify Admin. Copy the Client ID and API Secret Key ({code('shpss_...')}).
           </p>
           <div style={{ display: 'flex', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', background: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
             <input
               style={{ ...inp, border: 'none', borderRadius: 0, flex: 1 }}
               type={showToken ? 'text' : 'password'}
-              placeholder="shpat_..."
+              placeholder="shpss_..."
               value={accessToken}
               onChange={e => setAccessToken(e.target.value)}
               onFocus={inpFocus} onBlur={inpBlur}

@@ -62,7 +62,7 @@ async function registerShopifyWebhooks(domain, accessToken) {
  * Securely creates a store and encrypts the shopify token before saving it to the database
  */
 app.post('/api/store', async (req, res) => {
-  const { owner_id, store_name, shopify_domain, shopify_access_token, primary_color, dashboard_style } = req.body;
+  const { owner_id, store_name, shopify_domain, shopify_client_id, shopify_access_token, primary_color, dashboard_style } = req.body;
   
   if (!owner_id || !shopify_domain || !shopify_access_token) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -91,6 +91,7 @@ app.post('/api/store', async (req, res) => {
 
   // Encrypt the token
   const encryptedToken = encrypt(shopify_access_token);
+  const encryptedClientId = shopify_client_id ? encrypt(shopify_client_id) : null;
 
   const { data, error } = await supabase
     .from('stores')
@@ -98,6 +99,7 @@ app.post('/api/store', async (req, res) => {
       owner_id,
       store_name,
       shopify_domain: cleanDomain,
+      shopify_client_id: encryptedClientId,
       shopify_access_token: encryptedToken,
       primary_color,
       dashboard_style

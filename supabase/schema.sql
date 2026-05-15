@@ -97,3 +97,6 @@ CREATE POLICY "Users can update products for their stores" ON public.products
     FOR UPDATE USING (
         store_id IN (SELECT id FROM public.stores WHERE owner_id = auth.uid())
     );
+
+-- Migration: add shopify_client_id
+-- ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS shopify_client_id TEXT;

@@ -73,6 +73,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
   const [step, setStep]               = useState(0);
   const [storeName, setStoreName]     = useState('');
   const [shopifyDomain, setShopifyDomain] = useState('');
+  const [clientId, setClientId]       = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [themeColor, setThemeColor]   = useState('#6366f1');
   const [showToken, setShowToken]     = useState(false);
@@ -88,7 +89,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/store`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ owner_id: session.user.id, store_name: storeName, shopify_domain: shopifyDomain, shopify_access_token: accessToken, primary_color: themeColor, dashboard_style: 'dark-modern' }),
+        body: JSON.stringify({ owner_id: session.user.id, store_name: storeName, shopify_domain: shopifyDomain, shopify_client_id: clientId, shopify_access_token: accessToken, primary_color: themeColor, dashboard_style: 'dark-modern' }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
@@ -127,6 +128,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
         <ConnectShopifyStep
           storeName={storeName} setStoreName={setStoreName}
           shopifyDomain={shopifyDomain} setShopifyDomain={setShopifyDomain}
+          clientId={clientId} setClientId={setClientId}
           accessToken={accessToken} setAccessToken={setAccessToken}
           showToken={showToken} setShowToken={setShowToken}
           loading={loading} onBack={() => {}} onContinue={handleEmbeddedSubmit}
