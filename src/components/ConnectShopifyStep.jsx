@@ -248,7 +248,7 @@ function TokenGuideButton() {
   );
 }
 
-export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, accessToken, setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false }) {
+export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, clientId = '', setClientId, accessToken = '', setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const canContinue = shopifyDomain.trim() && accessToken.trim() && (!setStoreName || storeName.trim());

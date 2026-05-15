@@ -310,6 +310,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
             {step === 1 && (
               <ConnectShopifyStep
                 shopifyDomain={shopifyDomain} setShopifyDomain={setShopifyDomain}
+                clientId={clientId}           setClientId={setClientId}
                 accessToken={accessToken}     setAccessToken={setAccessToken}
                 showToken={showToken}         setShowToken={setShowToken}
                 onBack={prevStep}             onContinue={nextStep}

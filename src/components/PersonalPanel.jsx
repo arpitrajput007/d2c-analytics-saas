@@ -341,7 +341,7 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
   };
 
   const handleDisconnect = async () => {
-    if (!confirm('Are you sure you want to disconnect and delete your store from Pocket Dashboard? All associated analytics data will be removed.')) return;
+    if (!window.confirm('Are you sure you want to disconnect and delete your store from Pocket Dashboard? All associated analytics data will be removed.')) return;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
