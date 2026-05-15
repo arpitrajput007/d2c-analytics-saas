@@ -144,7 +144,13 @@ app.post('/api/store', async (req, res) => {
  */
 app.delete('/api/store/:id', async (req, res) => {
   const { id } = req.params;
+  
+  // 1. Delete all associated orders first to avoid foreign key constraint errors
+  await supabase.from('orders').delete().eq('store_id', id);
+  
+  // 2. Delete the store
   const { error } = await supabase.from('stores').delete().eq('id', id);
+  
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true });
 });

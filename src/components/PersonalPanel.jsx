@@ -344,10 +344,14 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
     if (!window.confirm('Are you sure you want to disconnect and delete your store from Pocket Dashboard? All associated analytics data will be removed.')) return;
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
+      const res = await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete store');
+      }
       window.location.reload();
     } catch (e) {
-      alert('Error disconnecting store');
+      alert('Error disconnecting store: ' + e.message);
     }
   };
 
