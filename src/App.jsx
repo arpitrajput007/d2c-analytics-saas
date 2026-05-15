@@ -106,10 +106,13 @@ export default function App() {
   const checkOnboarding = async (userId) => {
     try {
       // Use maybeSingle() — safe when 0 rows exist (single() throws an error)
+      // Add order+limit to handle edge case of multiple rows for same user
       const { data, error } = await supabase
         .from('stores')
         .select('*')
         .eq('owner_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {
