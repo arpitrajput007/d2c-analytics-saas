@@ -63,7 +63,11 @@ export function isOrderPrepaidRevenue(o) {
   const orderDate = o.created_at ? o.created_at.substring(0, 10) : '';
   if (orderDate < PREPAID_LAUNCH_DATE) return false;
   const st = (o.shipping_title || '').toLowerCase();
-  return st.includes('prepaid');
+  // Primary: shipping_title contains 'prepaid' (most reliable — set by shipping zone name)
+  if (st) return st.includes('prepaid');
+  // Fallback: financial_status === 'paid' when shipping_title not yet synced to Supabase.
+  // COD = 'pending', Prepaid/Online = 'paid'. Note: refunded prepaid = 'refunded' (won't count — acceptable).
+  return (o.financial_status || '').toLowerCase() === 'paid';
 }
 
 export function categorizeOrders(orders) {
@@ -126,7 +130,13 @@ export function categorizeOrders(orders) {
 export function getPaymentCounts(orders) {
   let prepaid = 0, cash = 0;
   orders.forEach(o => {
-    if ((o.shipping_title || '').toLowerCase().includes('prepaid')) prepaid++;
+    const st = (o.shipping_title || '').toLowerCase();
+    // Primary check: shipping_title (set from Shopify shipping zone name)
+    // Fallback: financial_status === 'paid' when shipping_title column not yet in Supabase
+    const isPrepaid = st
+      ? st.includes('prepaid')
+      : (o.financial_status || '').toLowerCase() === 'paid';
+    if (isPrepaid) prepaid++;
     else cash++;
   });
   return { prepaid, cash };
