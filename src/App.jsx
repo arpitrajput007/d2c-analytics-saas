@@ -139,10 +139,9 @@ export default function App() {
   };
 
   // Allow child components (e.g. after onboarding/delete/edit) to trigger a store re-fetch
+  // NOTE: do NOT setLoading(true) here — that unmounts PersonalPanel and resets the active tab
   const refreshStore = async () => {
     if (session?.user?.id) {
-      setStore(null);   // Immediately clear store so UI reflects disconnected state
-      setLoading(true);
       await checkOnboarding(session.user.id);
     }
   };

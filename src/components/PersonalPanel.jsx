@@ -296,7 +296,7 @@ import ConnectShopifyStep from './ConnectShopifyStep';
 /* ─────────────────────────────────────────────
    CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
 ───────────────────────────────────────────── */
-function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick, onStoreConnected }) {
+function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick, onStoreConnected, onDisconnect }) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -353,7 +353,7 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
       await supabase.from('orders').delete().eq('store_id', store.id);
       await supabase.from('products').delete().eq('store_id', store.id);
 
-      // Now delete the store directly via Supabase (no server needed)
+      // Delete the store directly via Supabase
       const { error } = await supabase
         .from('stores')
         .delete()
@@ -361,9 +361,10 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
 
       if (error) throw new Error(error.message + (error.hint ? ' — ' + error.hint : ''));
 
-      // Refresh app state
+      // Switch to connect tab immediately (shows fresh connect form)
+      if (onDisconnect) onDisconnect();
+      // Then sync backend state
       if (onStoreConnected) await onStoreConnected();
-      else window.location.reload();
     } catch (e) {
       alert('Error disconnecting store:\n' + e.message);
     } finally {
@@ -936,9 +937,17 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
                   )}
                   {activeTab === 'connect' && (
                     isConnected ? (
-                      <ConnectedStorePanel store={store} trialDuration={trialDuration} storeCreatedAt={storeCreatedAt} isTrialExpired={isTrialExpired} onUpgradeClick={() => setActiveTab('pricing')} onStoreConnected={onStoreConnected} />
+                      <ConnectedStorePanel
+                        store={store}
+                        trialDuration={trialDuration}
+                        storeCreatedAt={storeCreatedAt}
+                        isTrialExpired={isTrialExpired}
+                        onUpgradeClick={() => setActiveTab('pricing')}
+                        onStoreConnected={onStoreConnected}
+                        onDisconnect={() => setActiveTab('connect')}
+                      />
                     ) : (
-                      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                      <div style={{ maxWidth: '640px', margin: '0 auto' }}>
                         <Onboarding session={session} isEmbedded onStoreConnected={onStoreConnected} />
                       </div>
                     )
