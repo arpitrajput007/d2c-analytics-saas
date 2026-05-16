@@ -128,14 +128,50 @@ app.post('/api/store', async (req, res) => {
     });
   }
 
-  // Validate credentials against Shopify BEFORE saving
+  // Resolve the actual API token to use for validation + API calls
+  // Newer Shopify Dev Dashboard apps give shpss_ (client secret) + Client ID
+  // These require an OAuth client_credentials exchange to get a real shpat_ token
+  let apiToken = cleanToken;
+  const cleanClientId = shopify_client_id ? shopify_client_id.trim() : null;
+
+  if (cleanToken.startsWith('shpss_') && cleanClientId) {
+    console.log(`[Store Connect] shpss_ token detected — attempting OAuth client_credentials exchange...`);
+    try {
+      const body = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: cleanClientId,
+        client_secret: cleanToken
+      });
+      const exchangeRes = await fetch(`https://${cleanDomain}.myshopify.com/admin/oauth/access_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      const exchangeBody = await exchangeRes.json().catch(() => ({}));
+      console.log(`[Store Connect] Token exchange response (${exchangeRes.status}):`, JSON.stringify(exchangeBody).substring(0, 200));
+
+      if (exchangeRes.ok && exchangeBody.access_token) {
+        apiToken = exchangeBody.access_token;
+        console.log(`[Store Connect] ✅ Token exchange successful. Got token starting with: ${apiToken.substring(0, 8)}`);
+      } else {
+        const errMsg = exchangeBody.error_description || exchangeBody.error || `Status ${exchangeRes.status}`;
+        console.error(`[Store Connect] Token exchange failed: ${errMsg}`);
+        return res.status(401).json({
+          error: `OAuth token exchange failed: ${errMsg}. Make sure your Client ID and Client Secret (shpss_) are correct.`
+        });
+      }
+    } catch (exchErr) {
+      console.error('[Store Connect] Token exchange network error:', exchErr.message);
+      return res.status(502).json({ error: `Network error during token exchange: ${exchErr.message}` });
+    }
+  }
+
+  // Validate the resolved token against Shopify
   try {
+    console.log(`[Store Connect] Validating token (prefix: ${apiToken.substring(0, 8)}) for ${cleanDomain}...`);
     const verifyRes = await fetch(`https://${cleanDomain}.myshopify.com/admin/api/2024-01/shop.json`, {
       method: 'GET',
-      headers: {
-        'X-Shopify-Access-Token': cleanToken,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'X-Shopify-Access-Token': apiToken, 'Content-Type': 'application/json' }
     });
 
     if (!verifyRes.ok) {
@@ -145,17 +181,18 @@ app.post('/api/store', async (req, res) => {
         error: `Could not connect to Shopify. Please check your domain and access token. (Status: ${verifyRes.status})`
       });
     }
-    console.log(`[Store Connect] Credentials verified for ${cleanDomain}`);
+    const shopData = await verifyRes.json();
+    console.log(`[Store Connect] ✅ Credentials verified. Shop: "${shopData.shop?.name}"`);
   } catch (verifyErr) {
     console.error('[Store Connect] Network error during credential check:', verifyErr.message);
-    return res.status(502).json({
-      error: `Network error while connecting to Shopify: ${verifyErr.message}`
-    });
+    return res.status(502).json({ error: `Network error while connecting to Shopify: ${verifyErr.message}` });
   }
 
-  // Encrypt the token
-  const encryptedToken = encrypt(shopify_access_token);
-  const encryptedClientId = shopify_client_id ? encrypt(shopify_client_id) : null;
+  // Encrypt credentials for storage
+  // Store original shpss_ (client secret) so future syncs can re-exchange
+  // Store clientId so sync service can perform exchange
+  const encryptedToken = encrypt(cleanToken);   // original shpss_ or shpat_
+  const encryptedClientId = cleanClientId ? encrypt(cleanClientId) : null;
 
   const { data, error } = await supabase
     .from('stores')
@@ -176,13 +213,15 @@ app.post('/api/store', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  // Register webhooks (non-blocking)
-  registerShopifyWebhooks(cleanDomain, shopify_access_token, shopify_client_id).catch(err =>
+  // Register webhooks (non-blocking) — use the resolved API token
+  registerShopifyWebhooks(cleanDomain, apiToken, cleanClientId).catch(err =>
     console.warn('[Store Connect] Webhook registration failed (non-critical):', err.message)
   );
 
+  console.log(`[Store Connect] ✅ Store created: ${data.id} for ${cleanDomain}`);
   res.json(data);
 });
+
 
 /**
  * PUT /api/store/:id
