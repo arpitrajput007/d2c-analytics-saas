@@ -10,7 +10,7 @@ import {
 const today = () => toDateStr(new Date());
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return toDateStr(d); };
 
-export default function DailyDashboard({ storeId }) {
+export default function DailyDashboard({ store }) {
   const [orders, setOrders] = useState([]);
   const [adCosts, setAdCosts] = useState({});
   const [productPricing, setProductPricing] = useState({});
@@ -31,8 +31,8 @@ export default function DailyDashboard({ storeId }) {
   }, []);
 
   useEffect(() => {
-    if (storeId) fetchData();
-  }, [storeId, feedStart, feedEnd, scoreStart, scoreEnd]);
+    if (store?.id) fetchData();
+  }, [store?.id, feedStart, feedEnd, scoreStart, scoreEnd]);
 
   const fetchPricing = async () => {
     try {
@@ -55,18 +55,18 @@ export default function DailyDashboard({ storeId }) {
       let allOrders = [], from = 0, step = 1000, hasMore = true;
       while (hasMore) {
         const { data, error: err } = await supabase.from('orders')
-          .select('*, order_items(*)')
-          .eq('store_id', storeId)
+          .select('*')
+          .eq('store_id', store.id)
           .gte('created_at', minISO).lte('created_at', maxISO)
           .order('created_at', { ascending: false }).range(from, from + step - 1);
         if (err) throw err;
-        allOrders = allOrders.concat(data);
-        if (data.length < step) hasMore = false; else from += step;
+        allOrders = allOrders.concat(data || []);
+        if ((data || []).length < step) hasMore = false; else from += step;
       }
       setOrders(allOrders);
 
       const { data: adData } = await supabase.from('ad_costs').select('date, amount')
-        .eq('store_id', storeId).gte('date', minD).lte('date', maxD);
+        .eq('store_id', store.id).gte('date', minD).lte('date', maxD);
       const newAdCosts = {};
       adData?.forEach(r => newAdCosts[r.date] = r.amount);
       setAdCosts(newAdCosts);
@@ -76,7 +76,7 @@ export default function DailyDashboard({ storeId }) {
 
   const handleSaveAdCost = async (dateStr, total) => {
     setAdCosts(prev => ({ ...prev, [dateStr]: total }));
-    await supabase.from('ad_costs').upsert({ date: dateStr, amount: total, store_id: storeId }, { onConflict: 'date,store_id' });
+    await supabase.from('ad_costs').upsert({ date: dateStr, amount: total, store_id: store.id }, { onConflict: 'date,store_id' });
   };
 
   const toggleOrderExpanded = (id) => {
@@ -114,13 +114,17 @@ export default function DailyDashboard({ storeId }) {
       const allItems = [];
       dayOrders.forEach(o => {
         const isCounted = isOrderDelivered(o) || isOrderPrepaidRevenue(o);
-        (o.order_items || []).forEach(li => allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted }));
+        const lineItems = o.line_items ? (typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items) : [];
+        lineItems.forEach(li => allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted }));
       });
       const pl = calcPL(rev, tagsCounts['Delivered']||0, ad, tagsCounts['Fulfilled']||0, allItems, productPricing);
 
       if (dayOrders.length > 0 || pl.profit !== 0) {
         let itemsCount = 0;
-        dayOrders.forEach(o => (o.order_items||[]).forEach(li => itemsCount += parseInt(li.quantity||1)));
+        dayOrders.forEach(o => {
+          const lineItems = o.line_items ? (typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items) : [];
+          lineItems.forEach(li => itemsCount += parseInt(li.quantity||1));
+        });
         totAd += ad; totItems += itemsCount;
         if (pl.profit > 0) { profDays++; profAmt += pl.profit; }
         else if (pl.profit < 0) { lossDays++; lossAmt += pl.profit; }
@@ -200,7 +204,8 @@ export default function DailyDashboard({ storeId }) {
           const allItems = [];
           dayOrders.forEach(o => {
             const isCounted = isOrderDelivered(o) || isOrderPrepaidRevenue(o);
-            (o.order_items || []).forEach(li => allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted }));
+            const lineItems = o.line_items ? (typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items) : [];
+            lineItems.forEach(li => allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted }));
           });
           const pl = calcPL(rev, tCounts['Delivered']||0, ad, tCounts['Fulfilled']||0, allItems, productPricing);
           const pCounts = getPaymentCounts(dayOrders);

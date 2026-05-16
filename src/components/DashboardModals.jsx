@@ -35,7 +35,8 @@ function ProductPNLModal({ dateStr, prettyDate, dayOrders, adCosts, productPrici
   const productMap = {};
   dayOrders.forEach(o => {
     const isCountedForRev = isOrderDelivered(o) || isOrderPrepaidRevenue(o);
-    (o.line_items || []).forEach(li => {
+    const lineItems = o.line_items ? (typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items) : [];
+    lineItems.forEach(li => {
       const key = li.title || 'Unknown';
       if (!productMap[key]) {
         const pp = productPricing;
