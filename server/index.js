@@ -373,20 +373,21 @@ app.post('/api/webhooks/shopify', async (req, res) => {
 
 /**
  * POST /api/sync/:storeId
- * Triggers an immediate Shopify → Supabase order sync.
+ * Triggers Shopify → Supabase order sync. Waits for completion and returns result.
  */
 app.post('/api/sync/:storeId', async (req, res) => {
   const { storeId } = req.params;
   if (!storeId) return res.status(400).json({ error: 'storeId is required' });
 
   console.log(`[Sync API] Triggered for store: ${storeId}`);
-
-  // Run sync in background — respond immediately
-  syncStoreData(storeId)
-    .then(result => console.log(`[Sync API] Completed for ${storeId}:`, result))
-    .catch(err => console.error(`[Sync API] Failed for ${storeId}:`, err.message));
-
-  res.json({ status: 'sync_started', storeId });
+  try {
+    const result = await syncStoreData(storeId);
+    console.log(`[Sync API] ✅ Completed for ${storeId}:`, result);
+    res.json({ status: 'sync_complete', storeId, totalSynced: result.totalSynced });
+  } catch (err) {
+    console.error(`[Sync API] ❌ Failed for ${storeId}:`, err.message);
+    res.status(500).json({ status: 'sync_failed', error: err.message });
+  }
 });
 
 /**

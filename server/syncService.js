@@ -1,141 +1,145 @@
 const { createClient } = require('@supabase/supabase-js');
 const { decrypt } = require('./cryptoUtils');
 
-const VITE_SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://missing.supabase.co';
-// Use Service Role Key on the server — bypasses RLS safely
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'MISSING_KEY';
-
-const supabase = createClient(VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || 'https://missing.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'MISSING_KEY'
+);
 
 /**
- * Backend Service to sync Shopify Data securely.
- * IMPORTANT: The orders schema in Supabase must match the columns used in the dashboard:
- *   id (bigint - shopify order id), store_id, name, created_at, total_price,
- *   tags (text), customer_fn, customer_ln, line_items (jsonb)
+ * Main entry point — fetches store credentials then syncs orders from Shopify.
  */
 async function syncStoreData(storeId) {
-  try {
-    console.log(`[Sync] Starting sync for Store ID: ${storeId}`);
+  console.log(`[Sync] ▶ Starting sync for store: ${storeId}`);
 
-    // 1. Fetch the store's secure record to get the API Token
-    const { data: store, error: storeError } = await supabase
+  // Try fetching with shopify_client_id first, fall back without it
+  let shopify_domain, encryptedToken, encryptedClientId;
+
+  const { data: store, error } = await supabase
+    .from('stores')
+    .select('shopify_domain, shopify_access_token, shopify_client_id')
+    .eq('id', storeId)
+    .single();
+
+  if (error) {
+    console.warn('[Sync] shopify_client_id column may not exist, retrying:', error.message);
+    const { data: store2, error: err2 } = await supabase
       .from('stores')
-      .select('shopify_domain, shopify_client_id, shopify_access_token')
+      .select('shopify_domain, shopify_access_token')
       .eq('id', storeId)
       .single();
 
-    if (storeError || !store) {
-      throw new Error(`Store not found (id=${storeId}). Error: ${storeError?.message}`);
-    }
-
-    const { shopify_domain } = store;
-    const shopify_access_token = decrypt(store.shopify_access_token);
-    const shopify_client_id = store.shopify_client_id ? decrypt(store.shopify_client_id) : null;
-
-    // 2. Resolve final access token (handle shpss_ client-secret token exchange)
-    let finalAccessToken = shopify_access_token;
-    if (shopify_client_id && shopify_access_token.startsWith('shpss_')) {
-      console.log(`[Sync] Exchanging shpss_ token for temporary Admin API token...`);
-      try {
-        const body = new URLSearchParams();
-        body.append('grant_type', 'client_credentials');
-        body.append('client_id', shopify_client_id);
-        body.append('client_secret', shopify_access_token);
-
-        const exchangeRes = await fetch(`https://${shopify_domain}.myshopify.com/admin/oauth/access_token`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: body.toString()
-        });
-
-        if (exchangeRes.ok) {
-          const data = await exchangeRes.json();
-          if (data.access_token) {
-            finalAccessToken = data.access_token;
-            console.log(`[Sync] Successfully generated temporary token.`);
-          }
-        } else {
-          const errText = await exchangeRes.text();
-          console.warn(`[Sync] OAuth token exchange failed (${exchangeRes.status}): ${errText}. Using original token as fallback.`);
-        }
-      } catch (err) {
-        console.warn('[Sync] Error during token exchange:', err.message);
-      }
-    }
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': finalAccessToken
-    };
-
-    // 3. First, verify credentials work by hitting the shop endpoint
-    console.log(`[Sync] Verifying credentials for ${shopify_domain}.myshopify.com...`);
-    const verifyRes = await fetch(`https://${shopify_domain}.myshopify.com/admin/api/2024-01/shop.json`, {
-      method: 'GET',
-      headers
-    });
-
-    if (!verifyRes.ok) {
-      const errText = await verifyRes.text();
-      throw new Error(`Shopify credentials invalid (${verifyRes.status}): ${errText.substring(0, 200)}`);
-    }
-    console.log(`[Sync] Credentials verified. Starting order fetch...`);
-
-    // 4. Paginate through all orders
-    let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
-    let totalSynced = 0;
-
-    while (url) {
-      const shopifyResponse = await fetch(url, { method: 'GET', headers });
-
-      if (!shopifyResponse.ok) {
-        const errText = await shopifyResponse.text();
-        throw new Error(`Shopify API Error (${shopifyResponse.status}): ${errText.substring(0, 300)}`);
-      }
-
-      const { orders } = await shopifyResponse.json();
-      if (!orders || orders.length === 0) break;
-
-      // 5. Normalize orders to match the EXACT schema the dashboard reads from
-      //    Dashboard reads: id, name, created_at, total_price, tags (text), customer_fn, customer_ln, line_items (jsonb)
-      const normalizedOrders = orders.map(order => ({
-        store_id: storeId,
-        id: order.id,                                          // bigint shopify order id (used as PK conflict)
-        name: order.name,                                      // e.g. "#1001"
-        created_at: order.created_at,
-        total_price: parseFloat(order.total_price || 0),
-        tags: order.tags || '',                                // comma-separated string
-        customer_fn: order.customer?.first_name || null,
-        customer_ln: order.customer?.last_name || null,
-        line_items: order.line_items || []                     // jsonb array
-      }));
-
-      // Upsert using the 'id' field as conflict key (Shopify order ID is globally unique)
-      const { error: insertError } = await supabase
-        .from('orders')
-        .upsert(normalizedOrders, { onConflict: 'id' });
-
-      if (insertError) {
-        console.error('[Sync] Failed to upsert orders to database:', JSON.stringify(insertError));
-        throw insertError;
-      }
-
-      totalSynced += normalizedOrders.length;
-      console.log(`[Sync] Upserted ${totalSynced} orders so far for store ${storeId}...`);
-
-      // 6. Paginate via Link header
-      const linkHeader = shopifyResponse.headers.get('Link');
-      const nextMatch = linkHeader ? linkHeader.match(/<([^>]+)>;\s*rel="next"/) : null;
-      url = nextMatch ? nextMatch[1] : null;
-    }
-
-    console.log(`[Sync] ✅ Complete. Total orders synced: ${totalSynced} for store ${storeId}`);
-    return { success: true, totalSynced };
-
-  } catch (error) {
-    console.error('[Sync] ❌ Data Sync Failed:', error.message);
-    throw error; // Re-throw so the caller can handle it
+    if (err2 || !store2) throw new Error(`Store not found: ${err2?.message}`);
+    shopify_domain = store2.shopify_domain;
+    encryptedToken = store2.shopify_access_token;
+    encryptedClientId = null;
+  } else if (!store) {
+    throw new Error(`Store not found for id=${storeId}`);
+  } else {
+    shopify_domain = store.shopify_domain;
+    encryptedToken = store.shopify_access_token;
+    encryptedClientId = store.shopify_client_id || null;
   }
+
+  const accessToken = decrypt(encryptedToken);
+  const clientId = encryptedClientId ? decrypt(encryptedClientId) : null;
+
+  console.log(`[Sync] Store domain: ${shopify_domain}`);
+
+  // Resolve final token (handle shpss_ OAuth client-secret flow)
+  let finalToken = accessToken;
+  if (clientId && accessToken && accessToken.startsWith('shpss_')) {
+    console.log('[Sync] Attempting shpss_ token exchange...');
+    try {
+      const body = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: accessToken
+      });
+      const res = await fetch(`https://${shopify_domain}.myshopify.com/admin/oauth/access_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.access_token) {
+          finalToken = json.access_token;
+          console.log('[Sync] Token exchange successful');
+        }
+      } else {
+        console.warn('[Sync] Token exchange failed, using original token');
+      }
+    } catch (e) {
+      console.warn('[Sync] Token exchange error:', e.message);
+    }
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Shopify-Access-Token': finalToken
+  };
+
+  // Verify credentials
+  console.log(`[Sync] Verifying Shopify credentials...`);
+  const verifyRes = await fetch(`https://${shopify_domain}.myshopify.com/admin/api/2024-01/shop.json`, {
+    method: 'GET', headers
+  });
+
+  if (!verifyRes.ok) {
+    const txt = await verifyRes.text();
+    throw new Error(`Shopify auth failed (${verifyRes.status}): ${txt.substring(0, 200)}`);
+  }
+  console.log('[Sync] ✅ Credentials verified. Fetching orders...');
+
+  // Paginate orders
+  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
+  let totalSynced = 0;
+
+  while (url) {
+    const res = await fetch(url, { method: 'GET', headers });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Shopify orders API error (${res.status}): ${txt.substring(0, 300)}`);
+    }
+
+    const { orders } = await res.json();
+    if (!orders || orders.length === 0) {
+      console.log('[Sync] No more orders in this page.');
+      break;
+    }
+
+    const rows = orders.map(o => ({
+      store_id: storeId,
+      id: o.id,
+      name: o.name,
+      created_at: o.created_at,
+      total_price: parseFloat(o.total_price || 0),
+      tags: o.tags || '',
+      customer_fn: o.customer?.first_name || null,
+      customer_ln: o.customer?.last_name || null,
+      line_items: o.line_items || []
+    }));
+
+    const { error: upsertErr } = await supabase
+      .from('orders')
+      .upsert(rows, { onConflict: 'id' });
+
+    if (upsertErr) {
+      console.error('[Sync] Upsert error:', JSON.stringify(upsertErr));
+      throw new Error(`DB upsert failed: ${upsertErr.message}`);
+    }
+
+    totalSynced += rows.length;
+    console.log(`[Sync] Synced ${totalSynced} orders so far...`);
+
+    const link = res.headers.get('Link');
+    const next = link ? link.match(/<([^>]+)>;\s*rel="next"/) : null;
+    url = next ? next[1] : null;
+  }
+
+  console.log(`[Sync] ✅ Done. Total synced: ${totalSynced} orders for store ${storeId}`);
+  return { success: true, totalSynced };
 }
 
 module.exports = { syncStoreData };

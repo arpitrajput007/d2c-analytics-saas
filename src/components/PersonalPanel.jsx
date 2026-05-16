@@ -332,17 +332,21 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
     setSyncing(true);
     setSyncMsg('');
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
-      if (!res.ok) throw new Error('Sync request failed');
-      setSyncMsg('✅ Sync started! Data will update shortly.');
-      setTimeout(() => { setSyncing(false); setSyncMsg(''); }, 3000);
-      return;
+      const res = await fetch(`/api/sync/${store.id}`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.status === 'sync_failed') {
+        setSyncMsg(`❌ ${data.error || 'Sync failed — check Render logs'}`);
+      } else {
+        setSyncMsg(`✅ Synced ${data.totalSynced ?? 0} orders!`);
+        setTimeout(() => setSyncMsg(''), 6000);
+      }
     } catch (err) {
-      setSyncMsg('❌ Sync failed: ' + err.message);
+      setSyncMsg(`❌ Network error: ${err.message}`);
+    } finally {
+      setSyncing(false);
     }
-    setSyncing(false);
   };
+
 
   const handleDisconnect = async () => {
     if (isDeleting) return;
