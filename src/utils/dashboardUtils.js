@@ -37,8 +37,25 @@ export function isOrderDelivered(o) {
   const rawTags = (o.tags || '').split(',').map(t => t.trim().toLowerCase());
   const syntheticSS = rawTags.find(t => t.startsWith('__ss:'));
   const shipmentStatus = syntheticSS ? syntheticSS.replace('__ss:', '') : '';
-  const isRTO = rawTags.some(t => !t.startsWith('__ss:') && t.includes('rto') && !t.includes('rto_prediction'));
-  const ssDelivered = shipmentStatus === 'delivered' || rawTags.some(t => t === 'delivered' && !t.startsWith('__ss:'));
+
+  // isRTO: any tag that includes 'rto' (but not rto_prediction) OR 'undelivered' — but not already delivered
+  const isRTO = rawTags.some(t =>
+    !t.startsWith('__ss:') &&
+    ((t.includes('rto') && !t.includes('rto_prediction')) || t.includes('undelivered'))
+  );
+
+  // ssDelivered: synthetic tag OR any plain tag that includes 'delivered'
+  // Using .includes() instead of === to handle shipping partners like:
+  // Shiprocket: 'Delivered', Delhivery: 'Delivered', Ecom: 'DELIVERED', etc.
+  const ssDelivered =
+    shipmentStatus === 'delivered' ||
+    rawTags.some(t =>
+      !t.startsWith('__ss:') &&
+      t.includes('delivered') &&
+      !t.includes('undelivered') &&
+      !t.includes('failed')
+    );
+
   return !isRTO && ssDelivered;
 }
 
@@ -78,7 +95,11 @@ export function categorizeOrders(orders) {
     const isInTransit = ssInTransit && !ssOutForDel && !ssFailure && !ssDelivered && !isRTO;
     const isOutForDelivery = ssOutForDel && !ssFailure && !ssDelivered && !isRTO;
     const isFailedDelivery = ssFailure && !isRTO;
-    const isCanceled = rawTags.some(t => t === 'canceled' || t === 'cancelled') || fin === 'voided' || fin === 'refunded' || !!o.cancelled_at;
+    // isCanceled: check tags OR Shopify financial_status column directly
+    const isCanceled =
+      rawTags.some(t => t === 'canceled' || t === 'cancelled') ||
+      fin === 'voided' || fin === 'refunded' ||
+      !!o.cancelled_at;
     const isCOD = fin === 'pending';
     const hasConfirmTag = rawTags.some(t => t === 'confirm' || t === 'confirmed');
     const isNotConfirmed = isCOD && !hasConfirmTag && !isCanceled && !isFulfilled;

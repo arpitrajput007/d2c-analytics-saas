@@ -119,17 +119,41 @@ async function syncStoreData(storeId) {
     if (!orders || orders.length === 0) break;
 
 
-    const rows = orders.map(o => ({
-      store_id: storeId,
-      id: o.id,
-      name: o.name,
-      created_at: o.created_at,
-      total_price: parseFloat(o.total_price || 0),
-      tags: o.tags || '',
-      customer_fn: o.customer?.first_name || null,
-      customer_ln: o.customer?.last_name || null,
-      line_items: o.line_items || []
-    }));
+    const rows = orders.map(o => {
+      // Extract the latest shipment_status from Shopify fulfillments
+      // and encode as a synthetic '__ss:' tag so the dashboard can categorize orders
+      // without a schema change (same approach as BnB source).
+      const shipmentStatus = o.fulfillments && o.fulfillments.length > 0
+        ? (o.fulfillments[o.fulfillments.length - 1].shipment_status || '')
+        : '';
+
+      // Remove any old __ss: synthetic tag first, then append the fresh one
+      let tagsWithStatus = o.tags || '';
+      tagsWithStatus = tagsWithStatus.split(',').filter(t => !t.trim().startsWith('__ss:')).join(',');
+      if (shipmentStatus) {
+        tagsWithStatus = tagsWithStatus
+          ? `${tagsWithStatus},__ss:${shipmentStatus}`
+          : `__ss:${shipmentStatus}`;
+      }
+
+      return {
+        store_id: storeId,
+        id: o.id,
+        name: o.name,
+        created_at: o.created_at,
+        total_price: parseFloat(o.total_price || 0),
+        tags: tagsWithStatus,
+        fulfillment_status: o.fulfillment_status || null,
+        financial_status: o.financial_status || null,
+        cancelled_at: o.cancelled_at || null,
+        shipping_title: o.shipping_lines && o.shipping_lines.length > 0
+          ? (o.shipping_lines[0].title || '')
+          : '',
+        customer_fn: o.customer?.first_name || null,
+        customer_ln: o.customer?.last_name || null,
+        line_items: o.line_items || []
+      };
+    });
 
     const { error: upsertErr } = await supabase
       .from('orders')
