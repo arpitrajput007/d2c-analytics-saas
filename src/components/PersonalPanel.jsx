@@ -346,28 +346,17 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
 
   const handleDisconnect = async () => {
     if (isDeleting) return;
-    if (!window.confirm('Are you sure you want to disconnect your store? All synced analytics data will be permanently removed.')) return;
+    if (!window.confirm('Disconnect this store? All synced data will be removed.')) return;
     setIsDeleting(true);
     try {
-      // Delete orders first (in case CASCADE isn't fully set up)
       await supabase.from('orders').delete().eq('store_id', store.id);
       await supabase.from('products').delete().eq('store_id', store.id);
-
-      // Delete the store directly via Supabase
-      const { error } = await supabase
-        .from('stores')
-        .delete()
-        .eq('id', store.id);
-
-      if (error) throw new Error(error.message + (error.hint ? ' — ' + error.hint : ''));
-
-      // Switch to connect tab immediately (shows fresh connect form)
-      if (onDisconnect) onDisconnect();
-      // Then sync backend state
-      if (onStoreConnected) await onStoreConnected();
+      const { error } = await supabase.from('stores').delete().eq('id', store.id);
+      if (error) throw new Error(error.message);
+      // onStoreConnected = refreshStore → instantly sets store=null → UI shows connect form
+      if (onStoreConnected) onStoreConnected();
     } catch (e) {
-      alert('Error disconnecting store:\n' + e.message);
-    } finally {
+      alert('Error: ' + e.message);
       setIsDeleting(false);
     }
   };
