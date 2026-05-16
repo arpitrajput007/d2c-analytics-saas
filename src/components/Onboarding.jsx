@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConnectShopifyStep from './ConnectShopifyStep';
 import BrandLogo from './BrandLogo';
+import ConnectingOverlay from './ConnectingOverlay';
+
 
 const STEPS = [
   { label: 'Store Info',      desc: 'Your business name'   },
@@ -145,6 +147,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
     };
     return (
       <div style={{ padding: '24px 0', maxWidth: 640, margin: '0 auto' }}>
+        <ConnectingOverlay visible={loading} connectStatus={connectStatus} />
         {connectError && (
           <div style={{ marginBottom: 20, padding: '14px 18px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 14, color: '#f87171', fontSize: 13.5, lineHeight: 1.6 }}>
             ❌ {connectError}
@@ -399,6 +402,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
           </div>
         </div>
       </div>
+      <ConnectingOverlay visible={loading} connectStatus={connectStatus} />
     </>
   );
 }
