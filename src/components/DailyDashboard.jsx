@@ -202,14 +202,17 @@ export default function DailyDashboard({ store }) {
           const rev = getTotalRevenue(dayOrders);
           const ad = adCosts[dateStr] || 0;
           const allItems = [];
+          let itemsCount = 0; // total UNITS across ALL orders (for CPP and Number of Items card)
           dayOrders.forEach(o => {
             const isCounted = isOrderDelivered(o) || isOrderPrepaidRevenue(o);
             const lineItems = o.line_items ? (typeof o.line_items === 'string' ? JSON.parse(o.line_items) : o.line_items) : [];
-            lineItems.forEach(li => allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted }));
+            lineItems.forEach(li => {
+              itemsCount += parseInt(li.quantity || 1); // count ALL items from ALL orders
+              allItems.push({ ...li, sku: li.sku||('TITLE:'+li.title), isDelivered: isCounted, isFulfilled: isCounted });
+            });
           });
           const pl = calcPL(rev, tCounts['Delivered']||0, ad, tCounts['Fulfilled']||0, allItems, productPricing);
           const pCounts = getPaymentCounts(dayOrders);
-          const itemsCount = allItems.length;
           const cpp = itemsCount > 0 ? ad / itemsCount : 0;
           const pretty = parseDateStr(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
           const filterKey = dayFilterState[dateStr] || 'all';
