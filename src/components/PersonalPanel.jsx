@@ -349,17 +349,42 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
     if (!window.confirm('Disconnect this store? All synced data will be removed.')) return;
     setIsDeleting(true);
     try {
-      await supabase.from('orders').delete().eq('store_id', store.id);
-      await supabase.from('products').delete().eq('store_id', store.id);
-      const { error } = await supabase.from('stores').delete().eq('id', store.id);
-      if (error) throw new Error(error.message);
-      // onStoreConnected = refreshStore → instantly sets store=null → UI shows connect form
+      // Use the backend server (service role key bypasses Supabase RLS)
+      // Vercel proxy routes /api/* → Render backend
+      const res = await fetch(`/api/store/${store.id}`, { method: 'DELETE' });
+      
+      let ok = res.ok;
+      let errMsg = '';
+      if (!res.ok) {
+        try {
+          const d = await res.json();
+          errMsg = d.error || `Server error ${res.status}`;
+        } catch {
+          errMsg = `Server error ${res.status}`;
+        }
+      }
+
+      if (!ok) {
+        // Fallback: try direct Supabase delete
+        console.warn('Server delete failed, trying direct Supabase:', errMsg);
+        await supabase.from('orders').delete().eq('store_id', store.id);
+        await supabase.from('products').delete().eq('store_id', store.id);
+        const { error: sbErr } = await supabase.from('stores').delete().eq('id', store.id);
+        if (sbErr) throw new Error(sbErr.message);
+        
+        // Verify it was actually deleted (RLS can silently block)
+        const { data: stillExists } = await supabase.from('stores').select('id').eq('id', store.id).maybeSingle();
+        if (stillExists) throw new Error('Delete was blocked by database permissions. Please go to Supabase → stores table → add DELETE policy for authenticated users.');
+      }
+
+      // Success — instantly clear UI
       if (onStoreConnected) onStoreConnected();
     } catch (e) {
-      alert('Error: ' + e.message);
+      alert('Error disconnecting store:\n' + e.message);
       setIsDeleting(false);
     }
   };
+
 
   const handleSaveEdit = async () => {
     setEditError('');
