@@ -248,7 +248,7 @@ function TokenGuideButton() {
   );
 }
 
-export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, clientId = '', setClientId, accessToken = '', setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false }) {
+export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, clientId = '', setClientId, accessToken = '', setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false, connectStatus = '' }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const canContinue = shopifyDomain.trim() && accessToken.trim() && (!setStoreName || storeName.trim());
@@ -384,22 +384,37 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
         </div>
 
         {/* Buttons */}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button type="button" onClick={onBack}
-            style={{ flex: 1, padding: '15px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#94a3b8', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#e2e8f0'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; }}
-          >← Back</button>
-          <button type="button" onClick={handleContinue} disabled={!canContinue || loading || connecting}
-            style={{ flex: 2, padding: '15px', borderRadius: 14, border: 'none', background: canContinue ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: canContinue ? '#fff' : '#475569', fontSize: 15, fontWeight: 700, cursor: (canContinue && !loading && !connecting) ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.2s', boxShadow: canContinue ? '0 4px 24px rgba(99,102,241,0.35)' : 'none' }}
-            onMouseEnter={e => { if (canContinue && !loading && !connecting) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.45)'; } }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = canContinue ? '0 4px 24px rgba(99,102,241,0.35)' : 'none'; }}
-          >
-            {connecting || loading
-              ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><span style={{ width: 15, height: 15, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'ob-spin 0.7s linear infinite', display: 'inline-block' }} />Connecting…</span>
-              : 'Connect Store & Continue →'
-            }
-          </button>
+        <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" onClick={onBack}
+              style={{ flex: 1, padding: '15px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#94a3b8', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', opacity: loading ? 0.4 : 1, pointerEvents: loading ? 'none' : 'auto' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#e2e8f0'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; }}
+            >← Back</button>
+            <button type="button" onClick={handleContinue} disabled={!canContinue || loading}
+              style={{ flex: 2, padding: '15px', borderRadius: 14, border: 'none', background: canContinue ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: canContinue ? '#fff' : '#475569', fontSize: 15, fontWeight: 700, cursor: (canContinue && !loading) ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.3s', boxShadow: canContinue && !loading ? '0 4px 24px rgba(99,102,241,0.35)' : 'none', position: 'relative', overflow: 'hidden' }}
+              onMouseEnter={e => { if (canContinue && !loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.45)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = canContinue && !loading ? '0 4px 24px rgba(99,102,241,0.35)' : 'none'; }}
+            >
+              {loading ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                  <span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'ob-spin 0.7s linear infinite', display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ fontSize: 14 }}>{connectStatus || 'Connecting…'}</span>
+                </span>
+              ) : 'Connect Store & Continue →'}
+              {/* Animated shimmer when loading */}
+              {loading && (
+                <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite', pointerEvents: 'none' }} />
+              )}
+            </button>
+          </div>
+          {/* Live status text below button */}
+          {loading && connectStatus && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', padding: '10px 0 2px' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: connectStatus.includes('🎉') ? '#10b981' : '#6366f1', boxShadow: `0 0 8px ${connectStatus.includes('🎉') ? '#10b981' : '#6366f1'}`, animation: 'pulse-dot 1.2s ease-in-out infinite' }} />
+              <span style={{ fontSize: 12.5, color: '#94a3b8', fontWeight: 500 }}>{connectStatus}</span>
+            </div>
+          )}
         </div>
       </div>
 

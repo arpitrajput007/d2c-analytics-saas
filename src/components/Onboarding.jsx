@@ -79,6 +79,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
   const [showToken, setShowToken]     = useState(false);
   const [loading, setLoading]         = useState(false);
   const [connectError, setConnectError] = useState('');
+  const [connectStatus, setConnectStatus] = useState('');
   const navigate = useNavigate();
 
   const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
@@ -88,6 +89,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
     e.preventDefault();
     setLoading(true);
     setConnectError('');
+    setConnectStatus('Verifying Shopify credentials…');
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/store`, {
@@ -97,12 +99,16 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to connect store');
       if (data?.id) {
+        setConnectStatus('Syncing your orders from Shopify…');
         try { await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' }); }
         catch (e) { console.warn('sync failed (non-critical)', e); }
       }
+      setConnectStatus('🎉 Store connected! Loading dashboard…');
+      await new Promise(r => setTimeout(r, 800));
       if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
     } catch (err) {
       setConnectError(err.message);
+      setConnectStatus('');
     } finally {
       setLoading(false);
     }
@@ -113,6 +119,7 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
       if (!storeName.trim() || !shopifyDomain.trim() || !accessToken.trim()) return;
       setLoading(true);
       setConnectError('');
+      setConnectStatus('Verifying Shopify credentials…');
       try {
         const apiUrl = import.meta.env.VITE_API_URL || '';
         const res = await fetch(`${apiUrl}/api/store`, {
@@ -122,12 +129,16 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to connect store');
         if (data?.id) {
+          setConnectStatus('Syncing your orders from Shopify…');
           try { await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' }); }
           catch (e) { console.warn('sync failed (non-critical)', e); }
         }
+        setConnectStatus('🎉 Store connected! Loading dashboard…');
+        await new Promise(r => setTimeout(r, 800));
         if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
       } catch (err) {
         setConnectError(err.message);
+        setConnectStatus('');
       } finally {
         setLoading(false);
       }
@@ -145,7 +156,8 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
           clientId={clientId} setClientId={setClientId}
           accessToken={accessToken} setAccessToken={setAccessToken}
           showToken={showToken} setShowToken={setShowToken}
-          loading={loading} onBack={() => {}} onContinue={handleEmbeddedSubmit}
+          loading={loading} connectStatus={connectStatus}
+          onBack={() => {}} onContinue={handleEmbeddedSubmit}
         />
       </div>
     );
@@ -158,6 +170,8 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
         @keyframes ob-aurora1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-50px) scale(1.08)} 66%{transform:translate(-40px,40px) scale(0.95)} }
         @keyframes ob-aurora2 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-50px,60px) scale(1.05)} 66%{transform:translate(40px,-30px) scale(1.1)} }
         @keyframes ob-float1  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes shimmer    { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes pulse-dot  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
         @keyframes ob-float2  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
         @keyframes ob-fadein  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
         @keyframes ob-spin    { to{transform:rotate(360deg)} }
