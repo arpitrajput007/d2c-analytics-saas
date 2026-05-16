@@ -184,4 +184,63 @@ function AdSpendModal({ dateStr, dayOrders, adCosts, onSave, onClose }) {
     </div>
   );
 }
-export { ProductPNLModal, AdSpendModal, MetricCard };
+// ── NetProfitModal ──────────────────────────────────────────────────────────
+function NetProfitModal({ dateStr, prettyDate, pl, onClose }) {
+  const isProfit = pl.profit >= 0;
+  
+  return (
+    <div className="modal-overlay active" onClick={e => e.target===e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 420, padding: '32px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{isProfit ? '💰' : '📉'}</div>
+          <h2 style={{ margin: '0 0 6px', fontSize: 22 }}>Net Profit Breakdown</h2>
+          <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>{prettyDate}</div>
+        </div>
+        
+        <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, marginBottom: 28, boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, alignItems: 'center' }}>
+            <span style={{ color: 'var(--text-main)', fontSize: 15, fontWeight: 500 }}>Total Revenue</span>
+            <span style={{ color: 'var(--profit-color)', fontSize: 16, fontWeight: 600 }}>{fmt(pl.revenue)}</span>
+          </div>
+          
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', margin: '16px 0' }}></div>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Product Cost</span>
+            <span style={{ color: 'var(--loss-color)', fontSize: 14, fontWeight: 500 }}>- {fmt(pl.productCost)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Shipping Cost</span>
+            <span style={{ color: 'var(--loss-color)', fontSize: 14, fontWeight: 500 }}>- {fmt(pl.shippingCost)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Ad Spend</span>
+            <span style={{ color: 'var(--loss-color)', fontSize: 14, fontWeight: 500 }}>- {fmt(pl.adCost)}</span>
+          </div>
+          
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', margin: '16px 0' }}></div>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+            <span style={{ color: 'var(--text-main)', fontSize: 16, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Net Profit</span>
+            <div style={{ 
+              background: isProfit ? 'rgba(52, 211, 153, 0.15)' : 'rgba(248, 113, 113, 0.15)',
+              border: `1px solid ${isProfit ? 'rgba(52, 211, 153, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+              padding: '6px 14px',
+              borderRadius: 8,
+              color: isProfit ? 'var(--profit-color)' : 'var(--loss-color)',
+              fontSize: 20,
+              fontWeight: 700,
+              boxShadow: `0 0 15px ${isProfit ? 'rgba(52, 211, 153, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`
+            }}>
+              {isProfit ? '+' : '-'}{fmt(Math.abs(pl.profit))}
+            </div>
+          </div>
+        </div>
+        
+        <button onClick={onClose} className="primary" style={{ width: '100%', padding: '14px', fontSize: 15, borderRadius: 10, fontWeight: 600 }}>Close Breakdown</button>
+      </div>
+    </div>
+  );
+}
+
+export { ProductPNLModal, AdSpendModal, NetProfitModal, MetricCard };

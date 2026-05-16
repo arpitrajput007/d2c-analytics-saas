@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
-import { ProductPNLModal, AdSpendModal, MetricCard } from './DashboardModals';
+import { ProductPNLModal, AdSpendModal, NetProfitModal, MetricCard } from './DashboardModals';
 import {
   fmt, toDateStr, getOrderDateIST, parseDateStr,
   categorizeOrders, getPaymentCounts, getRevenueBreakdown, getTotalRevenue, calcPL,
@@ -263,7 +263,7 @@ export default function DailyDashboard({ store }) {
                 <MetricCard label="Ad Spend" value={fmt(ad)} glow="white" note="Click to edit breakdown" onClick={() => setModalState({ type: 'ad', date: dateStr })} />
                 {dateStr >= PREPAID_LAUNCH_DATE && <MetricCard label="Prepaid Orders" value={pCounts.prepaid} color="#818cf8" glow="indigo" active={filterKey === 'prepaid'} onClick={() => toggleDayFilter(dateStr, 'prepaid')} />}
                 {dateStr >= PREPAID_LAUNCH_DATE && <MetricCard label="Cash Orders" value={pCounts.cash} color="#fb923c" glow="amber" active={filterKey === 'cash'} onClick={() => toggleDayFilter(dateStr, 'cash')} />}
-                <MetricCard label="Net Profit" value={fmt(pl.profit)} color={pl.profit >= 0 ? 'var(--profit-color)' : 'var(--loss-color)'} glow="white" />
+                <MetricCard label="Net Profit" value={fmt(pl.profit)} color={pl.profit >= 0 ? 'var(--profit-color)' : 'var(--loss-color)'} glow="white" note="Click for full breakdown" badge onClick={() => setModalState({ type: 'netprofit', date: dateStr, prettyDate: pretty, pl })} />
                 <MetricCard label="PNL of Products" value="📊" color="#fbbf24" glow="yellow" note="Click for breakdown" badge onClick={() => setModalState({ type: 'pnl', date: dateStr, prettyDate: pretty })} />
               </div>
 
@@ -321,6 +321,7 @@ export default function DailyDashboard({ store }) {
 
       {modalState.type === 'pnl' && <ProductPNLModal dateStr={modalState.date} prettyDate={modalState.prettyDate} dayOrders={orders.filter(o => getOrderDateIST(o) === modalState.date)} adCosts={adCosts} productPricing={productPricing} onClose={() => setModalState({ type: null })} />}
       {modalState.type === 'ad' && <AdSpendModal dateStr={modalState.date} dayOrders={orders.filter(o => getOrderDateIST(o) === modalState.date)} adCosts={adCosts} onSave={handleSaveAdCost} onClose={() => setModalState({ type: null })} />}
+      {modalState.type === 'netprofit' && <NetProfitModal dateStr={modalState.date} prettyDate={modalState.prettyDate} pl={modalState.pl} onClose={() => setModalState({ type: null })} />}
     </div>
   );
 }
