@@ -349,14 +349,18 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
     if (!window.confirm('Are you sure you want to disconnect your store? All synced analytics data will be permanently removed.')) return;
     setIsDeleting(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        const hint = data.hint ? `\n\nHint: ${data.hint}` : '';
-        const code = data.code ? ` (${data.code})` : '';
-        throw new Error((data.error || 'Failed to delete store') + code + hint);
-      }
+      // Delete orders first (in case CASCADE isn't fully set up)
+      await supabase.from('orders').delete().eq('store_id', store.id);
+      await supabase.from('products').delete().eq('store_id', store.id);
+
+      // Now delete the store directly via Supabase (no server needed)
+      const { error } = await supabase
+        .from('stores')
+        .delete()
+        .eq('id', store.id);
+
+      if (error) throw new Error(error.message + (error.hint ? ' — ' + error.hint : ''));
+
       // Refresh app state
       if (onStoreConnected) await onStoreConnected();
       else window.location.reload();
