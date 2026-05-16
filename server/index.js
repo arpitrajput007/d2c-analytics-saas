@@ -391,68 +391,74 @@ app.post('/api/sync/:storeId', async (req, res) => {
 });
 
 /**
- * GET /api/debug/:storeId
- * Diagnostic endpoint — tests Shopify credentials and order fetch directly.
- * Safe: never writes to DB. Returns decrypted token prefix + raw Shopify responses.
+ * GET /api/debug/:domain
+ * Diagnostic: find store by shopify domain, test credentials + orders fetch
  */
-app.get('/api/debug/:storeId', async (req, res) => {
-  const { storeId } = req.params;
+app.get('/api/debug/:domain', async (req, res) => {
+  const { domain } = req.params;
   const { decrypt } = require('./cryptoUtils');
-  const result = { storeId, steps: {} };
+  const result = { domain, steps: {} };
 
   try {
-    // Step 1: Fetch store from DB
-    const { data: store, error: storeErr } = await supabase
+    // Find store by domain (more reliable than UUID after re-connect)
+    const { data: stores, error: storeErr } = await supabase
       .from('stores')
-      .select('shopify_domain, shopify_access_token')
-      .eq('id', storeId)
-      .single();
+      .select('id, shopify_domain, shopify_access_token, store_name, owner_id')
+      .ilike('shopify_domain', `%${domain}%`);
 
-    if (storeErr || !store) {
-      result.steps.db = { ok: false, error: storeErr?.message || 'Store not found' };
+    if (storeErr) {
+      result.steps.db = { ok: false, error: storeErr.message };
       return res.json(result);
     }
 
-    result.steps.db = { ok: true, domain: store.shopify_domain };
+    if (!stores || stores.length === 0) {
+      result.steps.db = { ok: false, error: `No store found matching domain "${domain}"` };
+      return res.json(result);
+    }
 
-    // Step 2: Decrypt token
-    const rawToken = store.shopify_access_token;
-    const decrypted = decrypt(rawToken);
-    result.steps.decrypt = {
-      ok: !!decrypted,
-      storedPrefix: rawToken?.substring(0, 8),
-      decryptedPrefix: decrypted?.substring(0, 8),
-      decryptedLength: decrypted?.length,
-      looksEncrypted: rawToken?.includes(':')
+    const store = stores[0];
+    result.steps.db = {
+      ok: true,
+      storeId: store.id,
+      domain: store.shopify_domain,
+      storeName: store.store_name,
+      hasToken: !!store.shopify_access_token
     };
 
-    const domain = store.shopify_domain;
+    // Decrypt token
+    const rawToken = store.shopify_access_token || '';
+    const decrypted = decrypt(rawToken);
+    result.steps.decrypt = {
+      storedPrefix: rawToken.substring(0, 8),
+      decryptedPrefix: decrypted?.substring(0, 8),
+      decryptedLength: decrypted?.length,
+      looksEncrypted: rawToken.includes(':'),
+      looksLikeShopifyToken: decrypted?.startsWith('shpat_') || decrypted?.startsWith('shpss_') || decrypted?.startsWith('shpca_')
+    };
+
+    const d = store.shopify_domain;
     const token = decrypted;
     const headers = { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' };
 
-    // Step 3: Test shop.json
-    const shopRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/shop.json`, { headers });
+    // Test shop.json
+    const shopRes = await fetch(`https://${d}.myshopify.com/admin/api/2024-01/shop.json`, { headers });
     result.steps.shopJson = { status: shopRes.status, ok: shopRes.ok };
-    if (!shopRes.ok) {
-      result.steps.shopJson.body = (await shopRes.text()).substring(0, 300);
-    }
+    if (!shopRes.ok) result.steps.shopJson.body = (await shopRes.text()).substring(0, 200);
 
-    // Step 4: Test orders count
-    const countRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/orders/count.json?status=any`, { headers });
+    // Test orders count
+    const countRes = await fetch(`https://${d}.myshopify.com/admin/api/2024-01/orders/count.json?status=any`, { headers });
     result.steps.ordersCount = { status: countRes.status, ok: countRes.ok };
-    const countBody = await countRes.json().catch(() => ({}));
-    result.steps.ordersCount.body = countBody;
+    result.steps.ordersCount.body = await countRes.json().catch(() => ({}));
 
-    // Step 5: Test orders fetch (1 order)
-    const ordersRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=1`, { headers });
-    result.steps.ordersFetch = { status: ordersRes.status, ok: ordersRes.ok };
+    // Test orders fetch (1 order)
+    const ordersRes = await fetch(`https://${d}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=1`, { headers });
+    result.steps.ordersFetch = { status: ordersRes.status };
     const ordersBody = await ordersRes.json().catch(() => ({}));
-    result.steps.ordersFetch.orderCount = ordersBody.orders?.length ?? 'parse error';
-    if (ordersBody.orders?.length > 0) {
-      result.steps.ordersFetch.firstOrderId = ordersBody.orders[0].id;
-      result.steps.ordersFetch.firstOrderName = ordersBody.orders[0].name;
+    result.steps.ordersFetch.orderCount = ordersBody.orders?.length ?? 'error';
+    result.steps.ordersFetch.errors = ordersBody.errors || null;
+    if (ordersBody.orders?.[0]) {
+      result.steps.ordersFetch.firstOrder = { id: ordersBody.orders[0].id, name: ordersBody.orders[0].name };
     }
-    if (ordersBody.errors) result.steps.ordersFetch.errors = ordersBody.errors;
 
     result.success = true;
   } catch (e) {
@@ -461,6 +467,7 @@ app.get('/api/debug/:storeId', async (req, res) => {
 
   res.json(result);
 });
+
 
 
 /**
