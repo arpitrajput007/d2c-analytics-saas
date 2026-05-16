@@ -391,6 +391,79 @@ app.post('/api/sync/:storeId', async (req, res) => {
 });
 
 /**
+ * GET /api/debug/:storeId
+ * Diagnostic endpoint — tests Shopify credentials and order fetch directly.
+ * Safe: never writes to DB. Returns decrypted token prefix + raw Shopify responses.
+ */
+app.get('/api/debug/:storeId', async (req, res) => {
+  const { storeId } = req.params;
+  const { decrypt } = require('./cryptoUtils');
+  const result = { storeId, steps: {} };
+
+  try {
+    // Step 1: Fetch store from DB
+    const { data: store, error: storeErr } = await supabase
+      .from('stores')
+      .select('shopify_domain, shopify_access_token')
+      .eq('id', storeId)
+      .single();
+
+    if (storeErr || !store) {
+      result.steps.db = { ok: false, error: storeErr?.message || 'Store not found' };
+      return res.json(result);
+    }
+
+    result.steps.db = { ok: true, domain: store.shopify_domain };
+
+    // Step 2: Decrypt token
+    const rawToken = store.shopify_access_token;
+    const decrypted = decrypt(rawToken);
+    result.steps.decrypt = {
+      ok: !!decrypted,
+      storedPrefix: rawToken?.substring(0, 8),
+      decryptedPrefix: decrypted?.substring(0, 8),
+      decryptedLength: decrypted?.length,
+      looksEncrypted: rawToken?.includes(':')
+    };
+
+    const domain = store.shopify_domain;
+    const token = decrypted;
+    const headers = { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' };
+
+    // Step 3: Test shop.json
+    const shopRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/shop.json`, { headers });
+    result.steps.shopJson = { status: shopRes.status, ok: shopRes.ok };
+    if (!shopRes.ok) {
+      result.steps.shopJson.body = (await shopRes.text()).substring(0, 300);
+    }
+
+    // Step 4: Test orders count
+    const countRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/orders/count.json?status=any`, { headers });
+    result.steps.ordersCount = { status: countRes.status, ok: countRes.ok };
+    const countBody = await countRes.json().catch(() => ({}));
+    result.steps.ordersCount.body = countBody;
+
+    // Step 5: Test orders fetch (1 order)
+    const ordersRes = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=1`, { headers });
+    result.steps.ordersFetch = { status: ordersRes.status, ok: ordersRes.ok };
+    const ordersBody = await ordersRes.json().catch(() => ({}));
+    result.steps.ordersFetch.orderCount = ordersBody.orders?.length ?? 'parse error';
+    if (ordersBody.orders?.length > 0) {
+      result.steps.ordersFetch.firstOrderId = ordersBody.orders[0].id;
+      result.steps.ordersFetch.firstOrderName = ordersBody.orders[0].name;
+    }
+    if (ordersBody.errors) result.steps.ordersFetch.errors = ordersBody.errors;
+
+    result.success = true;
+  } catch (e) {
+    result.error = e.message;
+  }
+
+  res.json(result);
+});
+
+
+/**
  * GET /api/store/:id/status
  * Returns live connection status for a store (useful for post-connect verification)
  */
