@@ -1,0 +1,156 @@
+// ── BnB Dashboard Utility Functions ─────────────────────────────────────────
+// Ported from BnB/shopify-dashboard.html
+
+export const PRODUCT_COST = 555;
+export const SHIPPING_COST = 135;
+export const PREPAID_LAUNCH_DATE = '2026-03-28';
+
+export function fmt(n) {
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+export function toDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Returns IST date string (UTC+5:30) for an order's created_at
+export function getOrderDateIST(o) {
+  if (!o.created_at) return '';
+  const utcMs = new Date(o.created_at).getTime();
+  const istMs = utcMs + 5.5 * 60 * 60 * 1000;
+  const d = new Date(istMs);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export function parseDateStr(s) {
+  const [y, mo, d] = s.split('-').map(Number);
+  return new Date(y, mo - 1, d, 12, 0, 0);
+}
+
+export function isOrderDelivered(o) {
+  const rawTags = (o.tags || '').split(',').map(t => t.trim().toLowerCase());
+  const syntheticSS = rawTags.find(t => t.startsWith('__ss:'));
+  const shipmentStatus = syntheticSS ? syntheticSS.replace('__ss:', '') : '';
+  const isRTO = rawTags.some(t => !t.startsWith('__ss:') && t.includes('rto') && !t.includes('rto_prediction'));
+  const ssDelivered = shipmentStatus === 'delivered' || rawTags.some(t => t === 'delivered' && !t.startsWith('__ss:'));
+  return !isRTO && ssDelivered;
+}
+
+export function isOrderPrepaidRevenue(o) {
+  const orderDate = o.created_at ? o.created_at.substring(0, 10) : '';
+  if (orderDate < PREPAID_LAUNCH_DATE) return false;
+  const st = (o.shipping_title || '').toLowerCase();
+  return st.includes('prepaid');
+}
+
+export function categorizeOrders(orders) {
+  const STATUS_TAGS = ['Delivered','Canceled','Attempted Delivery','In Transit','Out for Delivery',
+    'Failed Delivery','Paid','Payment Pending','Unfulfilled','Fulfilled','RTO','Unreachable','RTO Prediction','Not Confirmed'];
+  const counts = {};
+  STATUS_TAGS.forEach(t => (counts[t] = 0));
+  counts['Other'] = 0;
+
+  orders.forEach(o => {
+    const rawTags = (o.tags || '').split(',').map(t => t.trim().toLowerCase());
+    const fs = (o.fulfillment_status || '').toLowerCase();
+    const fin = (o.financial_status || '').toLowerCase();
+    const syntheticSS = rawTags.find(t => t.startsWith('__ss:'));
+    const shipmentStatus = syntheticSS ? syntheticSS.replace('__ss:', '') : '';
+
+    const isDelivered = isOrderDelivered(o);
+    const isRTO = !isDelivered && rawTags.some(t =>
+      !t.startsWith('__ss:') && ((t.includes('rto') && !t.includes('rto_prediction')) || t.includes('undelivered'))
+    );
+    const isRTOPrediction = rawTags.some(t => !t.startsWith('__ss:') && t.includes('rto_prediction'));
+    const isUnreachable = rawTags.some(t => !t.startsWith('__ss:') && t.includes('unreachable'));
+    const isFulfilled = fs === 'fulfilled' || fs === 'partial' || isDelivered;
+    const ssInTransit = shipmentStatus === 'in_transit' || rawTags.some(t => t.includes('in transit') && !t.startsWith('__ss:'));
+    const ssOutForDel = shipmentStatus === 'out_for_delivery' || rawTags.some(t => t.includes('out for delivery') && !t.startsWith('__ss:'));
+    const ssFailure = shipmentStatus === 'failure' || shipmentStatus === 'attempted_delivery'
+      || rawTags.some(t => (t.includes('failed delivery') || t.includes('attempted delivery')) && !t.startsWith('__ss:'));
+    const ssDelivered = shipmentStatus === 'delivered' || rawTags.some(t => t === 'delivered' && !t.startsWith('__ss:'));
+    const isInTransit = ssInTransit && !ssOutForDel && !ssFailure && !ssDelivered && !isRTO;
+    const isOutForDelivery = ssOutForDel && !ssFailure && !ssDelivered && !isRTO;
+    const isFailedDelivery = ssFailure && !isRTO;
+    const isCanceled = rawTags.some(t => t === 'canceled' || t === 'cancelled') || fin === 'voided' || fin === 'refunded' || !!o.cancelled_at;
+    const isCOD = fin === 'pending';
+    const hasConfirmTag = rawTags.some(t => t === 'confirm' || t === 'confirmed');
+    const isNotConfirmed = isCOD && !hasConfirmTag && !isCanceled && !isFulfilled;
+    const isUnfulfilled = !isFulfilled && !isCanceled && !isNotConfirmed && (!fs || fs === 'unfulfilled');
+
+    if (isFulfilled)      counts['Fulfilled']++;
+    if (isDelivered)      counts['Delivered']++;
+    if (isRTO)            counts['RTO']++;
+    if (isRTOPrediction)  counts['RTO Prediction']++;
+    if (isUnreachable)    counts['Unreachable']++;
+    if (isInTransit)      counts['In Transit']++;
+    if (isOutForDelivery) counts['Out for Delivery']++;
+    if (isFailedDelivery) counts['Failed Delivery']++;
+    if (isCanceled)       counts['Canceled']++;
+    if (isUnfulfilled)    counts['Unfulfilled']++;
+    if (isNotConfirmed)   counts['Not Confirmed']++;
+    const any = isFulfilled || isDelivered || isRTO || isUnreachable || isInTransit ||
+      isOutForDelivery || isFailedDelivery || isCanceled || isUnfulfilled || isNotConfirmed;
+    if (!any) counts['Other']++;
+  });
+  return counts;
+}
+
+export function getPaymentCounts(orders) {
+  let prepaid = 0, cash = 0;
+  orders.forEach(o => {
+    if ((o.shipping_title || '').toLowerCase().includes('prepaid')) prepaid++;
+    else cash++;
+  });
+  return { prepaid, cash };
+}
+
+export function getRevenueBreakdown(orders) {
+  let deliveredRev = 0, prepaidRev = 0, deliveredCount = 0, prepaidCount = 0;
+  orders.forEach(o => {
+    const isDel = isOrderDelivered(o);
+    const isPre = isOrderPrepaidRevenue(o);
+    if (!isDel && !isPre) return;
+    let orderRev = parseFloat(o.total_price || 0);
+    if (isPre) { prepaidRev += orderRev; prepaidCount++; }
+    else if (isDel) { deliveredRev += orderRev; deliveredCount++; }
+  });
+  return { totalRevenue: deliveredRev + prepaidRev, deliveredRevenue: deliveredRev, prepaidRevenue: prepaidRev, deliveredCount, prepaidCount };
+}
+
+export function getTotalRevenue(orders) {
+  return getRevenueBreakdown(orders).totalRevenue;
+}
+
+export function calcPL(revenue, deliveredCount, adCost, fulfilledCount = 0, items = [], productPricing = {}, actualDeliveredCount = null) {
+  let totalProductCost = 0;
+  let totalLogisticsCost = 0;
+  const totalRevenue = revenue || 0;
+
+  if (items && items.length > 0) {
+    items.forEach(item => {
+      const lookupKey = item.sku || ('TITLE:' + item.title);
+      const pricing = productPricing[lookupKey] || { cp: PRODUCT_COST, shipping: SHIPPING_COST };
+      if (item.isDelivered) totalProductCost += pricing.cp * item.quantity;
+      if (item.isFulfilled) totalLogisticsCost += pricing.shipping * item.quantity;
+    });
+    if (totalProductCost === 0 && deliveredCount > 0) totalProductCost = deliveredCount * PRODUCT_COST;
+    if (totalLogisticsCost === 0 && (fulfilledCount > 0 || deliveredCount > 0))
+      totalLogisticsCost = (fulfilledCount || deliveredCount) * SHIPPING_COST;
+  } else {
+    totalProductCost = (deliveredCount || 0) * PRODUCT_COST;
+    totalLogisticsCost = (fulfilledCount || deliveredCount || 0) * SHIPPING_COST;
+  }
+
+  const totalCost = totalProductCost + totalLogisticsCost + adCost;
+  const profit = totalRevenue - totalCost;
+  return { revenue: totalRevenue, productCost: totalProductCost, shippingCost: totalLogisticsCost, adCost, totalCost, profit,
+    deliveredCount: actualDeliveredCount !== null ? actualDeliveredCount : deliveredCount,
+    fulfilledCount: fulfilledCount || deliveredCount };
+}
