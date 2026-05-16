@@ -88,13 +88,26 @@ app.post('/api/store', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: owner_id, shopify_domain, shopify_access_token' });
   }
 
-  const cleanDomain = shopify_domain.replace('.myshopify.com', '').trim().toLowerCase();
+  // Aggressively clean both domain and token — copy-paste often adds whitespace
+  const cleanDomain = shopify_domain
+    .replace(/https?:\/\//i, '')
+    .replace('.myshopify.com', '')
+    .replace(/\//g, '')
+    .trim()
+    .toLowerCase();
+
+  const cleanToken = shopify_access_token.trim();
 
   if (!cleanDomain) {
     return res.status(400).json({ error: 'Invalid Shopify domain' });
   }
+  if (!cleanToken) {
+    return res.status(400).json({ error: 'Access token cannot be empty' });
+  }
 
-  // Trial abuse protection: Check if domain is already registered
+  console.log(`[Store Connect] Attempting to connect domain="${cleanDomain}" token_prefix="${cleanToken.substring(0, 8)}..." token_length=${cleanToken.length}`);
+
+  // Trial abuse protection: Check if domain already registered
   const { data: existingStore } = await supabase
     .from('stores')
     .select('id, owner_id')
@@ -103,7 +116,10 @@ app.post('/api/store', async (req, res) => {
 
   if (existingStore) {
     if (existingStore.owner_id === owner_id) {
-      // Same owner reconnecting — return the existing store (idempotent)
+      // Same owner reconnecting with NEW token — update it instead of returning stale record
+      console.log(`[Store Connect] Same owner reconnecting — updating token for store ${existingStore.id}`);
+      const encryptedToken = encrypt(cleanToken);
+      await supabase.from('stores').update({ shopify_access_token: encryptedToken }).eq('id', existingStore.id);
       const { data: ownStore } = await supabase.from('stores').select('*').eq('id', existingStore.id).single();
       return res.json(ownStore);
     }
@@ -114,18 +130,17 @@ app.post('/api/store', async (req, res) => {
 
   // Validate credentials against Shopify BEFORE saving
   try {
-    const testToken = shopify_access_token;
     const verifyRes = await fetch(`https://${cleanDomain}.myshopify.com/admin/api/2024-01/shop.json`, {
       method: 'GET',
       headers: {
-        'X-Shopify-Access-Token': testToken,
+        'X-Shopify-Access-Token': cleanToken,
         'Content-Type': 'application/json'
       }
     });
 
     if (!verifyRes.ok) {
       const errBody = await verifyRes.text();
-      console.error(`[Store Connect] Credential validation failed (${verifyRes.status}):`, errBody.substring(0, 200));
+      console.error(`[Store Connect] Validation failed (${verifyRes.status}) for ${cleanDomain}:`, errBody.substring(0, 300));
       return res.status(401).json({
         error: `Could not connect to Shopify. Please check your domain and access token. (Status: ${verifyRes.status})`
       });
@@ -387,6 +402,33 @@ app.post('/api/sync/:storeId', async (req, res) => {
   } catch (err) {
     console.error(`[Sync API] ❌ Failed for ${storeId}:`, err.message);
     res.status(500).json({ status: 'sync_failed', error: err.message });
+  }
+});
+
+/**
+ * GET /api/test-creds
+ * Quick credential test: ?domain=bnb-toys&token=shpat_xxx
+ * Tests if Shopify accepts the credentials without saving anything
+ */
+app.get('/api/test-creds', async (req, res) => {
+  const domain = (req.query.domain || '').replace('.myshopify.com','').trim().toLowerCase();
+  const token = (req.query.token || '').trim();
+  if (!domain || !token) return res.json({ error: 'Pass ?domain=bnb-toys&token=shpat_xxx' });
+
+  console.log(`[Test Creds] domain=${domain} token_prefix=${token.substring(0,8)} length=${token.length}`);
+  try {
+    const r = await fetch(`https://${domain}.myshopify.com/admin/api/2024-01/shop.json`, {
+      headers: { 'X-Shopify-Access-Token': token }
+    });
+    const body = await r.json().catch(() => ({}));
+    res.json({
+      status: r.status,
+      ok: r.ok,
+      shopName: body.shop?.name,
+      errors: body.errors || null
+    });
+  } catch(e) {
+    res.json({ error: e.message });
   }
 });
 
