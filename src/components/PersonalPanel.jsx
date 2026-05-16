@@ -331,13 +331,14 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
       if (!res.ok) throw new Error('Sync failed');
-      alert('Sync started! Your dashboard data will update momentarily. (Please refresh in 10-15 seconds)');
+      console.log('Sync started! Your dashboard data will update momentarily.');
+      // Update UI slightly to show success
+      setTimeout(() => setSyncing(false), 2000); // Give user a brief visual feedback that it worked
+      return; // Return early to bypass the immediate finally block
     } catch (err) {
-      console.error(err);
-      alert('Error triggering sync: ' + err.message);
-    } finally {
-      setSyncing(false);
-    }
+      console.error('Error triggering sync:', err.message);
+    } 
+    setSyncing(false);
   };
 
   const handleDisconnect = async () => {
@@ -351,26 +352,63 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
       }
       window.location.reload();
     } catch (e) {
-      alert('Error disconnecting store: ' + e.message);
+      console.error('Error disconnecting store:', e.message);
     }
   };
 
   const handleSaveEdit = async () => {
-    if (!editDomain.trim() || !editToken.trim()) return;
+    console.log('handleSaveEdit triggered', { editDomain, editClientId, tokenLength: editToken?.length });
+    if (!editDomain?.trim() || !editToken?.trim()) {
+      console.error('Please fill in both the Shopify Domain and Access Token.');
+      return;
+    }
+    if (!store?.id) {
+      console.error('Error: Store ID is missing.');
+      return;
+    }
+    
     setSavingEdit(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/store/${store.id}`, {
+      const url = `${apiUrl}/api/store/${store.id}`;
+      console.log('Sending PUT to', url);
+      
+      const res = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shopify_domain: editDomain, shopify_client_id: editClientId, shopify_access_token: editToken })
+        body: JSON.stringify({ 
+          shopify_domain: editDomain.trim(), 
+          shopify_client_id: editClientId.trim(), 
+          shopify_access_token: editToken.trim() 
+        })
       });
-      if (!res.ok) throw new Error('Failed to update credentials');
-      alert('Store credentials updated successfully!');
+      
+      console.log('PUT response status:', res.status);
+      if (!res.ok) {
+        let errData = 'Unknown error';
+        try {
+          const json = await res.json();
+          errData = json.error || JSON.stringify(json);
+        } catch {
+          errData = await res.text();
+        }
+        throw new Error(`Failed to update credentials: ${errData}`);
+      }
+      
+      // Initiate a fresh connection/sync with the new credentials
+      console.log('Initiating sync...');
+      try {
+        const syncRes = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
+        console.log('Sync response:', syncRes.status);
+      } catch (syncErr) {
+        console.warn('Sync failed (non-critical) during edit:', syncErr);
+      }
+
+      console.log('Store credentials updated successfully!');
       setIsEditing(false);
       window.location.reload();
     } catch (e) {
-      alert(e.message);
+      console.error('Error in handleSaveEdit:', e);
     } finally {
       setSavingEdit(false);
     }
@@ -386,13 +424,10 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
             clientId={editClientId} setClientId={setEditClientId}
             accessToken={editToken} setAccessToken={setEditToken}
             showToken={showToken} setShowToken={setShowToken}
+            onBack={() => setIsEditing(false)}
+            onContinue={handleSaveEdit}
+            loading={savingEdit}
           />
-          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-            <button onClick={() => setIsEditing(false)} style={{ flex: 1, padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>Cancel</button>
-            <button onClick={handleSaveEdit} disabled={savingEdit} style={{ flex: 1, padding: '14px', borderRadius: 12, background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
-              {savingEdit ? 'Saving...' : 'Save Credentials'}
-            </button>
-          </div>
         </div>
       </div>
     );

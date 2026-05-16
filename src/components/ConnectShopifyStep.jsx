@@ -255,8 +255,7 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
 
   const handleContinue = () => {
     if (!canContinue) return;
-    setConnecting(true);
-    setTimeout(() => { setConnecting(false); onContinue(); }, 800);
+    onContinue();
   };
 
   const card = (children, extra = {}) => ({
@@ -391,12 +390,12 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#e2e8f0'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#94a3b8'; }}
           >← Back</button>
-          <button type="button" onClick={handleContinue} disabled={!canContinue}
-            style={{ flex: 2, padding: '15px', borderRadius: 14, border: 'none', background: canContinue ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: canContinue ? '#fff' : '#475569', fontSize: 15, fontWeight: 700, cursor: canContinue ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.2s', boxShadow: canContinue ? '0 4px 24px rgba(99,102,241,0.35)' : 'none' }}
-            onMouseEnter={e => { if (canContinue) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.45)'; } }}
+          <button type="button" onClick={handleContinue} disabled={!canContinue || loading || connecting}
+            style={{ flex: 2, padding: '15px', borderRadius: 14, border: 'none', background: canContinue ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'rgba(255,255,255,0.05)', color: canContinue ? '#fff' : '#475569', fontSize: 15, fontWeight: 700, cursor: (canContinue && !loading && !connecting) ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.2s', boxShadow: canContinue ? '0 4px 24px rgba(99,102,241,0.35)' : 'none' }}
+            onMouseEnter={e => { if (canContinue && !loading && !connecting) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.45)'; } }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = canContinue ? '0 4px 24px rgba(99,102,241,0.35)' : 'none'; }}
           >
-            {connecting
+            {connecting || loading
               ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><span style={{ width: 15, height: 15, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'ob-spin 0.7s linear infinite', display: 'inline-block' }} />Connecting…</span>
               : 'Connect Store & Continue →'
             }
