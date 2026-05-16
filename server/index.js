@@ -262,44 +262,60 @@ app.delete('/api/store/:id', async (req, res) => {
 
   if (!id) return res.status(400).json({ error: 'Store ID is required' });
 
-  console.log(`[Store Delete] Attempting to delete store ${id} and all associated data...`);
+  console.log(`[Store Delete] Starting delete for store id=${id}`);
 
   try {
-    // Delete all related data in order (FK constraints require child rows deleted first)
-    // The tables with store_id foreign keys:
-    const tables = ['orders', 'products', 'ad_spends', 'daily_settings', 'pricing'];
+    // Step 1: Delete orders (has store_id FK)
+    const { error: ordersErr } = await supabase.from('orders').delete().eq('store_id', id);
+    if (ordersErr) {
+      console.error('[Store Delete] orders delete error:', JSON.stringify(ordersErr));
+      // Don't abort — try to continue
+    } else {
+      console.log(`[Store Delete] orders cleared for store ${id}`);
+    }
 
-    for (const table of tables) {
-      const { error: tableErr } = await supabase.from(table).delete().eq('store_id', id);
-      if (tableErr) {
-        // Ignore "relation does not exist" errors — table might not exist in this DB
-        if (tableErr.code === '42P01') {
-          console.log(`[Store Delete] Table '${table}' does not exist, skipping.`);
-        } else {
-          console.error(`[Store Delete] Error deleting from ${table}:`, tableErr.message);
-          // Continue anyway — don't abort for partial cleanup
-        }
-      } else {
-        console.log(`[Store Delete] Cleared table '${table}' for store ${id}`);
+    // Step 2: Delete products (has store_id FK)
+    const { error: productsErr } = await supabase.from('products').delete().eq('store_id', id);
+    if (productsErr) {
+      console.error('[Store Delete] products delete error:', JSON.stringify(productsErr));
+    } else {
+      console.log(`[Store Delete] products cleared for store ${id}`);
+    }
+
+    // Step 3: Try any other FK tables (ignore if they don't exist)
+    for (const table of ['ad_spends', 'daily_settings']) {
+      const { error: tErr } = await supabase.from(table).delete().eq('store_id', id);
+      if (tErr && tErr.code !== '42P01') {
+        console.warn(`[Store Delete] ${table} delete warning:`, tErr.message);
       }
     }
 
-    // Now delete the store itself
-    const { error: storeErr } = await supabase.from('stores').delete().eq('id', id);
+    // Step 4: Delete the store record itself
+    const { error: storeErr, data: storeData } = await supabase
+      .from('stores')
+      .delete()
+      .eq('id', id)
+      .select();
 
     if (storeErr) {
-      console.error('[Store Delete] Failed to delete store record:', storeErr);
-      return res.status(500).json({ error: `Failed to delete store: ${storeErr.message}` });
+      console.error('[Store Delete] FAILED to delete store record:', JSON.stringify(storeErr));
+      return res.status(500).json({
+        error: `Failed to delete store: ${storeErr.message}`,
+        code: storeErr.code,
+        details: storeErr.details,
+        hint: storeErr.hint
+      });
     }
 
-    console.log(`[Store Delete] ✅ Store ${id} and all data successfully deleted.`);
+    console.log(`[Store Delete] ✅ Store ${id} deleted. Rows affected:`, storeData?.length ?? 'unknown');
     res.json({ success: true });
 
   } catch (err) {
-    console.error('[Store Delete] Unexpected error:', err);
+    console.error('[Store Delete] Unexpected exception:', err);
     res.status(500).json({ error: `Unexpected error: ${err.message}` });
   }
 });
+
 
 /**
  * POST /api/webhooks/shopify

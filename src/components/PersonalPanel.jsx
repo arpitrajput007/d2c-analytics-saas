@@ -352,12 +352,16 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Failed to delete store');
-      // Refresh app state (removes store from React state without page reload)
+      if (!res.ok) {
+        const hint = data.hint ? `\n\nHint: ${data.hint}` : '';
+        const code = data.code ? ` (${data.code})` : '';
+        throw new Error((data.error || 'Failed to delete store') + code + hint);
+      }
+      // Refresh app state
       if (onStoreConnected) await onStoreConnected();
       else window.location.reload();
     } catch (e) {
-      alert('Error disconnecting store: ' + e.message);
+      alert('Error disconnecting store:\n' + e.message);
     } finally {
       setIsDeleting(false);
     }
