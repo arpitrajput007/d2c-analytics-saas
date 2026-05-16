@@ -95,6 +95,7 @@ async function syncStoreData(storeId) {
   // Paginate orders
   let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
   let totalSynced = 0;
+  let pageCount = 0;
 
   while (url) {
     const res = await fetch(url, { method: 'GET', headers });
@@ -103,11 +104,20 @@ async function syncStoreData(storeId) {
       throw new Error(`Shopify orders API error (${res.status}): ${txt.substring(0, 300)}`);
     }
 
-    const { orders } = await res.json();
-    if (!orders || orders.length === 0) {
-      console.log('[Sync] No more orders in this page.');
+    const body = await res.json();
+    const orders = body.orders;
+    pageCount++;
+
+    if (pageCount === 1 && (!orders || orders.length === 0)) {
+      console.warn('[Sync] ⚠️  Shopify returned 0 orders on first page. Possible causes:');
+      console.warn('  1. Your Shopify app token is missing the "read_orders" scope');
+      console.warn('  2. The store genuinely has no orders');
+      console.warn('  Fix: Shopify Admin → Apps → Your App → Configuration → add read_orders → reinstall → get new token');
       break;
     }
+
+    if (!orders || orders.length === 0) break;
+
 
     const rows = orders.map(o => ({
       store_id: storeId,
