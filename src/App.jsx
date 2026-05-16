@@ -138,9 +138,10 @@ export default function App() {
     }
   };
 
-  // Allow child components (e.g. after onboarding) to trigger a store re-fetch
+  // Allow child components (e.g. after onboarding/delete/edit) to trigger a store re-fetch
   const refreshStore = async () => {
     if (session?.user?.id) {
+      setStore(null);   // Immediately clear store so UI reflects disconnected state
       setLoading(true);
       await checkOnboarding(session.user.id);
     }

@@ -296,14 +296,17 @@ import ConnectShopifyStep from './ConnectShopifyStep';
 /* ─────────────────────────────────────────────
    CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
 ───────────────────────────────────────────── */
-function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick }) {
+function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick, onStoreConnected }) {
   const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editDomain, setEditDomain] = useState(store?.shopify_domain || '');
   const [editClientId, setEditClientId] = useState('');
   const [editToken, setEditToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState('');
   const msElapsed   = Date.now() - storeCreatedAt;
   const daysElapsed = Math.floor(msElapsed / (1000 * 60 * 60 * 24));
   const totalDays   = 14;
@@ -327,88 +330,78 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
   const handleManualSync = async () => {
     if (!store?.id || syncing) return;
     setSyncing(true);
+    setSyncMsg('');
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
-      if (!res.ok) throw new Error('Sync failed');
-      console.log('Sync started! Your dashboard data will update momentarily.');
-      // Update UI slightly to show success
-      setTimeout(() => setSyncing(false), 2000); // Give user a brief visual feedback that it worked
-      return; // Return early to bypass the immediate finally block
+      if (!res.ok) throw new Error('Sync request failed');
+      setSyncMsg('✅ Sync started! Data will update shortly.');
+      setTimeout(() => { setSyncing(false); setSyncMsg(''); }, 3000);
+      return;
     } catch (err) {
-      console.error('Error triggering sync:', err.message);
-    } 
+      setSyncMsg('❌ Sync failed: ' + err.message);
+    }
     setSyncing(false);
   };
 
   const handleDisconnect = async () => {
-    if (!window.confirm('Are you sure you want to disconnect and delete your store from Pocket Dashboard? All associated analytics data will be removed.')) return;
+    if (isDeleting) return;
+    if (!window.confirm('Are you sure you want to disconnect your store? All synced analytics data will be permanently removed.')) return;
+    setIsDeleting(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/store/${store.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to delete store');
-      }
-      window.location.reload();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to delete store');
+      // Refresh app state (removes store from React state without page reload)
+      if (onStoreConnected) await onStoreConnected();
+      else window.location.reload();
     } catch (e) {
-      console.error('Error disconnecting store:', e.message);
+      alert('Error disconnecting store: ' + e.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleSaveEdit = async () => {
-    console.log('handleSaveEdit triggered', { editDomain, editClientId, tokenLength: editToken?.length });
-    if (!editDomain?.trim() || !editToken?.trim()) {
-      console.error('Please fill in both the Shopify Domain and Access Token.');
-      return;
-    }
-    if (!store?.id) {
-      console.error('Error: Store ID is missing.');
-      return;
-    }
-    
+    setEditError('');
+    if (!editDomain?.trim()) { setEditError('Shopify domain is required.'); return; }
+    if (!editToken?.trim()) { setEditError('Access token is required.'); return; }
+    if (!store?.id) { setEditError('Store ID missing. Please refresh the page.'); return; }
+
     setSavingEdit(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      const url = `${apiUrl}/api/store/${store.id}`;
-      console.log('Sending PUT to', url);
-      
-      const res = await fetch(url, {
+      const res = await fetch(`${apiUrl}/api/store/${store.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          shopify_domain: editDomain.trim(), 
-          shopify_client_id: editClientId.trim(), 
-          shopify_access_token: editToken.trim() 
+        body: JSON.stringify({
+          shopify_domain: editDomain.trim(),
+          shopify_client_id: editClientId.trim() || '',
+          shopify_access_token: editToken.trim()
         })
       });
-      
-      console.log('PUT response status:', res.status);
+
+      let respData = {};
+      try { respData = await res.json(); } catch {}
+
       if (!res.ok) {
-        let errData = 'Unknown error';
-        try {
-          const json = await res.json();
-          errData = json.error || JSON.stringify(json);
-        } catch {
-          errData = await res.text();
-        }
-        throw new Error(`Failed to update credentials: ${errData}`);
-      }
-      
-      // Initiate a fresh connection/sync with the new credentials
-      console.log('Initiating sync...');
-      try {
-        const syncRes = await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
-        console.log('Sync response:', syncRes.status);
-      } catch (syncErr) {
-        console.warn('Sync failed (non-critical) during edit:', syncErr);
+        throw new Error(respData.error || `Server error (${res.status})`);
       }
 
-      console.log('Store credentials updated successfully!');
+      // Trigger fresh sync with new credentials
+      try {
+        await fetch(`${apiUrl}/api/sync/${store.id}`, { method: 'POST' });
+      } catch (syncErr) {
+        console.warn('Sync failed (non-critical):', syncErr);
+      }
+
       setIsEditing(false);
-      window.location.reload();
+      // Refresh store data in App state
+      if (onStoreConnected) await onStoreConnected();
+      else window.location.reload();
     } catch (e) {
-      console.error('Error in handleSaveEdit:', e);
+      setEditError(e.message);
     } finally {
       setSavingEdit(false);
     }
@@ -417,14 +410,22 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
   if (isEditing) {
     return (
       <div style={{ maxWidth: 700, margin: '0 auto', animation: 'fadeInUp 0.35s ease forwards' }}>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#f1f5f9', marginBottom: 24 }}>Edit Store Credentials</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <button onClick={() => { setIsEditing(false); setEditError(''); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#94a3b8', padding: '8px 14px', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>← Back</button>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f1f5f9', margin: 0 }}>Update Store Credentials</h2>
+        </div>
+        {editError && (
+          <div style={{ marginBottom: 20, padding: '14px 18px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 14, color: '#f87171', fontSize: 13.5, lineHeight: 1.6 }}>
+            ❌ {editError}
+          </div>
+        )}
         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '28px 32px' }}>
-          <ConnectShopifyStep 
+          <ConnectShopifyStep
             shopifyDomain={editDomain} setShopifyDomain={setEditDomain}
             clientId={editClientId} setClientId={setEditClientId}
             accessToken={editToken} setAccessToken={setEditToken}
             showToken={showToken} setShowToken={setShowToken}
-            onBack={() => setIsEditing(false)}
+            onBack={() => { setIsEditing(false); setEditError(''); }}
             onContinue={handleSaveEdit}
             loading={savingEdit}
           />
@@ -467,26 +468,44 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
             </div>
           </div>
           {/* Actions */}
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: 'none', color: '#818cf8', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Edit Credentials</button>
-                <button onClick={handleDisconnect} style={{ background: 'none', border: 'none', color: '#f87171', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}>Disconnect Store</button>
-              </div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <button
-                  onClick={handleManualSync}
-                  disabled={syncing}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', cursor: syncing ? 'wait' : 'pointer', transition: 'all 0.2s', opacity: syncing ? 0.7 : 1 }}
-                >
-                  <RefreshCw size={14} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
-                  {syncing ? 'Syncing...' : 'Sync Data'}
-                </button>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
-                  {planLabel}
-                </span>
-              </div>
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => { setIsEditing(true); setEditDomain(store?.shopify_domain || ''); setEditToken(''); setEditClientId(''); setEditError(''); }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 10, background: 'rgba(99,102,241,0.08)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.16)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)'; }}
+              >
+                ✏️ Edit Credentials
+              </button>
+              <button
+                onClick={handleDisconnect}
+                disabled={isDeleting}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.07)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)', cursor: isDeleting ? 'wait' : 'pointer', transition: 'all 0.2s', fontFamily: 'inherit', opacity: isDeleting ? 0.6 : 1 }}
+                onMouseEnter={e => { if (!isDeleting) { e.currentTarget.style.background = 'rgba(239,68,68,0.14)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'; } }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.07)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)'; }}
+              >
+                {isDeleting ? '⏳ Deleting...' : '🗑️ Disconnect'}
+              </button>
             </div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <button
+                onClick={handleManualSync}
+                disabled={syncing}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', cursor: syncing ? 'wait' : 'pointer', transition: 'all 0.2s', opacity: syncing ? 0.7 : 1, fontFamily: 'inherit' }}
+                onMouseEnter={e => { if (!syncing) e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+              >
+                <RefreshCw size={14} style={{ animation: syncing ? 'spin 1s linear infinite' : 'none' }} />
+                {syncing ? 'Syncing...' : 'Sync Data'}
+              </button>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '7px 14px', borderRadius: 999, background: planBg, color: planColor, border: `1px solid ${planBorder}`, letterSpacing: '0.04em' }}>
+                {planLabel}
+              </span>
+            </div>
+            {syncMsg && (
+              <div style={{ fontSize: 12, color: syncMsg.startsWith('✅') ? '#34d399' : '#f87171', marginTop: 2 }}>{syncMsg}</div>
+            )}
           </div>
         </div>
 
@@ -909,7 +928,7 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
                   )}
                   {activeTab === 'connect' && (
                     isConnected ? (
-                      <ConnectedStorePanel store={store} trialDuration={trialDuration} storeCreatedAt={storeCreatedAt} isTrialExpired={isTrialExpired} onUpgradeClick={() => setActiveTab('pricing')} />
+                      <ConnectedStorePanel store={store} trialDuration={trialDuration} storeCreatedAt={storeCreatedAt} isTrialExpired={isTrialExpired} onUpgradeClick={() => setActiveTab('pricing')} onStoreConnected={onStoreConnected} />
                     ) : (
                       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                         <Onboarding session={session} isEmbedded onStoreConnected={onStoreConnected} />

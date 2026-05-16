@@ -78,13 +78,16 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
   const [themeColor, setThemeColor]   = useState('#6366f1');
   const [showToken, setShowToken]     = useState(false);
   const [loading, setLoading]         = useState(false);
+  const [connectError, setConnectError] = useState('');
   const navigate = useNavigate();
 
   const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
   const prevStep = () => setStep(s => Math.max(s - 1, 0));
 
   const handleOnboard = async e => {
-    e.preventDefault(); setLoading(true);
+    e.preventDefault();
+    setLoading(true);
+    setConnectError('');
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const res = await fetch(`${apiUrl}/api/store`, {
@@ -92,39 +95,50 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
         body: JSON.stringify({ owner_id: session.user.id, store_name: storeName, shopify_domain: shopifyDomain, shopify_client_id: clientId, shopify_access_token: accessToken, primary_color: themeColor, dashboard_style: 'dark-modern' }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      if (!res.ok) throw new Error(data.error || 'Failed to connect store');
       if (data?.id) {
         try { await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' }); }
-        catch { console.warn('sync failed (non-critical)'); }
+        catch (e) { console.warn('sync failed (non-critical)', e); }
       }
-    } catch (err) { setLoading(false); alert('Error: ' + err.message); return; }
-    setLoading(false);
-    if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
+      if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
+    } catch (err) {
+      setConnectError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (isEmbedded) {
     const handleEmbeddedSubmit = async () => {
       if (!storeName.trim() || !shopifyDomain.trim() || !accessToken.trim()) return;
       setLoading(true);
+      setConnectError('');
       try {
         const apiUrl = import.meta.env.VITE_API_URL || '';
         const res = await fetch(`${apiUrl}/api/store`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ owner_id: session.user.id, store_name: storeName, shopify_domain: shopifyDomain, shopify_access_token: accessToken, primary_color: themeColor, dashboard_style: 'dark-modern' }),
+          body: JSON.stringify({ owner_id: session.user.id, store_name: storeName, shopify_domain: shopifyDomain, shopify_client_id: clientId, shopify_access_token: accessToken, primary_color: themeColor, dashboard_style: 'dark-modern' }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed');
+        if (!res.ok) throw new Error(data.error || 'Failed to connect store');
         if (data?.id) {
           try { await fetch(`${apiUrl}/api/sync/${data.id}`, { method: 'POST' }); }
-          catch { console.warn('sync failed'); }
+          catch (e) { console.warn('sync failed (non-critical)', e); }
         }
-      } catch (err) { setLoading(false); alert('Error: ' + err.message); return; }
-      setLoading(false);
-      // Re-fetch the store in App state instead of navigating away
-      if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
+        if (onStoreConnected) { onStoreConnected(); } else { navigate('/dashboard'); }
+      } catch (err) {
+        setConnectError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
     return (
       <div style={{ padding: '24px 0', maxWidth: 640, margin: '0 auto' }}>
+        {connectError && (
+          <div style={{ marginBottom: 20, padding: '14px 18px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 14, color: '#f87171', fontSize: 13.5, lineHeight: 1.6 }}>
+            ❌ {connectError}
+          </div>
+        )}
         <ConnectShopifyStep
           storeName={storeName} setStoreName={setStoreName}
           shopifyDomain={shopifyDomain} setShopifyDomain={setShopifyDomain}
@@ -345,6 +359,12 @@ export default function Onboarding({ session, isEmbedded = false, onStoreConnect
                       Almost done! Your store data will sync automatically after setup. <strong style={{ color:'#e2e8f0' }}>No store data is ever modified.</strong>
                     </p>
                   </div>
+
+                  {connectError && (
+                    <div style={{ marginBottom: 20, padding: '14px 18px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 14, color: '#f87171', fontSize: 13.5, lineHeight: 1.6 }}>
+                      ❌ {connectError}
+                    </div>
+                  )}
 
                   <div style={{ display:'flex', gap:12 }}>
                     <button type="button" className="ob-btn-ghost" onClick={prevStep} style={{ width:'auto', flex:1 }}>← Back</button>

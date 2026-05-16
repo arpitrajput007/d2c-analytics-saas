@@ -15,9 +15,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://pocketdashboard.app', 'https://www.pocketdashboard.app'] 
-    : '*', // Allow all in dev, strict in prod
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://pocketdashboard.app', 'https://www.pocketdashboard.app']
+    : '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
@@ -67,29 +67,32 @@ async function registerShopifyWebhooks(domain, accessToken, clientId = null) {
       });
       const data = await res.json();
       if (!res.ok) {
-        // "Address has already been taken" is a common safe error
-        console.warn(`[Webhook Registration] ${topic} warning for ${domain}:`, JSON.stringify(data.errors));
+        console.warn(`[Webhook] ${topic} warning for ${domain}:`, JSON.stringify(data.errors));
       } else {
-        console.log(`[Webhook Registration] ${topic} registered successfully for ${domain}`);
+        console.log(`[Webhook] ${topic} registered for ${domain}`);
       }
     } catch (err) {
-      console.error(`[Webhook Registration] Network error for ${topic}:`, err.message);
+      console.error(`[Webhook] Network error for ${topic}:`, err.message);
     }
   }
 }
 
 /**
  * POST /api/store
- * Securely creates a store and encrypts the shopify token before saving it to the database
+ * Validates Shopify credentials, then creates a store record in Supabase.
  */
 app.post('/api/store', async (req, res) => {
   const { owner_id, store_name, shopify_domain, shopify_client_id, shopify_access_token, primary_color, dashboard_style } = req.body;
-  
+
   if (!owner_id || !shopify_domain || !shopify_access_token) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: 'Missing required fields: owner_id, shopify_domain, shopify_access_token' });
   }
 
-  const cleanDomain = shopify_domain.replace('.myshopify.com', '');
+  const cleanDomain = shopify_domain.replace('.myshopify.com', '').trim().toLowerCase();
+
+  if (!cleanDomain) {
+    return res.status(400).json({ error: 'Invalid Shopify domain' });
+  }
 
   // Trial abuse protection: Check if domain is already registered
   const { data: existingStore } = await supabase
@@ -99,14 +102,39 @@ app.post('/api/store', async (req, res) => {
     .maybeSingle();
 
   if (existingStore) {
-    // If it's the SAME owner reconnecting their own store, just return it (idempotent)
     if (existingStore.owner_id === owner_id) {
+      // Same owner reconnecting — return the existing store (idempotent)
       const { data: ownStore } = await supabase.from('stores').select('*').eq('id', existingStore.id).single();
       return res.json(ownStore);
     }
-    // Different owner trying same domain → block
-    return res.status(403).json({ 
-      error: 'This Shopify store is already connected to another account.' 
+    return res.status(403).json({
+      error: 'This Shopify store is already connected to another account.'
+    });
+  }
+
+  // Validate credentials against Shopify BEFORE saving
+  try {
+    const testToken = shopify_access_token;
+    const verifyRes = await fetch(`https://${cleanDomain}.myshopify.com/admin/api/2024-01/shop.json`, {
+      method: 'GET',
+      headers: {
+        'X-Shopify-Access-Token': testToken,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!verifyRes.ok) {
+      const errBody = await verifyRes.text();
+      console.error(`[Store Connect] Credential validation failed (${verifyRes.status}):`, errBody.substring(0, 200));
+      return res.status(401).json({
+        error: `Could not connect to Shopify. Please check your domain and access token. (Status: ${verifyRes.status})`
+      });
+    }
+    console.log(`[Store Connect] Credentials verified for ${cleanDomain}`);
+  } catch (verifyErr) {
+    console.error('[Store Connect] Network error during credential check:', verifyErr.message);
+    return res.status(502).json({
+      error: `Network error while connecting to Shopify: ${verifyErr.message}`
     });
   }
 
@@ -118,185 +146,312 @@ app.post('/api/store', async (req, res) => {
     .from('stores')
     .insert([{
       owner_id,
-      store_name,
+      store_name: store_name || cleanDomain,
       shopify_domain: cleanDomain,
       shopify_client_id: encryptedClientId,
       shopify_access_token: encryptedToken,
-      primary_color,
-      dashboard_style
+      primary_color: primary_color || '#6366f1',
+      dashboard_style: dashboard_style || 'dark-modern'
     }])
     .select()
     .single();
 
   if (error) {
-    console.error('Failed to create store:', error);
+    console.error('[Store Connect] Failed to create store record:', error);
     return res.status(500).json({ error: error.message });
   }
 
-  // Automatically register webhooks so the user doesn't have to
-  await registerShopifyWebhooks(cleanDomain, shopify_access_token, shopify_client_id);
+  // Register webhooks (non-blocking)
+  registerShopifyWebhooks(cleanDomain, shopify_access_token, shopify_client_id).catch(err =>
+    console.warn('[Store Connect] Webhook registration failed (non-critical):', err.message)
+  );
 
   res.json(data);
 });
 
 /**
- * Disconnect/Delete Store
- */
-app.delete('/api/store/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  // 1. Delete all associated orders and products first to avoid foreign key constraint errors
-  await supabase.from('orders').delete().eq('store_id', id);
-  await supabase.from('products').delete().eq('store_id', id);
-  
-  // 2. Delete the store
-  const { error } = await supabase.from('stores').delete().eq('id', id);
-  
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ success: true });
-});
-
-/**
- * Edit Store Connection Credentials
+ * PUT /api/store/:id
+ * Edit Store Connection Credentials — validates new creds before saving
  */
 app.put('/api/store/:id', async (req, res) => {
   const { id } = req.params;
   const { shopify_domain, shopify_client_id, shopify_access_token } = req.body;
-  
-  const updates = {};
-  if (shopify_domain) updates.shopify_domain = shopify_domain.replace('.myshopify.com', '');
-  if (shopify_client_id) updates.shopify_client_id = encrypt(shopify_client_id);
-  if (shopify_access_token) updates.shopify_access_token = encrypt(shopify_access_token);
-  
-  const { error } = await supabase.from('stores').update(updates).eq('id', id);
-  if (error) return res.status(500).json({ error: error.message });
-  
-  if (updates.shopify_domain && updates.shopify_access_token) {
-    await registerShopifyWebhooks(updates.shopify_domain, shopify_access_token, shopify_client_id);
+
+  if (!id) return res.status(400).json({ error: 'Store ID is required' });
+  if (!shopify_domain && !shopify_access_token) {
+    return res.status(400).json({ error: 'At least shopify_domain or shopify_access_token must be provided' });
   }
+
+  // Fetch current store to merge fields
+  const { data: currentStore, error: fetchErr } = await supabase
+    .from('stores')
+    .select('shopify_domain, shopify_access_token, shopify_client_id')
+    .eq('id', id)
+    .single();
+
+  if (fetchErr || !currentStore) {
+    return res.status(404).json({ error: 'Store not found' });
+  }
+
+  const cleanDomain = shopify_domain
+    ? shopify_domain.replace('.myshopify.com', '').trim().toLowerCase()
+    : currentStore.shopify_domain;
+
+  const plainToken = shopify_access_token ? shopify_access_token.trim() : null;
+  const plainClientId = shopify_client_id ? shopify_client_id.trim() : null;
+
+  // Validate credentials if either domain or token changed
+  if (shopify_domain || shopify_access_token) {
+    // Use new token if provided, else we can't re-validate without decrypting old one
+    // Only validate if we have a new plain-text token
+    if (plainToken) {
+      try {
+        const verifyRes = await fetch(`https://${cleanDomain}.myshopify.com/admin/api/2024-01/shop.json`, {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': plainToken,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!verifyRes.ok) {
+          const errBody = await verifyRes.text();
+          console.error(`[Store Edit] Credential validation failed (${verifyRes.status}):`, errBody.substring(0, 200));
+          return res.status(401).json({
+            error: `Could not connect to Shopify with new credentials. (Status: ${verifyRes.status})`
+          });
+        }
+        console.log(`[Store Edit] New credentials verified for ${cleanDomain}`);
+      } catch (verifyErr) {
+        console.error('[Store Edit] Network error during credential check:', verifyErr.message);
+        return res.status(502).json({
+          error: `Network error while validating new credentials: ${verifyErr.message}`
+        });
+      }
+    }
+  }
+
+  const updates = {};
+  updates.shopify_domain = cleanDomain;
+  if (plainToken) updates.shopify_access_token = encrypt(plainToken);
+  if (plainClientId) updates.shopify_client_id = encrypt(plainClientId);
+  else if (shopify_client_id === '') updates.shopify_client_id = null; // Allow clearing
+
+  const { error: updateErr } = await supabase.from('stores').update(updates).eq('id', id);
+  if (updateErr) {
+    console.error('[Store Edit] Failed to update store:', updateErr);
+    return res.status(500).json({ error: updateErr.message });
+  }
+
+  // Register webhooks with new credentials (non-blocking)
+  if (plainToken) {
+    registerShopifyWebhooks(cleanDomain, plainToken, plainClientId).catch(err =>
+      console.warn('[Store Edit] Webhook registration failed (non-critical):', err.message)
+    );
+  }
+
   res.json({ success: true });
+});
+
+/**
+ * DELETE /api/store/:id
+ * Disconnect/Delete Store — removes ALL associated data to bypass FK constraints
+ */
+app.delete('/api/store/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).json({ error: 'Store ID is required' });
+
+  console.log(`[Store Delete] Attempting to delete store ${id} and all associated data...`);
+
+  try {
+    // Delete all related data in order (FK constraints require child rows deleted first)
+    // The tables with store_id foreign keys:
+    const tables = ['orders', 'products', 'ad_spends', 'daily_settings', 'pricing'];
+
+    for (const table of tables) {
+      const { error: tableErr } = await supabase.from(table).delete().eq('store_id', id);
+      if (tableErr) {
+        // Ignore "relation does not exist" errors — table might not exist in this DB
+        if (tableErr.code === '42P01') {
+          console.log(`[Store Delete] Table '${table}' does not exist, skipping.`);
+        } else {
+          console.error(`[Store Delete] Error deleting from ${table}:`, tableErr.message);
+          // Continue anyway — don't abort for partial cleanup
+        }
+      } else {
+        console.log(`[Store Delete] Cleared table '${table}' for store ${id}`);
+      }
+    }
+
+    // Now delete the store itself
+    const { error: storeErr } = await supabase.from('stores').delete().eq('id', id);
+
+    if (storeErr) {
+      console.error('[Store Delete] Failed to delete store record:', storeErr);
+      return res.status(500).json({ error: `Failed to delete store: ${storeErr.message}` });
+    }
+
+    console.log(`[Store Delete] ✅ Store ${id} and all data successfully deleted.`);
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error('[Store Delete] Unexpected error:', err);
+    res.status(500).json({ error: `Unexpected error: ${err.message}` });
+  }
 });
 
 /**
  * POST /api/webhooks/shopify
  * Listens for orders/create and orders/updated from Shopify
+ * Uses the SAME schema as syncService for consistency
  */
 app.post('/api/webhooks/shopify', async (req, res) => {
+  // Always respond 200 immediately to Shopify
+  res.status(200).send('OK');
+
   try {
     const shopDomain = req.headers['x-shopify-shop-domain'];
-    const topic = req.headers['x-shopify-topic']; // e.g. orders/create
+    const topic = req.headers['x-shopify-topic'];
     const orderData = req.body;
 
     console.log(`[Webhook] Received ${topic} from ${shopDomain}`);
 
-    if (!shopDomain || !orderData || !orderData.id) {
-      return res.status(200).send('OK'); // Always return 200 to Shopify
+    if (!shopDomain || !orderData || !orderData.id) return;
+
+    const cleanDomain = shopDomain.replace('.myshopify.com', '').toLowerCase();
+    const { data: store } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('shopify_domain', cleanDomain)
+      .single();
+
+    if (!store) {
+      console.warn(`[Webhook] No store found for domain: ${cleanDomain}`);
+      return;
     }
 
-    const cleanDomain = shopDomain.replace('.myshopify.com', '');
-    const { data: store } = await supabase.from('stores').select('id').eq('shopify_domain', cleanDomain).single();
+    // Use the SAME schema as syncService
+    const toInsert = [{
+      store_id: store.id,
+      id: orderData.id,                                        // bigint shopify order id
+      name: orderData.name,                                    // e.g. "#1001"
+      created_at: orderData.created_at,
+      total_price: parseFloat(orderData.total_price || 0),
+      tags: orderData.tags || '',                              // comma-separated string
+      customer_fn: orderData.customer?.first_name || null,
+      customer_ln: orderData.customer?.last_name || null,
+      line_items: orderData.line_items || []                   // jsonb array
+    }];
 
-    if (store) {
-      const toInsert = [{
-        store_id: store.id,
-        id: orderData.id,
-        name: orderData.name,
-        created_at: orderData.created_at,
-        total_price: orderData.total_price,
-        tags: orderData.tags || '',
-        customer_fn: orderData.customer?.first_name || null,
-        customer_ln: orderData.customer?.last_name || null,
-        line_items: orderData.line_items || []
-      }];
-      
-      const { error } = await supabase.from('orders').upsert(toInsert, { onConflict: 'id' });
-      if (error) console.error('[Webhook] Failed to insert order:', error);
-      else console.log(`[Webhook] Successfully saved order ${orderData.id}`);
+    const { error } = await supabase.from('orders').upsert(toInsert, { onConflict: 'id' });
+    if (error) {
+      console.error('[Webhook] Failed to upsert order:', error);
+    } else {
+      console.log(`[Webhook] ✅ Order ${orderData.id} (${orderData.name}) saved for store ${store.id}`);
     }
   } catch (err) {
     console.error('[Webhook] Error handling webhook:', err);
   }
-  
-  res.status(200).send('OK');
 });
 
 /**
  * POST /api/sync/:storeId
- * Triggers an immediate Shopify → Supabase order sync for the given store.
- * Called automatically when a user connects their store, and available for manual use.
+ * Triggers an immediate Shopify → Supabase order sync.
  */
 app.post('/api/sync/:storeId', async (req, res) => {
   const { storeId } = req.params;
   if (!storeId) return res.status(400).json({ error: 'storeId is required' });
 
-  console.log(`[auto-sync] Triggered for store: ${storeId}`);
+  console.log(`[Sync API] Triggered for store: ${storeId}`);
 
-  // Run sync in background so the response returns immediately
-  syncStoreData(storeId).catch(err =>
-    console.error(`[auto-sync] Failed for ${storeId}:`, err.message)
-  );
+  // Run sync in background — respond immediately
+  syncStoreData(storeId)
+    .then(result => console.log(`[Sync API] Completed for ${storeId}:`, result))
+    .catch(err => console.error(`[Sync API] Failed for ${storeId}:`, err.message));
 
   res.json({ status: 'sync_started', storeId });
 });
 
 /**
+ * GET /api/store/:id/status
+ * Returns live connection status for a store (useful for post-connect verification)
+ */
+app.get('/api/store/:id/status', async (req, res) => {
+  const { id } = req.params;
+
+  const { data: store, error } = await supabase
+    .from('stores')
+    .select('id, store_name, shopify_domain, created_at')
+    .eq('id', id)
+    .single();
+
+  if (error || !store) return res.status(404).json({ error: 'Store not found' });
+
+  // Count orders to confirm sync worked
+  const { count } = await supabase
+    .from('orders')
+    .select('id', { count: 'exact', head: true })
+    .eq('store_id', id);
+
+  res.json({
+    store,
+    orderCount: count || 0,
+    connected: true
+  });
+});
+
+/**
  * POST /api/copilot
- * Handles AI Co-Pilot chat messages with RAG (Retrieval-Augmented Generation)
+ * Handles AI Co-Pilot chat messages with RAG
  */
 app.post('/api/copilot', async (req, res) => {
   const { storeId, messages } = req.body;
-  
+
   if (!storeId || !messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing storeId or messages' });
   }
 
   try {
-    // 1. Fetch recent store context from Supabase to feed the AI
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: orders, error } = await supabase
       .from('orders')
-      .select('id, total_price, created_at, financial_status, fulfillment_status, tags, line_items')
+      .select('id, total_price, created_at, tags, line_items')
       .eq('store_id', storeId)
       .gte('created_at', thirtyDaysAgo.toISOString());
 
     if (error) throw error;
 
-    // Aggregate some quick stats so we don't blow up the prompt size
     let totalRevenue = 0;
     let totalOrders = orders.length;
     let rtoCount = 0;
-    
+
     orders.forEach(o => {
       totalRevenue += parseFloat(o.total_price || 0);
       const tags = (o.tags || '').toLowerCase();
-      if (tags.includes('rto') || tags.includes('return to origin') || o.financial_status === 'refunded') {
+      if (tags.includes('rto') || tags.includes('return to origin') || tags.includes('returned')) {
         rtoCount++;
       }
     });
 
     const rtoRate = totalOrders > 0 ? ((rtoCount / totalOrders) * 100).toFixed(1) : 0;
 
-    // 2. Initialize OpenAI
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // 3. Construct the system prompt with the live data context
-    const systemPrompt = `You are the AI Co-Pilot for a D2C E-commerce dashboard called "Pocket Dashboard". 
+    const systemPrompt = `You are the AI Co-Pilot for a D2C E-commerce dashboard called "Pocket Dashboard".
 You are an expert in D2C e-commerce, specifically in the Indian market (handling COD, RTOs, Net Profit).
 Here is the live data context for this user's store over the last 30 days:
 - Total Orders: ${totalOrders}
 - Total Revenue: ₹${totalRevenue.toLocaleString('en-IN')}
 - RTO / Returned Orders: ${rtoCount} (${rtoRate}%)
 
-Your job is to answer the user's questions about their business using this context. 
-Keep your answers concise, highly actionable, and professional. Use formatting (bullet points, bold text) where appropriate. 
-If they ask for specific products and you don't have the granular line_item data here, tell them you can see the high-level metrics but recommend checking the "Products" tab for SKU-level breakdowns.`;
+Your job is to answer the user's questions about their business using this context.
+Keep your answers concise, highly actionable, and professional. Use formatting (bullet points, bold text) where appropriate.`;
 
     const chatResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: 'gpt-4o',
       messages: [
         { role: 'system', content: systemPrompt },
         ...messages.map(m => ({ role: m.role, content: m.content }))
@@ -305,9 +460,7 @@ If they ask for specific products and you don't have the granular line_item data
       max_tokens: 500,
     });
 
-    res.json({ 
-      reply: chatResponse.choices[0].message.content 
-    });
+    res.json({ reply: chatResponse.choices[0].message.content });
 
   } catch (err) {
     console.error('[Copilot Error]', err);
