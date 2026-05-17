@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { LayoutDashboard } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { ProductPNLModal, AdSpendModal, NetProfitModal, MetricCard } from './DashboardModals';
 import {
@@ -26,6 +27,7 @@ export default function DailyDashboard({ store, refreshTrigger }) {
 
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [dayFilterState, setDayFilterState] = useState({});
+  const [showTileView, setShowTileView] = useState(false);
   const [modalState, setModalState] = useState({ type: null, date: null, prettyDate: null });
 
   useEffect(() => {
@@ -162,10 +164,6 @@ export default function DailyDashboard({ store, refreshTrigger }) {
             <div style={{ fontSize: 36, fontWeight: 700, marginTop: 8, color: scoreboardData.totNet >= 0 ? 'var(--profit-color)' : 'var(--loss-color)', textShadow: scoreboardData.totNet >= 0 ? '0 0 20px rgba(52, 211, 153, 0.4)' : '0 0 20px rgba(248, 113, 113, 0.4)' }}>{fmt(scoreboardData.totNet)}</div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{new Date(parseDateStr(scoreStart)).toLocaleDateString()} to {new Date(parseDateStr(scoreEnd)).toLocaleDateString()}</div>
             <div style={{ marginTop: 16, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '10px 16px', borderRadius: 10 }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600 }}>Avg CPP</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#38bdf8' }}>{fmt(scoreboardData.avgCpp)}</div>
-              </div>
               <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 16px', borderRadius: 10 }}>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', marginBottom: 6, fontWeight: 600 }}>Profitable Days ({scoreboardData.profDays})</div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--profit-color)' }}>+{fmt(scoreboardData.profAmt)}</div>
@@ -176,8 +174,16 @@ export default function DailyDashboard({ store, refreshTrigger }) {
               </div>
             </div>
           </div>
+          <div>
+            <button 
+              onClick={() => setShowTileView(!showTileView)}
+              style={{ padding: '8px 16px', borderRadius: 8, background: showTileView ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${showTileView ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255,255,255,0.1)'}`, color: showTileView ? '#38bdf8' : 'white', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}>
+              <LayoutDashboard size={16} /> {showTileView ? 'Hide Tiles' : 'Tile View'}
+            </button>
+          </div>
         </div>
-        <div style={{ marginTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24 }}>
+        {showTileView && (
+          <div style={{ marginTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
             {scoreboardData.dayData.map(d => {
               const isP = d.profit >= 0;
@@ -190,7 +196,7 @@ export default function DailyDashboard({ store, refreshTrigger }) {
               );
             })}
           </div>
-        </div>
+        )}
       </div>
 
       {/* FEED */}
