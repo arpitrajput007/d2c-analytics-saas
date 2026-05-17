@@ -13,11 +13,11 @@ async function syncStoreData(storeId) {
   console.log(`[Sync] ▶ Starting sync for store: ${storeId}`);
 
   // Try fetching with shopify_client_id first, fall back without it
-  let shopify_domain, encryptedToken, encryptedClientId;
+  let shopify_domain, encryptedToken, encryptedClientId, syncFromDate = '2000-01-01';
 
   const { data: store, error } = await supabase
     .from('stores')
-    .select('shopify_domain, shopify_access_token, shopify_client_id')
+    .select('shopify_domain, shopify_access_token, shopify_client_id, dashboard_features')
     .eq('id', storeId)
     .single();
 
@@ -25,7 +25,7 @@ async function syncStoreData(storeId) {
     console.warn('[Sync] shopify_client_id column may not exist, retrying:', error.message);
     const { data: store2, error: err2 } = await supabase
       .from('stores')
-      .select('shopify_domain, shopify_access_token')
+      .select('shopify_domain, shopify_access_token, dashboard_features')
       .eq('id', storeId)
       .single();
 
@@ -33,12 +33,18 @@ async function syncStoreData(storeId) {
     shopify_domain = store2.shopify_domain;
     encryptedToken = store2.shopify_access_token;
     encryptedClientId = null;
+    if (store2.dashboard_features?.sync_from_date) {
+      syncFromDate = store2.dashboard_features.sync_from_date;
+    }
   } else if (!store) {
     throw new Error(`Store not found for id=${storeId}`);
   } else {
     shopify_domain = store.shopify_domain;
     encryptedToken = store.shopify_access_token;
     encryptedClientId = store.shopify_client_id || null;
+    if (store.dashboard_features?.sync_from_date) {
+      syncFromDate = store.dashboard_features.sync_from_date;
+    }
   }
 
   const accessToken = decrypt(encryptedToken);
@@ -94,7 +100,7 @@ async function syncStoreData(storeId) {
 
   // Paginate orders
   // Default to fetching orders from year 2000 to fetch absolutely all historical orders for any store
-  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&created_at_min=2000-01-01T00:00:00Z&limit=250`;
+  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&created_at_min=${syncFromDate}T00:00:00Z&limit=250`;
   let totalSynced = 0;
   let pageCount = 0;
 

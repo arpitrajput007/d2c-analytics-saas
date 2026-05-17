@@ -248,7 +248,7 @@ function TokenGuideButton() {
   );
 }
 
-export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, clientId = '', setClientId, accessToken = '', setAccessToken, showToken, setShowToken, onBack, onContinue, loading = false, connectStatus = '' }) {
+export default function ConnectShopifyStep({ storeName = '', setStoreName, shopifyDomain, setShopifyDomain, clientId = '', setClientId, accessToken = '', setAccessToken, showToken, setShowToken, syncFromType, setSyncFromType, syncFromDate, setSyncFromDate, onBack, onContinue, loading = false, connectStatus = '' }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const canContinue = shopifyDomain.trim() && accessToken.trim() && (!setStoreName || storeName.trim());
@@ -381,6 +381,78 @@ export default function ConnectShopifyStep({ storeName = '', setStoreName, shopi
           </div>
           {/* Token guidance button */}
           <TokenGuideButton />
+        </div>
+
+        {/* Sync Orders From Date */}
+        <div style={{ marginBottom: 32, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 28 }}>
+          <label style={labelSt}>Sync Orders From Date</label>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 16px', lineHeight: 1.65 }}>
+            Select how far back we should sync your Shopify orders. Newer stores can speed up setup by choosing their launch date. Established stores can sync all historical data.
+          </p>
+          
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+            <button
+              type="button"
+              onClick={() => {
+                setSyncFromType('all');
+                setSyncFromDate('2000-01-01');
+              }}
+              style={{
+                flex: 1, padding: '14px', borderRadius: 12,
+                background: syncFromType === 'all' ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${syncFromType === 'all' ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                color: syncFromType === 'all' ? '#a5b4fc' : '#94a3b8',
+                fontWeight: 600, fontSize: 13.5, cursor: 'pointer', transition: 'all 0.2s',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+              }}
+            >
+              <span style={{ fontSize: 18 }}>📅</span>
+              <span>All Time (Recommended)</span>
+              <span style={{ fontSize: 10.5, fontWeight: 400, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>From store inception</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => {
+                setSyncFromType('custom');
+                if (syncFromDate === '2000-01-01') {
+                  const thirtyDaysAgo = new Date();
+                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                  setSyncFromDate(thirtyDaysAgo.toISOString().split('T')[0]);
+                }
+              }}
+              style={{
+                flex: 1, padding: '14px', borderRadius: 12,
+                background: syncFromType === 'custom' ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${syncFromType === 'custom' ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                color: syncFromType === 'custom' ? '#a5b4fc' : '#94a3b8',
+                fontWeight: 600, fontSize: 13.5, cursor: 'pointer', transition: 'all 0.2s',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+              }}
+            >
+              <span style={{ fontSize: 18 }}>⚡</span>
+              <span>Custom Date</span>
+              <span style={{ fontSize: 10.5, fontWeight: 400, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Choose custom start date</span>
+            </button>
+          </div>
+
+          {syncFromType === 'custom' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, animation: 'domainGuideIn 0.25s ease' }}>
+              <input
+                type="date"
+                value={syncFromDate}
+                onChange={e => setSyncFromDate(e.target.value)}
+                style={{
+                  ...inp,
+                  colorScheme: 'dark'
+                }}
+                onFocus={inpFocus} onBlur={inpBlur}
+              />
+              <span style={{ fontSize: 12, color: 'rgba(16, 185, 129, 0.8)', display: 'flex', alignItems: 'center', gap: 5, padding: '2px 4px', fontWeight: 500 }}>
+                ✓ Only syncing orders placed on or after {new Date(syncFromDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}.
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Buttons */}
