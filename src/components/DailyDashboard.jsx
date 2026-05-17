@@ -196,6 +196,7 @@ export default function DailyDashboard({ store, refreshTrigger }) {
               );
             })}
           </div>
+          </div>
         )}
       </div>
 
