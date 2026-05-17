@@ -19,8 +19,10 @@ export default function DailyDashboard({ store, refreshTrigger }) {
 
   const [feedStart, setFeedStart] = useState(daysAgo(29));
   const [feedEnd, setFeedEnd] = useState(today());
-  const [scoreStart, setScoreStart] = useState(daysAgo(29));
+  const [scoreStart, setScoreStart] = useState(daysAgo(7));
   const [scoreEnd, setScoreEnd] = useState(today());
+  const [tempScoreStart, setTempScoreStart] = useState(daysAgo(7));
+  const [tempScoreEnd, setTempScoreEnd] = useState(today());
 
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [dayFilterState, setDayFilterState] = useState({});
@@ -143,8 +145,13 @@ export default function DailyDashboard({ store, refreshTrigger }) {
       <div className="controls-bar glass" style={{ marginBottom: 24 }}>
         <div style={{ flex: 1 }}><h2 style={{ margin: 0, fontSize: 18 }}>Profit/Loss Scoreboard</h2></div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>Start Date</label><input type="date" value={scoreStart} onChange={e=>setScoreStart(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
-          <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>End Date</label><input type="date" value={scoreEnd} onChange={e=>setScoreEnd(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
+          <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>Start Date</label><input type="date" value={tempScoreStart} onChange={e=>setTempScoreStart(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
+          <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>End Date</label><input type="date" value={tempScoreEnd} onChange={e=>setTempScoreEnd(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
+          <button 
+            onClick={() => { setScoreStart(tempScoreStart); setScoreEnd(tempScoreEnd); }} 
+            style={{ alignSelf: 'flex-end', height: '34px', padding: '0 16px', borderRadius: 4, background: 'linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%)', color: 'white', border: 'none', fontWeight: 500, cursor: 'pointer', fontSize: 13 }}>
+            Calculate
+          </button>
         </div>
       </div>
 
