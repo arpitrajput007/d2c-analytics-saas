@@ -93,7 +93,8 @@ async function syncStoreData(storeId) {
   console.log('[Sync] ✅ Credentials verified. Fetching orders...');
 
   // Paginate orders
-  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&created_at_min=2023-01-01T00:00:00Z&limit=250`;
+  // Default to fetching orders from year 2000 to fetch absolutely all historical orders for any store
+  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&created_at_min=2000-01-01T00:00:00Z&limit=250`;
   let totalSynced = 0;
   let pageCount = 0;
 
