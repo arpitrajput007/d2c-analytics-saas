@@ -16,7 +16,7 @@ function getWeekStart(d) {
   return start;
 }
 
-export default function WeeklyView({ store }) {
+export default function WeeklyView({ store, refreshTrigger }) {
   const now = new Date();
   const [weekDate, setWeekDate] = useState(now.toISOString().split('T')[0]);
   
@@ -37,7 +37,7 @@ export default function WeeklyView({ store }) {
       loadPricing();
       fetchOrders();
     }
-  }, [store?.id, weekDate]);
+  }, [store?.id, weekDate, refreshTrigger]);
 
   async function loadPricing() {
     if (!store?.id) return;

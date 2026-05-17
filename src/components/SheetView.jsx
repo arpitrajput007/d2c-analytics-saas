@@ -5,7 +5,7 @@ const STATUS_FILTERS = ['All Statuses', 'Delivered', 'Paid', 'Pending', 'Cancele
 
 const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
 
-export default function SheetView({ store }) {
+export default function SheetView({ store, refreshTrigger }) {
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   
   const now = new Date();
@@ -19,7 +19,7 @@ export default function SheetView({ store }) {
 
   useEffect(() => {
     if (store?.id) fetchOrders();
-  }, [store?.id]);
+  }, [store?.id, refreshTrigger]);
 
   async function fetchOrders() {
     if (!store?.id) return;

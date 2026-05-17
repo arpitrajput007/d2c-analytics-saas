@@ -10,7 +10,7 @@ import {
 const today = () => toDateStr(new Date());
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return toDateStr(d); };
 
-export default function DailyDashboard({ store }) {
+export default function DailyDashboard({ store, refreshTrigger }) {
   const [orders, setOrders] = useState([]);
   const [adCosts, setAdCosts] = useState({});
   const [productPricing, setProductPricing] = useState({});
@@ -32,7 +32,7 @@ export default function DailyDashboard({ store }) {
 
   useEffect(() => {
     if (store?.id) fetchData();
-  }, [store?.id, feedStart, feedEnd, scoreStart, scoreEnd]);
+  }, [store?.id, feedStart, feedEnd, scoreStart, scoreEnd, refreshTrigger]);
 
   const fetchPricing = async () => {
     try {
@@ -194,9 +194,9 @@ export default function DailyDashboard({ store }) {
       </div>
 
       <div className="daily-feed-container">
-        {loading && <div style={{ padding: 40, textAlign: 'center' }}>Loading feed...</div>}
+        {loading && orders.length === 0 && <div style={{ padding: 40, textAlign: 'center' }}>Loading feed...</div>}
         {error && <div style={{ padding: 40, textAlign: 'center', color: 'var(--loss-color)' }}>{error}</div>}
-        {!loading && !error && dayBlocks.map(dateStr => {
+        {(!loading || orders.length > 0) && !error && dayBlocks.map(dateStr => {
           const dayOrders = orders.filter(o => getOrderDateIST(o) === dateStr);
           const tCounts = categorizeOrders(dayOrders);
           const rev = getTotalRevenue(dayOrders);

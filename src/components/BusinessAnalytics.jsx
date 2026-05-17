@@ -5,7 +5,7 @@ import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function BusinessAnalytics({ store }) {
+export default function BusinessAnalytics({ store, refreshTrigger }) {
   const now = new Date();
   const d30 = new Date(now); d30.setDate(d30.getDate() - 30);
   
@@ -19,7 +19,7 @@ export default function BusinessAnalytics({ store }) {
     if (store?.id) {
       fetchOrders();
     }
-  }, [store?.id]);
+  }, [store?.id, refreshTrigger]);
 
   async function fetchOrders() {
     if (!store?.id) return;

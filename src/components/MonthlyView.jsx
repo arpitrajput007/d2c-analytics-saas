@@ -10,7 +10,7 @@ const YEARS  = ['2024','2025','2026'];
 
 const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
 
-export default function MonthlyView({ store }) {
+export default function MonthlyView({ store, refreshTrigger }) {
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -30,7 +30,7 @@ export default function MonthlyView({ store }) {
       loadPricing();
       fetchOrders();
     }
-  }, [store?.id, month, year]);
+  }, [store?.id, month, year, refreshTrigger]);
 
   async function loadPricing() {
     if (!store?.id) return;

@@ -26,7 +26,7 @@ function StatCard({ label, value, sub, color = '#fff', glow }) {
   );
 }
 
-export default function ProductsView({ store }) {
+export default function ProductsView({ store, refreshTrigger }) {
   const now = new Date();
   const d30 = new Date(now); d30.setDate(d30.getDate() - 30);
 
@@ -50,7 +50,7 @@ export default function ProductsView({ store }) {
       loadPricing();
       fetchOrders();
     }
-  }, [store?.id]);
+  }, [store?.id, refreshTrigger]);
 
   async function loadPricing() {
     if (!store?.id) return;

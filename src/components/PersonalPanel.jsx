@@ -296,7 +296,7 @@ import ConnectShopifyStep from './ConnectShopifyStep';
 /* ─────────────────────────────────────────────
    CONNECTED STORE PANEL — shown on "Connect your Store" tab when already connected
 ───────────────────────────────────────────── */
-function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick, onStoreConnected, onDisconnect }) {
+function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpired, onUpgradeClick, onStoreConnected, onDisconnect, onSyncComplete }) {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -338,6 +338,7 @@ function ConnectedStorePanel({ store, trialDuration, storeCreatedAt, isTrialExpi
         setSyncMsg(`❌ ${data.error || 'Sync failed — check Render logs'}`);
       } else {
         setSyncMsg(`✅ Synced ${data.totalSynced ?? 0} orders!`);
+        if (onSyncComplete) onSyncComplete();
         setTimeout(() => setSyncMsg(''), 6000);
       }
     } catch (err) {
@@ -629,6 +630,31 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
+  
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [lastSyncedTime, setLastSyncedTime] = useState(new Date());
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!store?.id) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/sync/${store.id}`, { method: 'POST' });
+        if (res.ok) {
+          setLastSyncedTime(new Date());
+          setRefreshTrigger(prev => prev + 1);
+        }
+      } catch (err) {
+        console.warn('Background sync failed:', err);
+      }
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [store?.id]);
 
   const userEmail = session?.user?.email || '';
   const userInitial = userEmail.charAt(0).toUpperCase();
@@ -894,9 +920,15 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
                 </div>
               )}
               {isConnected && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: 'rgba(45,212,160,0.85)', marginTop: '2px', fontWeight: 500 }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--profit-color)', animation: 'live-pulse 2s ease infinite' }} />
-                  {store?.store_name} — Live
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11.5px', color: 'rgba(45,212,160,0.85)', marginTop: '4px', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--profit-color)', animation: 'live-pulse 2s ease infinite' }} />
+                    {store?.store_name} — Live
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.4)', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '12px', display: 'flex', alignItems: 'center', gap: '12px', fontFamily: 'monospace', fontSize: '12px' }}>
+                    <span>🕒 {currentTime?.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                    <span style={{ color: 'rgba(56, 189, 248, 0.8)' }}>🔄 Last Synced: {lastSyncedTime?.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -935,20 +967,20 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
               ) : (
                 <>
                   {activeTab === 'dashboard' && (
-                    isConnected ? <DailyDashboard store={store} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
+                    isConnected ? <DailyDashboard store={store} refreshTrigger={refreshTrigger} /> : <NoStoreState onConnectClick={() => setActiveTab('connect')} />
                   )}
-                  {activeTab === 'sheet' && isConnected && <SheetView store={store} />}
+                  {activeTab === 'sheet' && isConnected && <SheetView store={store} refreshTrigger={refreshTrigger} />}
                   
-                  {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced', 'copilot-upgrade'].includes(activeTab) && isConnected && store.subscription_plan === 'starter' && (
+                  {['weekly', 'monthly', 'all-time', 'analytics', 'products', 'advanced', 'copilot-upgrade'].includes(activeTab) && isConnected && store?.subscription_plan === 'starter' && (
                     <ProRequiredState onUpgradeClick={() => setActiveTab('pricing')} />
                   )}
 
-                  {activeTab === 'weekly' && isConnected && store.subscription_plan !== 'starter' && <WeeklyView store={store} />}
-                  {activeTab === 'monthly' && isConnected && store.subscription_plan !== 'starter' && <MonthlyView store={store} />}
-                  {activeTab === 'all-time' && isConnected && store.subscription_plan !== 'starter' && <AllTimeView store={store} />}
-                  {activeTab === 'analytics' && isConnected && store.subscription_plan !== 'starter' && <BusinessAnalytics store={store} />}
-                  {activeTab === 'products' && store.subscription_plan !== 'starter' && <ProductsView store={store} />}
-                  {activeTab === 'advanced' && store.subscription_plan !== 'starter' && <AdvancedSettings store={store} />}
+                  {activeTab === 'weekly' && isConnected && store?.subscription_plan !== 'starter' && <WeeklyView store={store} refreshTrigger={refreshTrigger} />}
+                  {activeTab === 'monthly' && isConnected && store?.subscription_plan !== 'starter' && <MonthlyView store={store} refreshTrigger={refreshTrigger} />}
+                  {activeTab === 'all-time' && isConnected && store?.subscription_plan !== 'starter' && <AllTimeView store={store} refreshTrigger={refreshTrigger} />}
+                  {activeTab === 'analytics' && isConnected && store?.subscription_plan !== 'starter' && <BusinessAnalytics store={store} refreshTrigger={refreshTrigger} />}
+                  {activeTab === 'products' && isConnected && store?.subscription_plan !== 'starter' && <ProductsView store={store} refreshTrigger={refreshTrigger} />}
+                  {activeTab === 'advanced' && isConnected && store?.subscription_plan !== 'starter' && <AdvancedSettings store={store} />}
 
                   {['weekly', 'monthly', 'all-time', 'analytics', 'sheet', 'products', 'advanced'].includes(activeTab) && !isConnected && (
                     <NoStoreState onConnectClick={() => setActiveTab('connect')} />
@@ -963,6 +995,10 @@ export default function PersonalPanel({ session, store, onStoreConnected }) {
                         onUpgradeClick={() => setActiveTab('pricing')}
                         onStoreConnected={onStoreConnected}
                         onDisconnect={() => setActiveTab('connect')}
+                        onSyncComplete={() => {
+                          setLastSyncedTime(new Date());
+                          setRefreshTrigger(prev => prev + 1);
+                        }}
                       />
                     ) : (
                       <div style={{ maxWidth: '640px', margin: '0 auto' }}>

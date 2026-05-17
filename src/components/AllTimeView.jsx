@@ -9,7 +9,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
 
-export default function AllTimeView({ store }) {
+export default function AllTimeView({ store, refreshTrigger }) {
   const now = new Date();
   const d365 = new Date(now); d365.setDate(d365.getDate() - 365);
   
@@ -25,7 +25,7 @@ export default function AllTimeView({ store }) {
       loadPricing();
       fetchOrders();
     }
-  }, [store?.id]);
+  }, [store?.id, refreshTrigger]);
 
   async function loadPricing() {
     if (!store?.id) return;
