@@ -28,6 +28,7 @@ export default function DailyDashboard({ store, refreshTrigger }) {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [dayFilterState, setDayFilterState] = useState({});
   const [showTileView, setShowTileView] = useState(false);
+  const [tilePage, setTilePage] = useState(1);
   const [modalState, setModalState] = useState({ type: null, date: null, prettyDate: null });
 
   useEffect(() => {
@@ -150,7 +151,7 @@ export default function DailyDashboard({ store, refreshTrigger }) {
           <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>Start Date</label><input type="date" value={tempScoreStart} onChange={e=>setTempScoreStart(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
           <div><label style={{ display:'block',fontSize:12,color:'var(--text-muted)',marginBottom:4 }}>End Date</label><input type="date" value={tempScoreEnd} onChange={e=>setTempScoreEnd(e.target.value)} style={{ padding:'6px 10px',borderRadius:4,border:'1px solid var(--border)',background:'rgba(0,0,0,0.2)',color:'white',colorScheme:'dark' }} /></div>
           <button 
-            onClick={() => { setScoreStart(tempScoreStart); setScoreEnd(tempScoreEnd); }} 
+            onClick={() => { setScoreStart(tempScoreStart); setScoreEnd(tempScoreEnd); setTilePage(1); }} 
             style={{ alignSelf: 'flex-end', height: '34px', padding: '0 16px', borderRadius: 4, background: 'linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%)', color: 'white', border: 'none', fontWeight: 500, cursor: 'pointer', fontSize: 13 }}>
             Calculate
           </button>
@@ -182,22 +183,45 @@ export default function DailyDashboard({ store, refreshTrigger }) {
             </button>
           </div>
         </div>
-        {showTileView && (
-          <div style={{ marginTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
-            {scoreboardData.dayData.map(d => {
-              const isP = d.profit >= 0;
-              const op = isP ? (scoreboardData.maxProfit > 0 ? 0.15 + 0.5 * (d.profit / scoreboardData.maxProfit) : 0.2) : (scoreboardData.maxLoss > 0 ? 0.15 + 0.5 * (Math.abs(d.profit) / scoreboardData.maxLoss) : 0.2);
-              return (
-                <div key={d.date} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 16, background: isP ? `rgba(16, 185, 129, ${op})` : `rgba(239, 68, 68, ${op})`, borderRadius: 12, border: `1px solid ${isP ? `rgba(16, 185, 129, ${op + 0.3})` : `rgba(239, 68, 68, ${op + 0.3})`}` }}>
-                  <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600, fontSize: 13, textTransform: 'uppercase' }}>{d.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</span>
-                  <span style={{ color: isP ? '#a7f3d0' : '#fecaca', fontWeight: 700, fontSize: 18 }}>{isP ? '+' : '-'}{fmt(Math.abs(d.profit))}</span>
+        {showTileView && (() => {
+          const TILE_PAGE_SIZE = 30;
+          const totalPages = Math.ceil(scoreboardData.dayData.length / TILE_PAGE_SIZE);
+          const currentTiles = scoreboardData.dayData.slice((tilePage - 1) * TILE_PAGE_SIZE, tilePage * TILE_PAGE_SIZE);
+          
+          return (
+            <div style={{ marginTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                {currentTiles.map(d => {
+                  const isP = d.profit >= 0;
+                  const op = isP ? (scoreboardData.maxProfit > 0 ? 0.15 + 0.5 * (d.profit / scoreboardData.maxProfit) : 0.2) : (scoreboardData.maxLoss > 0 ? 0.15 + 0.5 * (Math.abs(d.profit) / scoreboardData.maxLoss) : 0.2);
+                  return (
+                    <div key={d.date} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 16, background: isP ? `rgba(16, 185, 129, ${op})` : `rgba(239, 68, 68, ${op})`, borderRadius: 12, border: `1px solid ${isP ? `rgba(16, 185, 129, ${op + 0.3})` : `rgba(239, 68, 68, ${op + 0.3})`}` }}>
+                      <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600, fontSize: 13, textTransform: 'uppercase' }}>{d.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</span>
+                      <span style={{ color: isP ? '#a7f3d0' : '#fecaca', fontWeight: 700, fontSize: 18 }}>{isP ? '+' : '-'}{fmt(Math.abs(d.profit))}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 24 }}>
+                  <button 
+                    onClick={() => setTilePage(p => Math.max(1, p - 1))} 
+                    disabled={tilePage === 1}
+                    style={{ padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.1)', color: tilePage === 1 ? 'rgba(255,255,255,0.3)' : 'white', border: 'none', cursor: tilePage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 500 }}>
+                    Previous
+                  </button>
+                  <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Page {tilePage} of {totalPages}</span>
+                  <button 
+                    onClick={() => setTilePage(p => Math.min(totalPages, p + 1))} 
+                    disabled={tilePage === totalPages}
+                    style={{ padding: '6px 12px', borderRadius: 6, background: 'rgba(255,255,255,0.1)', color: tilePage === totalPages ? 'rgba(255,255,255,0.3)' : 'white', border: 'none', cursor: tilePage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 500 }}>
+                    Next
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-          </div>
-        )}
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* FEED */}
