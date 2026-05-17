@@ -93,7 +93,7 @@ async function syncStoreData(storeId) {
   console.log('[Sync] ✅ Credentials verified. Fetching orders...');
 
   // Paginate orders
-  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&limit=250`;
+  let url = `https://${shopify_domain}.myshopify.com/admin/api/2024-01/orders.json?status=any&created_at_min=2023-01-01T00:00:00Z&limit=250`;
   let totalSynced = 0;
   let pageCount = 0;
 
